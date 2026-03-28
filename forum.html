@@ -13,12 +13,13 @@
         .sidebar a.active { background: rgba(0,212,255,0.1); color: var(--main); }
         .main-content { margin-left: 250px; flex: 1; padding: 40px; }
         .post-box { background: #f9f9f9; border: 1px solid #eee; padding: 20px; border-radius: 12px; margin-bottom: 30px; }
-        textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 15px; resize: none; margin-bottom: 10px; }
+        textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 15px; resize: none; margin-bottom: 10px; font-size: 15px; }
         .btn-post { background: var(--main); color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .post-card { background: white; border: 1px solid #eee; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .u-info { font-weight: bold; color: var(--main); margin-bottom: 10px; display: block; }
-        .post-img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #eee; }
-        .like-btn { margin-top: 15px; background: #fff; border: 1px solid #eee; padding: 5px 15px; border-radius: 15px; cursor: pointer; }
+        .post-card { background: white; border: 1px solid #eee; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .u-info { font-weight: bold; color: var(--main); margin-bottom: 8px; display: block; }
+        .post-img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #f0f0f0; }
+        .like-btn { margin-top: 15px; background: #fff; border: 1px solid #eee; padding: 6px 16px; border-radius: 20px; cursor: pointer; transition: 0.2s; }
+        .like-btn:hover { background: #f0f0f0; }
     </style>
 </head>
 <body>
@@ -29,16 +30,16 @@
         <a href="/profile.html">Hồ sơ</a>
     </div>
     <div class="main-content">
-        <h1 style="margin-bottom: 20px;">Cộng đồng Yeamiko</h1>
+        <h1 style="margin-bottom: 25px;">Diễn đàn cộng đồng</h1>
         <div class="post-box">
-            <textarea id="p-text" rows="3" placeholder="Viết gì đó..."></textarea>
+            <textarea id="p-text" rows="3" placeholder="Chia sẻ tin tức server..."></textarea>
             <div style="display:flex; justify-content: space-between; align-items: center;">
                 <input type="file" id="p-file" accept="image/*">
                 <button id="p-btn" class="btn-post">ĐĂNG BÀI</button>
             </div>
             <p id="p-status" style="font-size: 13px; margin-top: 10px; font-weight: bold;"></p>
         </div>
-        <div id="list">Đang tải...</div>
+        <div id="list">Đang tải bài viết...</div>
     </div>
 
     <script type="module">
@@ -65,7 +66,7 @@
                 Object.keys(data).reverse().forEach(id => {
                     const p = data[id];
                     list.innerHTML += `<div class="post-card">
-                        <span class="u-info">${p.userName}</span>
+                        <span class="u-info">👤 ${p.userName}</span>
                         <div>${p.text}</div>
                         ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
                         <button class="like-btn" onclick="window.like('${id}')">❤️ ${p.likes || 0}</button>
@@ -76,47 +77,42 @@
 
         window.like = id => runTransaction(ref(db, `posts/${id}/likes`), c => (c || 0) + 1);
 
-        const getBase64 = (file) => new Promise((res, rej) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => res(reader.result.split(',')[1]);
-            reader.onerror = e => rej(e);
-        });
-
         document.getElementById('p-btn').onclick = async () => {
             const user = auth.currentUser;
-            if(!user) return alert("Đăng nhập đã!");
+            if(!user) return alert("Vui lòng đăng nhập!");
             const txt = document.getElementById('p-text').value;
             const file = document.getElementById('p-file').files[0];
             const status = document.getElementById('p-status');
 
-            status.innerText = "⏳ Đang đăng bài...";
+            status.innerText = "⏳ Đang gửi bài...";
             let imgUrl = "";
 
             try {
                 if(file) {
-                    const b64 = await getBase64(file);
-                    const fd = new FormData();
-                    fd.append('key', '6d207e02198a847aa98d0a2a901485a5');
-                    fd.append('action', 'upload');
-                    fd.append('source', b64);
-                    const res = await fetch('https://freeimage.host/api/1/upload', { method: 'POST', body: fd });
-                    const d = await res.json();
-                    if(d.status_code === 200) imgUrl = d.image.url;
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = async () => {
+                        const b64 = reader.result.split(',')[1];
+                        const fd = new FormData();
+                        fd.append('key', '6d207e02198a847aa98d0a2a901485a5');
+                        fd.append('action', 'upload');
+                        fd.append('source', b64);
+                        
+                        const res = await fetch('https://freeimage.host/api/1/upload', { method: 'POST', body: fd });
+                        const d = await res.json();
+                        if(d.status_code === 200) {
+                            await push(ref(db, 'posts'), { userName: user.email.split('@')[0], text: txt, img: d.image.url, likes: 0 });
+                            status.innerText = "✅ Thành công!";
+                            document.getElementById('p-text').value = "";
+                        }
+                    };
+                } else {
+                    if(!txt.trim()) return;
+                    await push(ref(db, 'posts'), { userName: user.email.split('@')[0], text: txt, img: "", likes: 0 });
+                    status.innerText = "✅ Thành công!";
+                    document.getElementById('p-text').value = "";
                 }
-
-                await push(ref(db, 'posts'), {
-                    userName: user.displayName || user.email.split('@')[0],
-                    text: txt,
-                    img: imgUrl,
-                    likes: 0
-                });
-
-                status.style.color = "green";
-                status.innerText = "✅ Đăng thành công!";
-                document.getElementById('p-text').value = "";
-                document.getElementById('p-file').value = "";
-            } catch (e) { status.innerText = "❌ Lỗi khi đăng bài"; }
+            } catch (e) { status.innerText = "❌ Lỗi kết nối API"; }
         };
     </script>
 </body>
