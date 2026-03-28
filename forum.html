@@ -6,78 +6,104 @@
     <title>Diễn đàn | Yeamiko Network</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main: #00d4ff; --bg: #f4f7f6; --sidebar-dark: #111; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); display: flex; min-height: 100vh; }
-
-        /* SIDEBAR PC */
-        .sidebar { 
-            width: 250px; background: var(--sidebar-dark); height: 100vh; 
-            position: fixed; padding: 25px; color: white; z-index: 1000;
-            display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05);
+        :root { 
+            --main: #00d4ff; 
+            --bg: #0a0a0a; 
+            --sidebar-dark: #111; 
+            --card-bg: #181818;
+            --text-color: #eee;
         }
-        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; text-transform: uppercase; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        
+        body { background: var(--bg); color: var(--text-color); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* --- NÚT MENU 3 GẠCH (ĐỒNG BỘ INDEX) --- */
+        .menu-toggle {
+            position: fixed; top: 20px; left: 20px; z-index: 1500;
+            background: var(--main); color: #000; width: 45px; height: 45px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 10px; cursor: pointer; font-size: 20px;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        /* --- SIDEBAR TRƯỢT --- */
+        .sidebar { 
+            width: 280px; background: var(--sidebar-dark); height: 100vh; 
+            position: fixed; padding: 30px 20px; color: white; z-index: 2000;
+            display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05);
+            left: -280px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar.open { left: 0; }
+        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
         .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
         
-        /* Nút Về Home mới thêm */
-        .back-home { 
-            color: var(--main) !important; 
-            border: 1px solid rgba(0, 212, 255, 0.2); 
-            margin-top: auto; 
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 1800; display: none; backdrop-filter: blur(4px);
         }
+        .sidebar-overlay.show { display: block; }
 
-        /* NỘI DUNG */
-        .main-content { margin-left: 250px; flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%; padding-bottom: 250px; }
+        /* --- NỘI DUNG DIỄN ĐÀN --- */
+        .main-content { flex: 1; padding: 80px 20px 250px 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
         .container { width: 100%; max-width: 600px; }
 
-        .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; }
-        .post-header { display: flex; align-items: center; margin-bottom: 12px; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
-        .user-info { display: flex; flex-direction: column; }
-        .post-user-name { font-weight: bold; color: #333; }
-        .post-time { font-size: 11px; color: #888; margin-top: 2px; }
+        .post-card { background: var(--card-bg); padding: 20px; border-radius: 18px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05); width: 100%; }
+        .post-header { display: flex; align-items: center; margin-bottom: 15px; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
+        .post-user-name { font-weight: bold; color: #fff; font-size: 1.05rem; }
+        .post-time { font-size: 11px; color: #777; margin-top: 2px; }
         
-        .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
-        .post-actions { margin-top: 15px; display: flex; gap: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
-        .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; padding: 5px 10px; border-radius: 8px; transition: 0.2s; }
-        .action-btn.liked { color: #ff4d4d; }
+        .post-text { line-height: 1.6; color: #ddd; margin: 10px 0; font-size: 0.95rem; }
+        .post-img { width: 100%; border-radius: 12px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
+        
+        .post-actions { margin-top: 15px; display: flex; gap: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
+        .action-btn { cursor: pointer; font-size: 14px; color: #aaa; font-weight: bold; padding: 8px 12px; border-radius: 8px; transition: 0.2s; background: rgba(255,255,255,0.03); }
+        .action-btn.liked { color: #ff4d4d; background: rgba(255, 77, 77, 0.1); }
 
-        .comment-section { margin-top: 15px; }
-        .comment-item { display: flex; margin-bottom: 10px; }
-        .cmt-avatar { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; }
-        .cmt-content { background: #f0f2f5; padding: 8px 12px; border-radius: 18px; font-size: 14px; max-width: 85%; }
-        .cmt-input-box { display: flex; margin-top: 10px; gap: 10px; }
-        .cmt-input { flex: 1; padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
-        .btn-cmt { background: none; border: none; color: var(--main); cursor: pointer; font-weight: bold; }
+        /* BÌNH LUẬN */
+        .comment-section { margin-top: 20px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); }
+        .comment-item { display: flex; margin-bottom: 12px; }
+        .cmt-avatar { width: 32px; height: 32px; border-radius: 50%; margin-right: 10px; border: 1px solid var(--main); }
+        .cmt-content { background: #222; padding: 10px 15px; border-radius: 15px; font-size: 13.5px; color: #ccc; max-width: 85%; }
+        .cmt-content b { color: var(--main); display: block; margin-bottom: 2px; }
+        
+        .cmt-input-box { display: flex; margin-top: 15px; gap: 10px; }
+        .cmt-input { flex: 1; padding: 10px 18px; background: #222; border: 1px solid #333; border-radius: 25px; outline: none; color: #fff; font-size: 13px; }
+        .btn-cmt { background: none; border: none; color: var(--main); cursor: pointer; font-weight: bold; padding: 0 10px; }
 
         /* PHÂN TRANG */
-        .pagination { display: flex; gap: 8px; margin: 20px 0; justify-content: center; }
-        .page-btn { padding: 8px 15px; border: 1px solid var(--main); background: white; color: var(--main); border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .page-btn.active { background: var(--main); color: white; }
+        .pagination { display: flex; gap: 10px; margin: 30px 0; justify-content: center; }
+        .page-btn { width: 40px; height: 40px; border: 1px solid var(--main); background: transparent; color: var(--main); border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .page-btn.active { background: var(--main); color: #000; }
 
-        .post-box-fixed { position: fixed; bottom: 0; left: 250px; right: 0; background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 900; border-top: 1px solid #eee; }
+        /* KHUNG ĐĂNG BÀI CỐ ĐỊNH */
+        .post-box-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: #111; padding: 20px; box-shadow: 0 -10px 30px rgba(0,0,0,0.5); z-index: 900; border-top: 1px solid rgba(255,255,255,0.05); }
+        .post-box-inner { max-width: 600px; margin: 0 auto; }
+        #post-text { width: 100%; height: 50px; background: #181818; color: #fff; border-radius: 12px; padding: 12px; border: 1px solid #333; resize: none; outline: none; transition: 0.3s; }
+        #post-text:focus { border-color: var(--main); }
 
         @media (max-width: 768px) {
-            .sidebar { width: 100%; height: 65px; bottom: 0; top: auto; flex-direction: row; padding: 0 5px; background: white !important; border-top: 1px solid #eee; }
-            .sidebar .logo { display: none; }
-            .sidebar a { flex-direction: column; font-size: 10px; flex: 1; color: #666 !important; padding: 10px 0; margin-bottom: 0; }
-            .sidebar a i { margin-right: 0; font-size: 18px; margin-bottom: 3px; }
-            .sidebar a.active { background: #f0faff !important; color: var(--main) !important; }
-            .back-home { border: none !important; margin-top: 0; }
-            .main-content { margin-left: 0; padding-bottom: 250px; }
-            .post-box-fixed { left: 0; bottom: 65px; }
+            .main-content { padding-top: 80px; padding-bottom: 220px; }
+            .post-box-fixed { padding: 15px; }
         }
     </style>
 </head>
 <body>
-    <div class="sidebar">
+
+    <div class="menu-toggle" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
+
+    <div class="sidebar" id="sidebar">
         <div class="logo">YEAMIKO</div>
         <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
         <a href="forum.html" class="active"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
         <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
-        <a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i><span>Về Home</span></a>
+        <a href="index.html" style="margin-top: auto; border: 1px solid rgba(0,212,255,0.2);"><i class="fas fa-arrow-left"></i><span>Quay lại Home</span></a>
     </div>
 
     <div class="main-content">
@@ -86,13 +112,16 @@
     </div>
 
     <div class="post-box-fixed">
-        <div style="max-width:600px; margin:0 auto;">
-            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Bạn ơi, chia sẻ gì đi..."></textarea>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-                <input type="file" id="post-file" accept="image/*">
-                <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG</button>
+        <div class="post-box-inner">
+            <textarea id="post-text" placeholder="Bạn đang nghĩ gì? Chia sẻ cùng Yeamiko nhé..."></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                <label for="post-file" style="cursor:pointer; color:var(--main); font-size:14px; display:flex; align-items:center; gap:5px;">
+                    <i class="fas fa-image"></i> Thêm ảnh
+                    <input type="file" id="post-file" accept="image/*" style="display:none;">
+                </label>
+                <button id="btn-post" style="background:var(--main); color:#000; border:none; padding:10px 30px; border-radius:25px; font-weight:bold; cursor:pointer; transition: 0.3s;">ĐĂNG BÀI</button>
             </div>
-            <p id="stt" style="text-align:center; font-size:12px; color:var(--main); margin-top:5px;"></p>
+            <p id="stt" style="text-align:center; font-size:12px; color:var(--main); margin-top:8px; font-weight:bold;"></p>
         </div>
     </div>
 
@@ -113,12 +142,18 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
+        // Menu Toggle Logic
+        window.toggleMenu = () => {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.querySelector('.sidebar-overlay').classList.toggle('show');
+        }
+
         const POSTS_PER_PAGE = 5;
         let currentPage = 1;
 
         function formatTime(ts) {
             const d = new Date(ts);
-            return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+            return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} lúc ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
         }
 
         window.handleLike = async (pid) => {
@@ -126,7 +161,7 @@
             if(!u) return alert("Vui lòng đăng nhập!");
             const likeRef = ref(db, `likes/${pid}/${u.uid}`);
             const snap = await get(likeRef);
-            if(snap.exists()) return alert("Bạn đã like rồi!");
+            if(snap.exists()) return; // Đã like rồi
 
             await set(likeRef, true);
             await runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 0) + 1);
@@ -155,14 +190,14 @@
             cmtList.insertAdjacentHTML('beforeend', `
                 <div class="comment-item">
                     <img src="${avt}" class="cmt-avatar">
-                    <div class="cmt-content"><b>${name}</b> ${val}</div>
+                    <div class="cmt-content"><b>${name}</b>${val}</div>
                 </div>`);
             input.value = "";
         };
 
         async function renderPosts(page) {
             const forumList = document.getElementById('forum-list');
-            forumList.innerHTML = "<p style='text-align:center; padding:20px;'>Đang tải bài viết...</p>";
+            forumList.innerHTML = "<p style='text-align:center; padding:20px; color:var(--main);'>Đang tải bài viết...</p>";
             
             const [postSnap, userSnap] = await Promise.all([
                 get(query(ref(db, 'posts'), orderByChild('time'))),
@@ -193,7 +228,7 @@
                 if(p.comments) Object.values(p.comments).forEach(c => {
                     const cName = allUsers[c.uid]?.name || c.userName;
                     const cavt = allUsers[c.uid]?.avatar || `https://ui-avatars.com/api/?name=${cName}`;
-                    cmts += `<div class="comment-item"><img src="${cavt}" class="cmt-avatar"><div class="cmt-content"><b>${cName}</b> ${c.text}</div></div>`;
+                    cmts += `<div class="comment-item"><img src="${cavt}" class="cmt-avatar"><div class="cmt-content"><b>${cName}</b>${c.text}</div></div>`;
                 });
 
                 forumList.insertAdjacentHTML('beforeend', `
@@ -205,16 +240,18 @@
                                 <span class="post-time">${formatTime(p.time)}</span>
                             </div>
                         </div>
-                        <div style="margin:10px 0;">${p.text}</div>
+                        <div class="post-text">${p.text}</div>
                         ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
                         <div class="post-actions">
-                            <span id="l-btn-${k}" class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ <span id="l-cnt-${k}">${p.likes||0}</span> Thích</span>
+                            <span id="l-btn-${k}" class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">
+                                <i class="fas fa-heart"></i> <span id="l-cnt-${k}">${p.likes||0}</span> Thích
+                            </span>
                         </div>
                         <div class="comment-section">
                             <div id="clist-${k}">${cmts}</div>
                             <div class="cmt-input-box">
-                                <input id="in-${k}" class="cmt-input" placeholder="Bình luận...">
-                                <button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button>
+                                <input id="in-${k}" class="cmt-input" placeholder="Viết bình luận...">
+                                <button onclick="sendComment('${k}')" class="btn-cmt"><i class="fas fa-paper-plane"></i></button>
                             </div>
                         </div>
                     </div>`);
@@ -239,9 +276,10 @@
             const u = auth.currentUser;
             const txt = document.getElementById('post-text').value.trim();
             const file = document.getElementById('post-file').files[0];
-            if(!u || (!txt && !file)) return alert("Nội dung trống!");
+            if(!u) return alert("Vui lòng đăng nhập để đăng bài!");
+            if(!txt && !file) return alert("Nội dung trống!");
 
-            document.getElementById('stt').innerText = "⏳ Đang đăng...";
+            document.getElementById('stt').innerText = "⏳ Đang tải bài viết...";
             document.getElementById('btn-post').disabled = true;
 
             let imgB64 = "";
@@ -274,7 +312,7 @@
 
             document.getElementById('post-text').value = "";
             document.getElementById('post-file').value = "";
-            document.getElementById('stt').innerText = "✅ Đã đăng!";
+            document.getElementById('stt').innerText = "✅ Đăng bài thành công!";
             document.getElementById('btn-post').disabled = false;
             currentPage = 1;
             renderPosts(1);
