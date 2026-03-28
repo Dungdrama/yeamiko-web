@@ -36,7 +36,7 @@
         
         .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
         .post-actions { margin-top: 15px; display: flex; gap: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
-        .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; transition: 0.2s; }
+        .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; }
         .action-btn.liked { color: #ff4d4d; pointer-events: none; }
 
         .comment-section { margin-top: 15px; }
@@ -58,7 +58,7 @@
             .sidebar a i { margin-right: 0; font-size: 18px; margin-bottom: 3px; }
             .sidebar a.active { background: #f0faff !important; color: var(--main) !important; }
             .btn-discord { background: transparent !important; color: #5865F2 !important; margin-top: 0; }
-            .btn-discord img { filter: none; margin-right: 0; width: 20px; }
+            .btn-discord img { width: 20px; margin-right: 0; }
             .main-content { margin-left: 0; padding-bottom: 250px; }
             .post-box-fixed { left: 0; bottom: 65px; }
         }
@@ -82,7 +82,7 @@
 
     <div class="post-box-fixed">
         <div style="max-width:600px; margin:0 auto;">
-            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Bạn ơi, chia sẻ gì đi..."></textarea>
+            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Dũng ơi, chia sẻ gì đi..."></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                 <input type="file" id="post-file" accept="image/*">
                 <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG</button>
@@ -94,7 +94,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, push, get, set, query, limitToLast, orderByChild, endBefore, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.app";
+        import { getDatabase, ref, push, get, set, query, limitToLast, orderByChild, endBefore, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
@@ -115,7 +115,6 @@
             return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
         }
 
-        // Like bài viết
         window.handleLike = async (pid) => {
             const u = auth.currentUser;
             if(!u) return alert("Vui lòng đăng nhập!");
@@ -124,11 +123,11 @@
             if(snap.exists()) return alert("Bạn đã like bài này rồi!");
 
             await set(likeRef, true);
-            runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 0) + 1);
-            location.reload(); 
+            runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 0) + 1).then(() => {
+                location.reload();
+            });
         };
 
-        // Bình luận
         window.sendComment = async (pid) => {
             const u = auth.currentUser;
             const val = document.getElementById(`in-${pid}`).value.trim();
@@ -140,68 +139,69 @@
             location.reload();
         };
 
-        // Tải bài viết
         async function loadPosts() {
             const forumList = document.getElementById('forum-list');
             const loadBtn = document.getElementById('btn-load-more');
             
             let q = lastTime ? query(ref(db, 'posts'), orderByChild('time'), endBefore(lastTime), limitToLast(5)) : query(ref(db, 'posts'), orderByChild('time'), limitToLast(5));
             
-            const [snap, uSnap] = await Promise.all([get(q), get(ref(db, 'users'))]);
-            const posts = snap.val();
-            const allUsers = uSnap.val() || {};
+            try {
+                const [snap, uSnap] = await Promise.all([get(q), get(ref(db, 'users'))]);
+                const posts = snap.val();
+                const allUsers = uSnap.val() || {};
 
-            if(!posts) { loadBtn.style.display = 'none'; return; }
-            loadBtn.style.display = 'block';
+                if(!posts) { loadBtn.style.display = 'none'; return; }
+                loadBtn.style.display = 'block';
 
-            const keys = Object.keys(posts).sort((a,b) => posts[b].time - posts[a].time);
-            for(let k of keys) {
-                const p = posts[k];
-                const latestName = allUsers[p.uid]?.name || p.userName;
-                const latestAvt = allUsers[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${latestName}`;
-                
-                let isLiked = false;
-                if(auth.currentUser) {
-                    const lSnap = await get(ref(db, `likes/${k}/${auth.currentUser.uid}`));
-                    if(lSnap.exists()) isLiked = true;
-                }
+                const keys = Object.keys(posts).sort((a,b) => posts[b].time - posts[a].time);
+                for(let k of keys) {
+                    const p = posts[k];
+                    const latestName = allUsers[p.uid]?.name || p.userName;
+                    const latestAvt = allUsers[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${latestName}`;
+                    
+                    let isLiked = false;
+                    if(auth.currentUser) {
+                        const lSnap = await get(ref(db, `likes/${k}/${auth.currentUser.uid}`));
+                        if(lSnap.exists()) isLiked = true;
+                    }
 
-                let cmts = "";
-                if(p.comments) Object.values(p.comments).forEach(c => {
-                    const cName = allUsers[c.uid]?.name || c.userName;
-                    const cavt = allUsers[c.uid]?.avatar || `https://ui-avatars.com/api/?name=${cName}`;
-                    cmts += `<div class="comment-item"><img src="${cavt}" class="cmt-avatar"><div class="cmt-content"><b>${cName}</b> ${c.text}</div></div>`;
-                });
+                    let cmts = "";
+                    if(p.comments) Object.values(p.comments).forEach(c => {
+                        const cName = allUsers[c.uid]?.name || c.userName;
+                        const cavt = allUsers[c.uid]?.avatar || `https://ui-avatars.com/api/?name=${cName}`;
+                        cmts += `<div class="comment-item"><img src="${cavt}" class="cmt-avatar"><div class="cmt-content"><b>${cName}</b> ${c.text}</div></div>`;
+                    });
 
-                const html = `
-                    <div class="post-card">
-                        <div class="post-header">
-                            <img src="${latestAvt}" class="user-avatar">
-                            <div class="user-info">
-                                <span class="post-user-name">${latestName}</span>
-                                <span class="post-time">${formatTime(p.time)}</span>
+                    const html = `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <img src="${latestAvt}" class="user-avatar">
+                                <div class="user-info">
+                                    <span class="post-user-name">${latestName}</span>
+                                    <span class="post-time">${formatTime(p.time)}</span>
+                                </div>
                             </div>
-                        </div>
-                        <div style="margin:10px 0;">${p.text}</div>
-                        ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
-                        <div class="post-actions">
-                            <span class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ ${p.likes||0} Thích</span>
-                        </div>
-                        <div class="comment-section">
-                            <div id="clist-${k}">${cmts}</div>
-                            <div class="cmt-input-box"><input id="in-${k}" class="cmt-input" placeholder="Bình luận..."><button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button></div>
-                        </div>
-                    </div>`;
-                forumList.insertAdjacentHTML('beforeend', html);
-            }
-            lastTime = posts[keys[keys.length-1]].time;
+                            <div style="margin:10px 0;">${p.text}</div>
+                            ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
+                            <div class="post-actions">
+                                <span class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ ${p.likes||0} Thích</span>
+                            </div>
+                            <div class="comment-section">
+                                <div id="clist-${k}">${cmts}</div>
+                                <div class="cmt-input-box"><input id="in-${k}" class="cmt-input" placeholder="Bình luận..."><button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button></div>
+                            </div>
+                        </div>`;
+                    forumList.insertAdjacentHTML('beforeend', html);
+                }
+                lastTime = posts[keys[keys.length-1]].time;
+            } catch(e) { console.log(e); }
         }
 
-        // Đăng bài
         document.getElementById('btn-post').onclick = async () => {
             const u = auth.currentUser;
             const text = document.getElementById('post-text').value.trim();
-            const file = document.getElementById('post-file').files[0];
+            const fileInput = document.getElementById('post-file');
+            const file = fileInput.files[0];
 
             if(!u) return alert("Hãy đăng nhập!");
             if(!text && !file) return alert("Nội dung trống!");
@@ -211,28 +211,32 @@
 
             let b64 = "";
             if(file) {
-                const reader = new FileReader();
-                b64 = await new Promise(resolve => {
-                    reader.onload = (e) => {
+                b64 = await new Promise(res => {
+                    const r = new FileReader();
+                    r.onload = (e) => {
                         const img = new Image();
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
-                            const w = 800; const h = (img.height * 800) / img.width;
+                            const MAX_W = 800;
+                            let w = img.width; let h = img.height;
+                            if (w > MAX_W) { h *= MAX_W / w; w = MAX_W; }
                             canvas.width = w; canvas.height = h;
                             canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                            resolve(canvas.toDataURL('image/jpeg', 0.6));
+                            res(canvas.toDataURL('image/jpeg', 0.6));
                         };
                         img.src = e.target.result;
                     };
-                    reader.readAsDataURL(file);
+                    r.readAsDataURL(file);
                 });
             }
 
-            await push(ref(db, 'posts'), {
-                uid: u.uid, userName: u.displayName || u.email.split('@')[0],
-                text: text, img: b64, time: Date.now(), likes: 0
-            });
-            location.reload();
+            try {
+                await push(ref(db, 'posts'), {
+                    uid: u.uid, userName: u.displayName || u.email.split('@')[0],
+                    text: text, img: b64, time: Date.now(), likes: 0
+                });
+                location.reload();
+            } catch(e) { alert("Lỗi đăng bài!"); document.getElementById('btn-post').disabled = false; }
         };
 
         onAuthStateChanged(auth, () => {
