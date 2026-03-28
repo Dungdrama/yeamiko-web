@@ -10,28 +10,21 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); display: flex; min-height: 100vh; overflow-x: hidden; }
 
-        /* --- SỬA MENU: NÚT 3 GẠCH --- */
         .menu-toggle {
             position: fixed; top: 20px; left: 20px; z-index: 1500;
             background: var(--main); color: #000; width: 45px; height: 45px;
             display: flex; align-items: center; justify-content: center;
             border-radius: 10px; cursor: pointer; font-size: 20px;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
         }
 
-        /* --- SỬA MENU: SIDEBAR TRƯỢT --- */
         .sidebar { 
             width: 250px; background: var(--sidebar-dark); height: 100vh; 
             position: fixed; padding: 25px; color: white; z-index: 2000;
-            display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05);
-            left: -250px; /* Mặc định ẩn sang trái */
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            left: -250px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .sidebar.open { left: 0; } /* Hiện ra khi thêm class open */
-
-        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; text-transform: uppercase; }
-        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
-        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar.open { left: 0; }
+        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; }
+        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; }
         .sidebar a.active, .sidebar a:hover { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
         
         .sidebar-overlay {
@@ -40,47 +33,19 @@
         }
         .sidebar-overlay.show { display: block; }
 
-        /* --- GIỮ NGUYÊN NỘI DUNG CŨ --- */
         .main-content { flex: 1; padding: 80px 20px 250px 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
         .container { width: 100%; max-width: 600px; }
 
-        .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; }
-        .post-header { display: flex; align-items: center; margin-bottom: 12px; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
-        .user-info { display: flex; flex-direction: column; }
-        .post-user-name { font-weight: bold; color: #333; }
-        .post-time { font-size: 11px; color: #888; margin-top: 2px; }
-        
+        .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; border: 2px solid var(--main); }
         .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
-        .post-actions { margin-top: 15px; display: flex; gap: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
-        .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; padding: 5px 10px; border-radius: 8px; transition: 0.2s; }
-        .action-btn.liked { color: #ff4d4d; }
-
-        .comment-section { margin-top: 15px; }
-        .comment-item { display: flex; margin-bottom: 10px; }
-        .cmt-avatar { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; }
-        .cmt-content { background: #f0f2f5; padding: 8px 12px; border-radius: 18px; font-size: 14px; max-width: 85%; }
-        .cmt-input-box { display: flex; margin-top: 10px; gap: 10px; }
-        .cmt-input { flex: 1; padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
-        .btn-cmt { background: none; border: none; color: var(--main); cursor: pointer; font-weight: bold; }
-
-        .pagination { display: flex; gap: 8px; margin: 20px 0; justify-content: center; }
-        .page-btn { padding: 8px 15px; border: 1px solid var(--main); background: white; color: var(--main); border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .page-btn.active { background: var(--main); color: white; }
-
-        .post-box-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 900; border-top: 1px solid #eee; }
-
-        @media (max-width: 768px) {
-            .main-content { padding-top: 80px; }
-        }
+        
+        .post-box-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px; border-top: 1px solid #eee; z-index: 900; }
     </style>
 </head>
 <body>
 
-    <div class="menu-toggle" onclick="toggleMenu()">
-        <i class="fas fa-bars"></i>
-    </div>
-
+    <div class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
     <div class="sidebar-overlay" onclick="toggleMenu()"></div>
 
     <div class="sidebar" id="sidebar">
@@ -88,20 +53,18 @@
         <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
         <a href="forum.html" class="active"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
         <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
-        <a href="index.html" style="margin-top: auto; border: 1px solid rgba(0, 212, 255, 0.2);"><i class="fas fa-arrow-left"></i><span>Về Home</span></a>
     </div>
 
     <div class="main-content">
         <div id="forum-list" class="container"></div>
-        <div id="pagination" class="pagination"></div>
     </div>
 
     <div class="post-box-fixed">
         <div style="max-width:600px; margin:0 auto;">
-            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Bạn ơi, chia sẻ gì đi..."></textarea>
+            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Chia sẻ điều gì đó..."></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                 <input type="file" id="post-file" accept="image/*">
-                <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG</button>
+                <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG BÀI</button>
             </div>
             <p id="stt" style="text-align:center; font-size:12px; color:var(--main); margin-top:5px;"></p>
         </div>
@@ -110,7 +73,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, push, get, set, query, orderByChild, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, push, get, set, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
@@ -124,130 +87,68 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // HÀM ĐIỀU KHIỂN MENU (Cần gán vào window để HTML gọi được)
         window.toggleMenu = function() {
             document.getElementById('sidebar').classList.toggle('open');
             document.querySelector('.sidebar-overlay').classList.toggle('show');
         };
 
-        // --- GIỮ NGUYÊN TOÀN BỘ LOGIC CŨ ---
-        const POSTS_PER_PAGE = 5;
-        let currentPage = 1;
-
-        function formatTime(ts) {
-            const d = new Date(ts);
-            return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-        }
-
-        window.handleLike = async (pid) => {
-            const u = auth.currentUser;
-            if(!u) return alert("Vui lòng đăng nhập!");
-            const likeRef = ref(db, `likes/${pid}/${u.uid}`);
-            const snap = await get(likeRef);
-            if(snap.exists()) return alert("Bạn đã like rồi!");
-            await set(likeRef, true);
-            await runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 0) + 1);
-            renderPosts(currentPage);
-        };
-
-        window.sendComment = async (pid) => {
-            const u = auth.currentUser;
-            const input = document.getElementById(`in-${pid}`);
-            const val = input.value.trim();
-            if(!u || !val) return;
-            const uSnap = await get(ref(db, `users/${u.uid}`));
-            const userData = uSnap.val() || {};
-            const name = userData.name || u.displayName || u.email.split('@')[0];
-            const avt = userData.avatar || `https://ui-avatars.com/api/?name=${name}`;
-            await push(ref(db, `posts/${pid}/comments`), { uid: u.uid, userName: name, text: val, time: Date.now() });
-            input.value = "";
-            renderPosts(currentPage);
-        };
-
-        async function renderPosts(page) {
-            const forumList = document.getElementById('forum-list');
-            forumList.innerHTML = "<p style='text-align:center; padding:20px;'>Đang tải bài viết...</p>";
-            const [postSnap, userSnap] = await Promise.all([
+        async function renderPosts() {
+            const list = document.getElementById('forum-list');
+            const [pSnap, uSnap] = await Promise.all([
                 get(query(ref(db, 'posts'), orderByChild('time'))),
                 get(ref(db, 'users'))
             ]);
-            const allPosts = postSnap.val() || {};
-            const allUsers = userSnap.val() || {};
-            const sortedKeys = Object.keys(allPosts).sort((a, b) => allPosts[b].time - allPosts[a].time);
-            const totalPages = Math.ceil(sortedKeys.length / POSTS_PER_PAGE);
-            const start = (page - 1) * POSTS_PER_PAGE;
-            const paginatedKeys = sortedKeys.slice(start, start + POSTS_PER_PAGE);
-            forumList.innerHTML = "";
-            for (let k of paginatedKeys) {
+            const allPosts = pSnap.val() || {};
+            const allUsers = uSnap.val() || {};
+            const keys = Object.keys(allPosts).sort((a,b) => allPosts[b].time - allPosts[a].time);
+            
+            list.innerHTML = keys.length ? "" : "<p style='text-align:center;'>Chưa có bài viết nào được duyệt.</p>";
+            keys.forEach(k => {
                 const p = allPosts[k];
-                const latestName = allUsers[p.uid]?.name || p.userName;
-                const latestAvt = allUsers[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${latestName}`;
-                let isLiked = false;
-                if(auth.currentUser) {
-                    const lSnap = await get(ref(db, `likes/${k}/${auth.currentUser.uid}`));
-                    if(lSnap.exists()) isLiked = true;
-                }
-                let cmts = "";
-                if(p.comments) Object.values(p.comments).forEach(c => {
-                    const cName = allUsers[c.uid]?.name || c.userName;
-                    const cavt = allUsers[c.uid]?.avatar || `https://ui-avatars.com/api/?name=${cName}`;
-                    cmts += `<div class="comment-item"><img src="${cavt}" class="cmt-avatar"><div class="cmt-content"><b>${cName}</b> ${c.text}</div></div>`;
-                });
-                forumList.insertAdjacentHTML('beforeend', `
+                const name = allUsers[p.uid]?.name || p.userName;
+                const avt = allUsers[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${name}`;
+                list.insertAdjacentHTML('beforeend', `
                     <div class="post-card">
-                        <div class="post-header"><img src="${latestAvt}" class="user-avatar"><div class="user-info"><span class="post-user-name">${latestName}</span><span class="post-time">${formatTime(p.time)}</span></div></div>
+                        <div style="display:flex; align-items:center;"><img src="${avt}" class="user-avatar"><b>${name}</b></div>
                         <div style="margin:10px 0;">${p.text}</div>
                         ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
-                        <div class="post-actions"><span class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ ${p.likes||0} Thích</span></div>
-                        <div class="comment-section"><div id="clist-${k}">${cmts}</div><div class="cmt-input-box"><input id="in-${k}" class="cmt-input" placeholder="Bình luận..."><button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button></div></div>
                     </div>`);
-            }
-            renderPagination(totalPages, page);
-        }
-
-        function renderPagination(total, current) {
-            const nav = document.getElementById('pagination'); nav.innerHTML = "";
-            if(total <= 1) return;
-            for(let i=1; i<=total; i++) {
-                const btn = document.createElement('button'); btn.innerText = i; btn.className = `page-btn ${i === current ? 'active' : ''}`;
-                btn.onclick = () => { currentPage = i; renderPosts(i); window.scrollTo(0,0); }; nav.appendChild(btn);
-            }
+            });
         }
 
         document.getElementById('btn-post').onclick = async () => {
-            const u = auth.currentUser; const txt = document.getElementById('post-text').value.trim(); const file = document.getElementById('post-file').files[0];
+            const u = auth.currentUser;
+            const txt = document.getElementById('post-text').value.trim();
+            const file = document.getElementById('post-file').files[0];
             if(!u || (!txt && !file)) return alert("Nội dung trống!");
-            document.getElementById('stt').innerText = "⏳ Đang đăng...";
+
+            document.getElementById('stt').innerText = "⏳ Đang gửi yêu cầu duyệt...";
             document.getElementById('btn-post').disabled = true;
+
             let imgB64 = "";
             if(file) {
                 imgB64 = await new Promise(res => {
                     const r = new FileReader();
-                    r.onload = (e) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            const MAX_W = 800; let w = img.width, h = img.height;
-                            if (w > MAX_W) { h *= MAX_W / w; w = MAX_W; }
-                            canvas.width = w; canvas.height = h;
-                            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                            res(canvas.toDataURL('image/jpeg', 0.6));
-                        };
-                        img.src = e.target.result;
-                    };
+                    r.onload = (e) => res(e.target.result);
                     r.readAsDataURL(file);
                 });
             }
+
             const uSnap = await get(ref(db, `users/${u.uid}`));
             const name = uSnap.exists() ? uSnap.val().name : (u.displayName || u.email.split('@')[0]);
-            await push(ref(db, 'posts'), { uid: u.uid, userName: name, text: txt, img: imgB64, time: Date.now(), likes: 0 });
-            document.getElementById('post-text').value = ""; document.getElementById('post-file').value = "";
-            document.getElementById('stt').innerText = "✅ Đã đăng!";
+
+            // GỬI VÀO MỤC CHỜ DUYỆT
+            await push(ref(db, 'pending_posts'), {
+                uid: u.uid, userName: name, text: txt, img: imgB64, time: Date.now(), status: "pending"
+            });
+
+            document.getElementById('post-text').value = "";
+            document.getElementById('post-file').value = "";
+            document.getElementById('stt').innerText = "✅ Đã gửi! Vui lòng chờ Admin phê duyệt.";
             document.getElementById('btn-post').disabled = false;
-            currentPage = 1; renderPosts(1);
         };
 
-        onAuthStateChanged(auth, () => { renderPosts(currentPage); });
+        onAuthStateChanged(auth, () => { renderPosts(); });
     </script>
 </body>
 </html>
