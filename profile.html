@@ -1,118 +1,46 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Hồ sơ Yeamiko</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { --main: #00d4ff; --bg: #ffffff; --text: #222; --sidebar: #111; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-        
-        .sidebar { width: 250px; background: var(--sidebar); height: 100vh; position: fixed; padding: 25px; color: white; }
-        .sidebar .logo { font-size: 26px; font-weight: bold; color: var(--main); margin-bottom: 40px; text-align: center; }
-        .sidebar a { display: block; color: #bbb; padding: 15px; text-decoration: none; border-radius: 10px; margin-bottom: 8px; transition: 0.3s; }
-        .sidebar a.active { background: rgba(0,212,255,0.1); color: var(--main); }
-        
-        .main-content { margin-left: 250px; flex: 1; padding: 40px; display: flex; justify-content: center; }
-        .profile-card { background: #fdfdfd; border: 1px solid #eee; padding: 40px; border-radius: 20px; width: 100%; max-width: 450px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        #user-avatar { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 4px solid var(--main); margin-bottom: 20px; background: #f0f0f0; }
-        .btn-upload { display: inline-block; padding: 10px 25px; background: white; border: 2px solid var(--main); color: var(--main); border-radius: 25px; cursor: pointer; font-weight: bold; }
-        .btn-save { display: none; width: 100%; background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 10px; margin-top: 20px; cursor: pointer; font-weight: bold; }
-        .info { text-align: left; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; line-height: 2; }
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <div class="logo">YEAMIKO</div>
-        <a href="/index.html"><i class="fas fa-home"></i> Trang chủ</a>
-        <a href="/forum.html"><i class="fas fa-comments"></i> Diễn đàn</a>
-        <a href="/profile.html" class="active"><i class="fas fa-user"></i> Hồ sơ</a>
-    </div>
+<script type="module">
+    // ... (Phần config Firebase giữ nguyên) ...
 
-    <div class="main-content">
-        <div class="profile-card">
-            <h2 style="margin-bottom: 20px;">Hồ sơ Yeamiko</h2>
-            <img id="user-avatar" src="https://ui-avatars.com/api/?name=User">
-            <br>
-            <label class="btn-upload">Đổi ảnh đại diện <input type="file" id="f-input" hidden accept="image/*"></label>
-            <button id="s-btn" class="btn-save">LƯU THAY ĐỔI</button>
-            <p id="stt" style="margin-top:15px; font-weight: bold; font-size: 13px;"></p>
-            <div class="info">
-                <p><strong>👤 Tên:</strong> <span id="u-name">...</span></p>
-                <p><strong>📧 Email:</strong> <span id="u-email">...</span></p>
-            </div>
-        </div>
-    </div>
+    const FREEIMAGE_KEY = "6d207e02198a847aa98d0a2a901485a5";
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
-            authDomain: "yeamiko-web.firebaseapp.com",
-            projectId: "yeamiko-web",
-            appId: "1:380442978172:web:52eeb187628ed3518266f9"
-        };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        // API Key dự phòng (Dũng có thể thay bằng key cá nhân nếu cái này hết hạn)
-        const IMGBB_KEY = "69c8c88796859345c2678f1088424264"; 
-
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                document.getElementById('u-name').innerText = user.displayName || user.email.split('@')[0];
-                document.getElementById('u-email').innerText = user.email;
-                if (user.photoURL) document.getElementById('user-avatar').src = user.photoURL;
-            } else { window.location.href = '/login.html'; }
-        });
-
-        document.getElementById('f-input').onchange = e => {
-            if (e.target.files[0]) {
-                document.getElementById('user-avatar').src = URL.createObjectURL(e.target.files[0]);
-                document.getElementById('s-btn').style.display = 'block';
-                document.getElementById('stt').innerText = "";
+    // Hàm nén ảnh (Giúp tránh lỗi mạng do ảnh quá nặng)
+    const compressImg = file => new Promise(res => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = e => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 300; canvas.height = 300; // Avatar chỉ cần nhỏ
+                canvas.getContext('2d').drawImage(img, 0, 0, 300, 300);
+                res(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
             }
-        };
+        }
+    });
 
-        document.getElementById('s-btn').onclick = async () => {
-            const file = document.getElementById('f-input').files[0];
-            const stt = document.getElementById('stt');
-            if(!file) return;
+    document.getElementById('s-btn').onclick = async () => {
+        const file = document.getElementById('f-input').files[0];
+        const stt = document.getElementById('stt');
+        if(!file) return;
 
-            stt.style.color = "#00d4ff";
-            stt.innerText = "⏳ Đang tải ảnh lên (vui lòng đợi)...";
+        stt.innerText = "⏳ Đang đồng bộ ảnh...";
 
-            try {
-                // Tạo FormData chuẩn để gửi file
-                const body = new FormData();
-                body.append("image", file);
+        try {
+            const b64 = await compressImg(file);
+            const fd = new FormData();
+            fd.append('key', FREEIMAGE_KEY);
+            fd.append('action', 'upload');
+            fd.append('source', b64);
 
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
-                    method: "POST",
-                    body: body
-                });
+            const res = await fetch('https://freeimage.host/api/1/upload', { method: 'POST', body: fd });
+            const data = await res.json();
 
-                const data = await res.json();
-
-                if (data.success) {
-                    const url = data.data.url;
-                    await updateProfile(auth.currentUser, { photoURL: url });
-                    stt.style.color = "#2ecc71";
-                    stt.innerText = "✅ Thành công! Hãy tải lại trang.";
-                    document.getElementById('s-btn').style.display = 'none';
-                } else {
-                    stt.style.color = "red";
-                    stt.innerText = "❌ Lỗi: " + (data.error ? data.error.message : "Không xác định");
-                }
-            } catch (err) {
-                stt.style.color = "red";
-                stt.innerText = "❌ Lỗi mạng: Không thể kết nối tới ImgBB.";
-                console.error(err);
+            if (data.status_code === 200) {
+                await updateProfile(auth.currentUser, { photoURL: data.image.url });
+                stt.innerText = "✅ Đã xong!";
+                document.getElementById('s-btn').style.display = 'none';
             }
-        };
-    </script>
-</body>
-</html>
+        } catch (e) { stt.innerText = "❌ Lỗi kết nối đồng bộ"; }
+    };
+</script>
