@@ -2,84 +2,65 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Duyệt Bài | Yeamiko Admin</title>
+    <title>Phê duyệt bài viết | Admin</title>
     <style>
         body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
         .card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .btn-approve { background: #2ecc71; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        .btn-reject { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        img { max-width: 300px; display: block; margin: 10px 0; border-radius: 8px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; margin-right: 10px; }
+        .approve { background: #2ecc71; }
+        .reject { background: #e74c3c; }
+        img { max-width: 100%; border-radius: 10px; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <h2><i class="fas fa-shield-alt"></i> Danh sách bài viết chờ duyệt</h2>
-    <div id="pending-list">Đang tải dữ liệu...</div>
+    <h2>Hàng đợi phê duyệt</h2>
+    <div id="list">Đang tải...</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, onValue, set, remove, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
-            authDomain: "yeamiko-web.firebaseapp.com",
-            databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "yeamiko-web",
-            appId: "1:380442978172:web:52eeb187628ed3518266f9"
-        };
-
+        const firebaseConfig = { /* Coppy từ file forum của bạn */ };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
 
-        // THAY UID CỦA BẠN VÀO ĐÂY ĐỂ BẢO MẬT
-        const ADMIN_UID = "kRvctZ12xsfyugkQVCaInAVzt3d2";
+        const ADMIN_UID = "kRvctZ12xsfyugkQVCaInAVzt3d2"; // Thay UID thật của bạn vào đây
 
         onAuthStateChanged(auth, user => {
-            if (!user || user.uid !== ADMIN_UID) {
-                alert("Bạn không có quyền truy cập trang này!");
+            if(!user || user.uid !== ADMIN_UID) {
+                alert("Bạn không có quyền!");
                 window.location.href = "forum.html";
-            } else {
-                loadPending();
             }
         });
 
-        function loadPending() {
-            onValue(ref(db, 'pending_posts'), (snap) => {
-                const data = snap.val();
-                const list = document.getElementById('pending-list');
-                list.innerHTML = "";
-                if (!data) { list.innerHTML = "Hiện không có bài nào chờ duyệt."; return; }
-
-                Object.keys(data).forEach(id => {
-                    const p = data[id];
-                    list.insertAdjacentHTML('beforeend', `
-                        <div class="card">
-                            <p><b>Người gửi:</b> ${p.userName} (UID: ${p.uid})</p>
-                            <p><b>Nội dung:</b> ${p.text}</p>
-                            ${p.img ? `<img src="${p.img}">` : ""}
-                            <div style="margin-top:10px;">
-                                <button class="btn-approve" onclick="approvePost('${id}')">PHÊ DUYỆT</button>
-                                <button class="btn-reject" onclick="rejectPost('${id}')">TỪ CHỐI</button>
-                            </div>
-                        </div>`);
-                });
+        onValue(ref(db, 'pending_posts'), (snap) => {
+            const data = snap.val();
+            const listEl = document.getElementById('list');
+            listEl.innerHTML = data ? "" : "Không có bài nào chờ duyệt.";
+            if(data) Object.keys(data).forEach(id => {
+                const p = data[id];
+                listEl.insertAdjacentHTML('beforeend', `
+                    <div class="card">
+                        <p><b>Người đăng:</b> ${p.userName}</p>
+                        <p>${p.text}</p>
+                        ${p.img ? `<img src="${p.img}">` : ""}
+                        <div style="margin-top:10px;">
+                            <button class="btn approve" onclick="action('${id}', 'ok')">Duyệt</button>
+                            <button class="btn reject" onclick="action('${id}', 'no')">Xóa</button>
+                        </div>
+                    </div>`);
             });
-        }
+        });
 
-        window.approvePost = async (id) => {
+        window.action = async (id, type) => {
             const snap = await get(ref(db, `pending_posts/${id}`));
-            if (snap.exists()) {
+            if(type === 'ok' && snap.exists()) {
                 await set(ref(db, `posts/${id}`), snap.val());
-                await remove(ref(db, `pending_posts/${id}`));
-                alert("Đã duyệt bài viết!");
             }
-        };
-
-        window.rejectPost = async (id) => {
-            if (confirm("Bạn chắc chắn muốn xóa yêu cầu này?")) {
-                await remove(ref(db, `pending_posts/${id}`));
-            }
+            await remove(ref(db, `pending_posts/${id}`));
+            alert("Đã thực hiện!");
         };
     </script>
 </body>
