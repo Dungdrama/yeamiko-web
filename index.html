@@ -3,137 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeamiko | Máy Chủ Cộng Đồng Minecraft</title>
+    <title>Trang chủ - Yeamiko</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { 
-            --main: #00d4ff; 
-            --accent: #a855f7; /* Màu tím đặc trưng của Yeamiko */
-            --glass: rgba(255, 255, 255, 0.1);
+        :root { --main: #00d4ff; --bg: #f4f7f6; --sidebar: #111; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        
+        body { 
+            background: var(--bg); display: flex; min-height: 100vh; 
+            /* Đặt ảnh của Dũng làm hình nền */
+            background-image: url('https://iili.io/qmYvvC7.jpg'); 
+            background-size: cover; background-position: center; background-attachment: fixed;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-
-        body {
-            min-height: 100vh;
-            /* Thay link ảnh nền bằng ảnh bến thuyền shader của bạn nếu có link trực tiếp */
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://i.ibb.co/6R8mH6P/qm-Yvv-C7.jpg'); 
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: white;
-            overflow-x: hidden;
+        /* Lớp phủ mờ để chữ nổi bật hơn trên nền ảnh */
+        .page-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 0;
         }
 
-        /* --- NAVIGATION --- */
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 10%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 100;
+        /* --- SIDEBAR ĐỒNG BỘ --- */
+        .sidebar { 
+            width: 250px; background: var(--sidebar); height: 100vh; 
+            position: fixed; padding: 25px; color: white; z-index: 1000;
+            display: flex; flex-direction: column;
         }
+        .sidebar .logo { font-size: 24px; font-weight: bold; color: var(--main); margin-bottom: 40px; text-align: center; }
+        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
+        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); }
+        .back-home { color: var(--main) !important; border: 1px solid rgba(0, 212, 255, 0.3); margin-top: auto; }
 
-        .logo { font-size: 28px; font-weight: 900; letter-spacing: 2px; color: var(--main); text-transform: uppercase; }
-        .nav-links { display: flex; gap: 25px; list-style: none; }
-        .nav-links a { color: white; text-decoration: none; font-weight: 500; transition: 0.3s; opacity: 0.8; }
-        .nav-links a:hover, .nav-links a.active { opacity: 1; color: var(--main); }
-
-        /* --- HERO SECTION --- */
-        .hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 0 20px;
+        /* --- NỘI DUNG CHÍNH --- */
+        .main-content { 
+            margin-left: 250px; flex: 1; padding: 40px; 
+            z-index: 1; color: white;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
         }
+        .container { width: 100%; max-width: 1000px; }
 
-        .hero h1 { 
-            font-size: clamp(40px, 10vw, 80px); 
-            text-transform: uppercase;
-            background: linear-gradient(to right, #fff, var(--main));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+        .welcome-title { font-size: 48px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 4px 10px rgba(0,0,0,0.8); margin-bottom: 10px; }
+        .welcome-desc { font-size: 18px; opacity: 0.9; margin-bottom: 50px; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+
+        /* --- MINECRAFT GALLERY --- */
+        .gallery-title { font-size: 24px; font-weight: bold; color: var(--main); text-transform: uppercase; margin-bottom: 20px; align-self: flex-start; }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px; width: 100%;
         }
-
-        .hero p { font-size: 1.2rem; margin: 20px 0; max-width: 600px; line-height: 1.6; }
-
-        /* --- IP BOX --- */
-        .ip-container {
-            background: var(--glass);
-            padding: 15px 30px;
-            border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.2);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            transition: 0.3s;
-            backdrop-filter: blur(5px);
-            margin-top: 30px;
-        }
-
-        .ip-container:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px); }
-        .ip-container i { color: var(--main); }
-        .server-ip { font-weight: bold; letter-spacing: 1px; }
-
-        /* --- LOGOUT BUTTON --- */
-        .btn-logout {
-            padding: 10px 20px;
-            border: 1px solid #ff4d4d;
-            color: #ff4d4d;
-            background: transparent;
-            border-radius: 8px;
-            cursor: pointer;
+        .gallery-item {
+            background: rgba(255, 255, 255, 0.1); border-radius: 15px; overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); backdrop-filter: blur(5px);
             transition: 0.3s;
         }
-        .btn-logout:hover { background: #ff4d4d; color: white; }
+        .gallery-item:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .gallery-img { width: 100%; height: 200px; object-fit: cover; }
+        .gallery-info { padding: 15px; text-align: left; }
+        .gallery-info b { font-size: 16px; color: var(--main); }
+        .gallery-info p { font-size: 14px; opacity: 0.8; margin-top: 5px; }
 
-        /* --- MOBILE RESPONSIVE --- */
+        /* --- MOBILE ĐỒNG BỘ --- */
         @media (max-width: 768px) {
-            nav { padding: 15px 5%; }
-            .nav-links { display: none; } /* Có thể làm menu burger sau */
-            .hero h1 { font-size: 50px; }
+            .sidebar { width: 100%; height: 65px; bottom: 0; top: auto; flex-direction: row; padding: 0 5px; background: #fff; border-top: 1px solid #eee; }
+            .sidebar .logo { display: none; }
+            .sidebar a { flex-direction: column; font-size: 10px; flex: 1; color: #666; margin-bottom: 0; padding: 10px 0; }
+            .sidebar a.active { background: #e0faff; }
+            .sidebar a i { margin-right: 0; font-size: 18px; margin-bottom: 3px; }
+            .back-home { border: none; margin-top: 0; color: var(--main) !important; }
+            .main-content { margin-left: 0; padding-bottom: 100px; padding: 20px; }
+            .welcome-title { font-size: 32px; }
+            .welcome-desc { font-size: 14px; }
         }
     </style>
 </head>
 <body>
+    <div class="page-overlay"></div>
 
-    <nav>
+    <div class="sidebar">
         <div class="logo">YEAMIKO</div>
-        <ul class="nav-links">
-            <li><a href="index.html" class="active">Trang chủ</a></li>
-            <li><a href="forum.html">Diễn đàn</a></li>
-            <li><a href="profile.html">Hồ sơ</a></li>
-        </ul>
-        <button id="btn-logout" class="btn-logout">Thoát</button>
-    </nav>
+        <a href="index.html" class="active"><i class="fas fa-home"></i><span>Trang chủ</span></a>
+        <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
+        <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
+        <a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i><span>Về Home</span></a>
+    </div>
 
-    <div class="hero">
-        <h1>YEAMIKO.FUN</h1>
-        <p>Gia nhập cộng đồng Minecraft Việt Nam thân thiện, sáng tạo và chuyên nghiệp nhất. Nơi bạn viết nên câu chuyện của riêng mình!</p>
-        
-        <div class="ip-container" onclick="copyIP()">
-            <i class="fas fa-play-circle"></i>
-            <span class="server-ip" id="serverIP">YEAMIKO.FUN</span>
-            <i class="fas fa-copy" style="font-size: 14px; opacity: 0.6;"></i>
+    <div class="main-content">
+        <div class="container">
+            <h1 class="welcome-title">Chào mừng tới Yeamiko</h1>
+            <p class="welcome-desc">Hệ thống quản lý máy chủ Minecraft chuyên nghiệp của bạn</p>
+
+            <h2 class="gallery-title">Hình ảnh Minecraft nổi bật</h2>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="https://wallpaperset.com/w/full/d/0/a/483669.jpg" class="gallery-img">
+                    <div class="gallery-info"><b>Thế giới kỳ ảo</b><p>Khám phá những vùng đất mới lạ.</p></div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images6.alphacoders.com/133/1332837.png" class="gallery-img">
+                    <div class="gallery-info"><b>Cảnh quan hùng vĩ</b><p>Những công trình kiến trúc tuyệt đẹp.</p></div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://getwallpapers.com/wallpaper/full/0/c/5/347641.jpg" class="gallery-img">
+                    <div class="gallery-info"><b>Khai thác tài nguyên</b><p>Bắt đầu cuộc phiêu lưu của bạn.</p></div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://wallpaperset.com/w/full/c/f/e/483737.jpg" class="gallery-img">
+                    <div class="gallery-info"><b>Chiến đấu với quái vật</b><p>Bảo vệ ngôi nhà của bạn.</p></div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://getwallpapers.com/wallpaper/full/1/3/8/347690.jpg" class="gallery-img">
+                    <div class="gallery-info"><b>Sáng tạo không giới hạn</b><p>Xây dựng bất cứ thứ gì bạn muốn.</p></div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images8.alphacoders.com/513/513689.jpg" class="gallery-img">
+                    <div class="gallery-info"><b>Hệ thống hang động</b><p>Tìm kiếm kho báu ẩn giấu.</p></div>
+                </div>
+            </div>
         </div>
-        <p style="font-size: 0.9rem; margin-top: 10px;">Click để sao chép địa chỉ máy chủ</p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-        // Giữ nguyên config của bạn
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -144,23 +138,10 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
+        // Kiểm tra đăng nhập
         onAuthStateChanged(auth, user => {
             if (!user) { window.location.href = 'login.html'; }
         });
-
-        document.getElementById('btn-logout').onclick = (e) => {
-            e.preventDefault();
-            if(confirm("Dũng muốn đăng xuất à?")) {
-                signOut(auth).then(() => { window.location.href = 'login.html'; });
-            }
-        };
-
-        // Hàm copy IP xịn
-        window.copyIP = function() {
-            const ip = "Yeamiko.fun";
-            navigator.clipboard.writeText(ip);
-            alert("Đã sao chép IP: " + ip + ". Chào mừng bạn tham gia!");
-        }
     </script>
 </body>
 </html>
