@@ -1,24 +1,24 @@
-<!DOCTYPE html>
+ư<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Diễn đàn Yeamiko</title>
+    <title>Diễn đàn cộng đồng | Yeamiko</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .post-card { background: #222; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
         .post-user { font-weight: bold; color: #00d4ff; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .post-user img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+        .post-user img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #00d4ff; }
         .post-content { line-height: 1.6; color: #eee; margin-bottom: 15px; white-space: pre-wrap; }
-        .post-img { max-width: 100%; border-radius: 8px; margin-bottom: 15px; display: block; }
+        .post-img { max-width: 100%; border-radius: 8px; margin-bottom: 15px; display: block; border: 1px solid #444; cursor: pointer; }
         .like-btn { background: #333; border: none; color: #00d4ff; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; }
         textarea { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 15px; border-radius: 10px; resize: none; font-family: inherit; }
         .file-label { cursor: pointer; color: #aaa; background: #333; padding: 10px 15px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; }
-        #img-preview { max-width: 200px; border-radius: 5px; margin: 10px 0; display: none; border: 1px solid #444; }
+        #img-preview { max-width: 200px; border-radius: 5px; margin: 10px 0; display: none; border: 1px solid #555; }
     </style>
 </head>
 <body>
-    <div class="navbar"><div id="user-display">Kết nối...</div></div>
+    <div class="navbar"><div id="user-display">Đang kết nối...</div></div>
     
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
@@ -29,19 +29,19 @@
     </div>
 
     <div class="main-content">
-        <h1 style="color: #00d4ff; margin-bottom: 20px;">DIỄN ĐÀN CỘNG ĐỒNG</h1>
+        <h1 style="color: #00d4ff; margin-bottom: 25px;">DIỄN ĐÀN CỘNG ĐỒNG</h1>
         
-        <div class="card" style="margin-bottom: 30px; background: #1a1a1a;">
-            <textarea id="post-text" rows="3" placeholder="Bạn đang nghĩ gì?"></textarea>
+        <div class="card" style="margin-bottom: 30px; background: #1a1a1a; border: 1px solid #333;">
+            <textarea id="post-text" rows="3" placeholder="Chia sẻ tin tức hoặc hình ảnh mới nhất..."></textarea>
             <img id="img-preview" src="">
             <div style="margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
                 <label class="file-label">
-                    <i class="fas fa-image"></i> Chọn ảnh
+                    <i class="fas fa-image"></i> Đính kèm ảnh
                     <input type="file" id="post-file" hidden accept="image/*">
                 </label>
-                <button id="btn-post" class="btn-auth" style="width:130px;">ĐĂNG BÀI</button>
+                <button id="btn-post" class="btn-auth" style="width:140px; font-weight: bold;">ĐĂNG BÀI</button>
             </div>
-            <p id="status-msg" style="text-align:center; margin-top:10px; font-size:0.9em;"></p>
+            <p id="status-msg" style="text-align:center; margin-top:10px; font-size:0.9em; font-weight: 500;"></p>
         </div>
 
         <div id="forum-list">Đang tải bản tin...</div>
@@ -99,7 +99,7 @@
                                 ${post.userName}
                             </div>
                             <div class="post-content">${post.text}</div>
-                            ${post.img ? `<img src="${post.img}" class="post-img">` : ""}
+                            ${post.img ? `<img src="${post.img}" class="post-img" onclick="window.open('${post.img}', '_blank')">` : ""}
                             <button class="like-btn" onclick="window.handleLike('${id}')">
                                 <i class="fas fa-heart"></i> ${post.likes || 0} Like
                             </button>
@@ -128,26 +128,30 @@
 
             try {
                 if (file) {
-                    status.innerText = "⏳ Đang gửi ảnh lên máy chủ...";
+                    status.innerText = "⏳ Đang tải ảnh lên hệ thống...";
                     const formData = new FormData();
-                    formData.append('image', file);
-                    
-                    // SỬ DỤNG CLIENT-ID MỚI ĐÃ ĐƯỢC XÁC THỰC
-                    const res = await fetch('https://api.imgur.com/3/image', {
+                    formData.append('source', file); // Sử dụng tham số source theo API v1
+                    formData.append('key', '6d207e02198a847aa98d0a2a901485a5'); // API Key của Dũng
+                    formData.append('action', 'upload'); 
+                    formData.append('format', 'json');
+
+                    const res = await fetch('https://freeimage.host/api/1/upload', {
                         method: 'POST',
-                        headers: { Authorization: 'Client-ID 2933010f3c023d5' },
                         body: formData
                     });
 
                     const resData = await res.json();
-                    if (resData.success) imgUrl = resData.data.link;
-                    else throw new Error("Máy chủ ảnh bận. Hãy thử lại!");
+                    if (resData.status_code === 200) {
+                        imgUrl = resData.image.url;
+                    } else {
+                        throw new Error("Lỗi tải ảnh: " + (resData.error ? resData.error.message : "Máy chủ bận"));
+                    }
                 }
 
                 await push(ref(db, 'posts'), {
                     userName: user.displayName || user.email.split('@')[0],
                     text: text || "",
-                    img: imgUrl || "",
+                    img: imgUrl || "", // Đảm bảo không bị undefined để tránh lỗi treo bài
                     likes: 0,
                     timestamp: Date.now()
                 });
@@ -156,12 +160,12 @@
                 document.getElementById('post-file').value = "";
                 document.getElementById('img-preview').style.display = "none";
                 status.style.color = "#2ecc71";
-                status.innerText = "✅ Đã đăng thành công!";
+                status.innerText = "✅ Đăng bài thành công!";
                 setTimeout(() => status.innerText = "", 3000);
 
             } catch (err) {
                 status.style.color = "#ff4757";
-                status.innerText = "❌ " + err.message;
+                status.innerText = "❌ Lỗi: " + err.message;
             }
         };
     </script>
