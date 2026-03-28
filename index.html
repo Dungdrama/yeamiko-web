@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Yeamiko Network</title>
+    <title>Yeamiko Network | Trang chủ</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -11,12 +11,16 @@
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
         <a href="/" class="active"><i class="fas fa-home"></i> Trang chủ</a>
-        <a href="/profile.html"><i class="fas fa-user"></i> Profile</a>
+        <a href="/profile.html"><i class="fas fa-user"></i> Profile của tôi</a>
         <div id="auth-section" style="padding:10px;"></div>
     </div>
+
     <div class="main-content">
-        <h1>YEAMIKO <span style="color:#00d4ff">NETWORK</span></h1>
-        <div class="card" style="margin-top:20px;">IP: YEAMIKO.FUN</div>
+        <h1>CHÀO MỪNG ĐẾN VỚI <span style="color:#00d4ff">YEAMIKO.FUN</span></h1>
+        <div class="card" style="margin-top:20px;">
+            <p>Server Minecraft Java & Bedrock cực vui!</p>
+            <p style="color:#00d4ff; font-weight:bold; font-size:1.2em; margin-top:10px;">IP: YEAMIKO.FUN</p>
+        </div>
     </div>
 
     <script type="module">
@@ -34,7 +38,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth();
+        const auth = getAuth(app);
 
         onAuthStateChanged(auth, (user) => {
             const display = document.getElementById('user-display');
