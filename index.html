@@ -8,12 +8,15 @@
 </head>
 <body>
     <div class="navbar"><div id="user-display">Đang kết nối...</div></div>
+    
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
-        <a href="/" class="active"><i class="fas fa-home"></i> Trang chủ</a>
-        <a href="/profile.html"><i class="fas fa-user"></i> Profile của tôi</a>
+        <a href="/index.html" class="active"><i class="fas fa-home"></i> Trang chủ</a>
+        <a href="/forum.html"><i class="fas fa-comments"></i> Diễn đàn</a>
+        <a href="/profile.html"><i class="fas fa-user"></i> Hồ sơ</a>
         <div id="auth-section" style="padding:10px;"></div>
     </div>
+
     <div class="main-content">
         <h1>CHÀO MỪNG ĐẾN VỚI <span style="color:#00d4ff">YEAMIKO.FUN</span></h1>
         <div class="card" style="margin-top:20px;">
@@ -27,13 +30,10 @@
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
+            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0", //
             authDomain: "yeamiko-web.firebaseapp.com",
             projectId: "yeamiko-web",
-            storageBucket: "yeamiko-web.firebasestorage.app",
-            messagingSenderId: "380442978172",
-            appId: "1:380442978172:web:52eeb187628ed3518266f9",
-            measurementId: "G-TQEK8VF978"
+            appId: "1:380442978172:web:52eeb187628ed3518266f9"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -43,12 +43,12 @@
             const display = document.getElementById('user-display');
             const authSection = document.getElementById('auth-section');
             if (user) {
-                display.innerText = "Chào, " + user.email.split('@')[0];
-                authSection.innerHTML = `<button id="logout-btn" class="btn-auth" style="background:#e74c3c; color:white;">Đăng xuất</button>`;
+                display.innerText = "Chào, " + (user.displayName || user.email.split('@')[0]);
+                authSection.innerHTML = `<button id="logout-btn" class="btn-auth" style="background:#e74c3c; color:white; width:100%;">Đăng xuất</button>`;
                 document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
             } else {
                 display.innerText = "Khách";
-                authSection.innerHTML = `<button onclick="window.location.href='/login.html'" class="btn-auth">Đăng nhập</button>`;
+                authSection.innerHTML = `<button onclick="window.location.href='/login.html'" class="btn-auth" style="width:100%;">Đăng nhập</button>`;
             }
         });
     </script>
