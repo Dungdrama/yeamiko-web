@@ -1,29 +1,62 @@
-// Dũng nhớ dùng link https://www.gstatic.com... này thì mới chạy được trên web nhé
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập | Yeamiko</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#111; color:white;">
+        <div class="card" style="width:350px; padding:20px; background:#222; border-radius:10px;">
+            <h2 style="text-align:center;">TÀI KHOẢN YEAMIKO</h2>
+            <input type="email" id="email" placeholder="Email của bạn" style="width:100%; margin:10px 0; padding:10px;">
+            <input type="password" id="password" placeholder="Mật khẩu (>6 ký tự)" style="width:100%; margin:10px 0; padding:10px;">
+            <button id="btn-signup" style="width:100%; padding:10px; background:#2ecc71; border:none; color:white; cursor:pointer;">ĐĂNG KÝ MỚI</button>
+            <button id="btn-login" style="width:100%; padding:10px; background:#3498db; border:none; color:white; cursor:pointer; margin-top:10px;">ĐĂNG NHẬP</button>
+            <p id="msg" style="color:#e74c3c; margin-top:10px; text-align:center;"></p>
+        </div>
+    </div>
 
-const firebaseConfig = {
-    apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0", //
-    authDomain: "yeamiko-web.firebaseapp.com",
-    projectId: "yeamiko-web",
-    appId: "1:380442978172:web:52eeb187628ed3518266f9"
-};
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+        const firebaseConfig = {
+            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0", //
+            authDomain: "yeamiko-web.firebaseapp.com",
+            projectId: "yeamiko-web",
+            storageBucket: "yeamiko-web.firebasestorage.app",
+            messagingSenderId: "380442978172",
+            appId: "1:380442978172:web:52eeb187628ed3518266f9"
+        };
 
-// Hàm xử lý khi nhấn nút Đăng ký
-document.getElementById('btn-signup').onclick = async () => {
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
-    
-    try {
-        await createUserWithEmailAndPassword(auth, email, pass);
-        alert("Đăng ký thành công!");
-        window.location.href = "/"; // Quay lại trang chủ
-    } catch (error) {
-        // Nếu lỗi, nó sẽ hiện thông báo ở đây để bạn biết tại sao
-        console.error(error.code);
-        alert("Lỗi đăng ký: " + error.message);
-    }
-};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Xử lý Đăng ký
+        document.getElementById('btn-signup').onclick = async () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            try {
+                await createUserWithEmailAndPassword(auth, email, pass);
+                alert("Đăng ký thành công!");
+                window.location.href = '/'; 
+            } catch (err) {
+                document.getElementById('msg').innerText = "Lỗi: " + err.message;
+            }
+        };
+
+        // Xử lý Đăng nhập
+        document.getElementById('btn-login').onclick = async () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                window.location.href = '/';
+            } catch (err) {
+                document.getElementById('msg').innerText = "Sai tài khoản hoặc mật khẩu!";
+            }
+        };
+    </script>
+</body>
+</html>
