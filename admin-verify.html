@@ -2,35 +2,42 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Phê duyệt bài viết | Admin</title>
+    <title>Phê duyệt bài | Admin</title>
     <style>
         body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; margin-right: 10px; }
-        .approve { background: #2ecc71; }
-        .reject { background: #e74c3c; }
-        img { max-width: 100%; border-radius: 10px; margin-top: 10px; }
+        .card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 600px; margin: 15px auto; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; margin-right: 10px; }
+        .ok { background: #2ecc71; }
+        .no { background: #e74c3c; }
+        img { max-width: 100%; border-radius: 8px; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <h2>Hàng đợi phê duyệt</h2>
-    <div id="list">Đang tải...</div>
+    <h2 style="text-align:center;">Hàng đợi phê duyệt</h2>
+    <div id="list">Đang tải bài viết...</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, onValue, set, remove, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-        const firebaseConfig = { /* Coppy từ file forum của bạn */ };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
+            authDomain: "yeamiko-web.firebaseapp.com",
+            databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "yeamiko-web",
+            appId: "1:380442978172:web:52eeb187628ed3518266f9"
+        };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
 
-        const ADMIN_UID = "kRvctZ12xsfyugkQVCaInAVzt3d2"; // Thay UID thật của bạn vào đây
+        const ADMIN_UID = "kRvctZ12xsfyugkQVCaInAVzt3d2";
 
         onAuthStateChanged(auth, user => {
             if(!user || user.uid !== ADMIN_UID) {
-                alert("Bạn không có quyền!");
+                alert("Bạn không có quyền Admin!");
                 window.location.href = "forum.html";
             }
         });
@@ -38,29 +45,37 @@
         onValue(ref(db, 'pending_posts'), (snap) => {
             const data = snap.val();
             const listEl = document.getElementById('list');
-            listEl.innerHTML = data ? "" : "Không có bài nào chờ duyệt.";
-            if(data) Object.keys(data).forEach(id => {
-                const p = data[id];
-                listEl.insertAdjacentHTML('beforeend', `
-                    <div class="card">
-                        <p><b>Người đăng:</b> ${p.userName}</p>
-                        <p>${p.text}</p>
-                        ${p.img ? `<img src="${p.img}">` : ""}
-                        <div style="margin-top:10px;">
-                            <button class="btn approve" onclick="action('${id}', 'ok')">Duyệt</button>
-                            <button class="btn reject" onclick="action('${id}', 'no')">Xóa</button>
-                        </div>
-                    </div>`);
-            });
+            listEl.innerHTML = data ? "" : "<p style='text-align:center;'>Không có bài nào chờ duyệt.</p>";
+            if(data) {
+                Object.keys(data).forEach(id => {
+                    const p = data[id];
+                    listEl.insertAdjacentHTML('beforeend', `
+                        <div class="card" id="post-${id}">
+                            <p><b>Người đăng:</b> ${p.userName}</p>
+                            <p>${p.text || ""}</p>
+                            ${p.img ? `<img src="${p.img}">` : ""}
+                            <div style="margin-top:15px;">
+                                <button class="btn ok" onclick="approve('${id}')">DUYỆT</button>
+                                <button class="btn no" onclick="reject('${id}')">XÓA</button>
+                            </div>
+                        </div>`);
+                });
+            }
         });
 
-        window.action = async (id, type) => {
+        window.approve = async (id) => {
             const snap = await get(ref(db, `pending_posts/${id}`));
-            if(type === 'ok' && snap.exists()) {
+            if(snap.exists()) {
                 await set(ref(db, `posts/${id}`), snap.val());
+                await remove(ref(db, `pending_posts/${id}`));
+                alert("Đã duyệt!");
             }
-            await remove(ref(db, `pending_posts/${id}`));
-            alert("Đã thực hiện!");
+        };
+
+        window.reject = async (id) => {
+            if(confirm("Xóa bài viết này?")) {
+                await remove(ref(db, `pending_posts/${id}`));
+            }
         };
     </script>
 </body>
