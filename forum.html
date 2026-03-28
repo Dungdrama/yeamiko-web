@@ -20,6 +20,8 @@
         .post-header { display: flex; align-items: center; margin-bottom: 15px; }
         .user-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
         .post-img { width: 100%; border-radius: 10px; margin-top: 15px; }
+        .like-btn { background: #f9f9f9; border: 1px solid #eee; padding: 5px 15px; border-radius: 15px; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .like-btn:hover { background: #ffebee; border-color: #ffcdd2; color: #e74c3c; }
     </style>
 </head>
 <body>
@@ -47,7 +49,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
@@ -60,7 +62,15 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // HIỂN THỊ BÀI VIẾT KÈM TRA CỨU ẢNH TỪ KHO USERS
+        // HÀM LIKE (Đưa ra global để nút HTML gọi được)
+        window.handleLike = (postId) => {
+            const postRef = ref(db, `posts/${postId}/likes`);
+            runTransaction(postRef, (currentLikes) => {
+                return (currentLikes || 0) + 1;
+            });
+        };
+
+        // HIỂN THỊ BÀI VIẾT
         onValue(ref(db, 'posts'), async snap => {
             const list = document.getElementById('forum-list');
             const userSnap = await get(ref(db, 'users'));
@@ -71,7 +81,6 @@
 
             Object.keys(data).reverse().forEach(id => {
                 const post = data[id];
-                // Ưu tiên lấy ảnh Base64 từ Users, nếu không có mới dùng UI-Avatar
                 const avatar = (post.uid && allUsers[post.uid] && allUsers[post.uid].avatar) 
                                 ? allUsers[post.uid].avatar 
                                 : `https://ui-avatars.com/api/?name=${post.userName}&background=random`;
@@ -84,10 +93,16 @@
                         </div>
                         <div class="post-content">${post.text}</div>
                         ${post.img ? `<img src="${post.img}" class="post-img">` : ""}
+                        <div style="margin-top:10px;">
+                            <button class="like-btn" onclick="handleLike('${id}')">
+                                ❤️ ${post.likes || 0} Like
+                            </button>
+                        </div>
                     </div>`;
             });
         });
 
+        // ĐĂNG BÀI
         document.getElementById('btn-post').onclick = async () => {
             const u = auth.currentUser;
             const txt = document.getElementById('post-text').value;
@@ -103,10 +118,11 @@
             }
 
             await push(ref(db, 'posts'), {
-                uid: u.uid, // Gắn ID người dùng vào bài đăng để tra cứu ảnh
+                uid: u.uid,
                 userName: u.displayName || u.email.split('@')[0],
                 text: txt,
                 img: imgB64,
+                likes: 0, // Khởi tạo 0 like
                 time: Date.now()
             });
             document.getElementById('post-text').value = "";
