@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Diễn đàn Yeamiko</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .post-card { background: #222; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #00d4ff; }
+        .post-img { max-width: 100%; border-radius: 5px; margin-top: 10px; display: block; }
+        .post-user { font-weight: bold; color: #00d4ff; font-size: 0.9em; }
+        .post-content { margin: 10px 0; line-height: 1.5; }
+        #upload-section { margin-bottom: 30px; border-bottom: 1px solid #444; padding-bottom: 20px; }
+        textarea { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">YEAMIKO</div>
+        <a href="/"><i class="fas fa-home"></i> Trang chủ</a>
+        <a href="/forum.html" class="active">🏠 Diễn đàn</a>
+        <a href="/profile.html">👤 Hồ sơ</a>
+    </div>
+
+    <div class="main-content">
+        <h1>DIỄN ĐÀN CỘNG ĐỒNG</h1>
+        
+        <div id="upload-section" class="card">
+            <h3>ĐĂNG BÀI MỚI</h3>
+            <textarea id="post-text" rows="3" placeholder="Bạn đang nghĩ gì?"></textarea>
+            <div style="margin-top:10px;">
+                <label style="cursor:pointer; background:#444; padding:8px; border-radius:5px;">
+                    📷 Thêm ảnh
+                    <input type="file" id="post-file" accept="image/*" hidden>
+                </label>
+                <button id="btn-post" class="btn-auth" style="float:right; width:120px;">ĐĂNG BÀI</button>
+            </div>
+            <p id="status" style="font-size:0.8em; margin-top:10px;"></p>
+        </div>
+
+        <div id="forum-posts">Đang tải bài viết...</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0", //
+            authDomain: "yeamiko-web.firebaseapp.com",
+            databaseURL: "https://yeamiko-web-default-rtdb.firebaseio.com", // Dũng cần bật Database trong Firebase Console
+            projectId: "yeamiko-web",
+            appId: "1:380442978172:web:52eeb187628ed3518266f9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // 1. Tải bài viết từ Firebase Database
+        const postsRef = ref(db, 'posts');
+        onValue(postsRef, (snapshot) => {
+            const data = snapshot.val();
+            const container = document.getElementById('forum-posts');
+            container.innerHTML = "";
+            if (data) {
+                Object.values(data).reverse().forEach(post => {
+                    container.innerHTML += `
+                        <div class="post-card">
+                            <div class="post-user">${post.userName}</div>
+                            <div class="post-content">${post.text}</div>
+                            ${post.img ? `<img src="${post.img}" class="post-img">` : ""}
+                            <div style="font-size:0.7em; color:#666; margin-top:10px;">Vừa xong</div>
+                        </div>
+                    `;
+                });
+            }
+        });
+
+        // 2. Xử lý đăng bài
+        document.getElementById('btn-post').onclick = async () => {
+            const user = auth.currentUser;
+            if (!user) return alert("Bạn cần đăng nhập!");
+
+            const text = document.getElementById('post-text').value;
+            const file = document.getElementById('post-file').files[0];
+            const status = document.getElementById('status');
+            let imgUrl = "";
+
+            if (!text && !file) return;
+            status.innerText = "Đang tải lên...";
+
+            try {
+                // Nếu có ảnh, tải lên Imgur trước
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    const res = await fetch('https://api.imgur.com/3/image', {
+                        method: 'POST',
+                        headers: { Authorization: 'Client-ID 546c25a59c58ad7' }, // Thay bằng ID của bạn
+                        body: formData
+                    });
+                    const resData = await res.json();
+                    imgUrl = resData.data.link;
+                }
+
+                // Lưu bài viết vào Realtime Database
+                const newPostRef = push(postsRef);
+                await set(newPostRef, {
+                    userName: user.displayName || user.email.split('@')[0],
+                    text: text,
+                    img: imgUrl,
+                    timestamp: Date.now()
+                });
+
+                document.getElementById('post-text').value = "";
+                document.getElementById('post-file').value = "";
+                status.innerText = "Đã đăng bài!";
+            } catch (err) {
+                status.innerText = "Lỗi: " + err.message;
+            }
+        };
+    </script>
+</body>
+</html>
