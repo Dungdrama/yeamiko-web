@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --main: #00d4ff; --bg: #0a0a0a; --sidebar: #111; --card: rgba(255, 255, 255, 0.05); }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         
         body { background: var(--bg); color: white; min-height: 100vh; overflow-x: hidden; display: flex; }
 
@@ -28,36 +28,45 @@
 
         /* HERO SECTION */
         .hero {
-            height: 70vh; width: 100%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3), var(--bg)), url('https://iili.io/qmYvvC7.jpg');
+            height: 75vh; width: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.4), var(--bg)), url('https://iili.io/qmYvvC7.jpg');
             background-size: cover; background-position: center;
             display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
         }
-        .hero h1 { font-size: clamp(40px, 8vw, 80px); text-transform: uppercase; letter-spacing: 5px; margin-bottom: 10px; text-shadow: 0 5px 20px rgba(0,0,0,0.8); }
-        .hero p { font-size: 1.2rem; color: #ccc; max-width: 600px; margin-bottom: 30px; }
+        .hero h1 { font-size: clamp(45px, 10vw, 90px); text-transform: uppercase; letter-spacing: 8px; margin-bottom: 10px; text-shadow: 0 10px 30px rgba(0,0,0,1); }
+        .hero p { font-size: 1.2rem; color: #ddd; max-width: 700px; margin-bottom: 35px; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
 
         /* IP BOX */
         .ip-box {
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
-            padding: 15px 30px; border-radius: 50px; border: 2px solid var(--main);
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px);
+            padding: 15px 35px; border-radius: 50px; border: 2px solid var(--main);
             display: flex; align-items: center; gap: 20px; cursor: pointer;
-            transition: 0.3s; box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.3);
         }
-        .ip-box:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); }
-        .ip-box b { font-size: 1.5rem; color: var(--main); letter-spacing: 1px; }
-        .ip-box span { color: #fff; font-size: 0.9rem; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px; }
+        .ip-box:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 0 40px rgba(0, 212, 255, 0.5); }
+        .ip-box b { font-size: 1.6rem; color: var(--main); letter-spacing: 1px; }
+        .ip-box span { color: #fff; font-size: 0.8rem; font-weight: bold; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
 
-        /* INFO SECTION */
-        .section { padding: 80px 40px; max-width: 1100px; margin: 0 auto; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 40px; }
-        .card { 
-            background: var(--card); padding: 30px; border-radius: 20px; 
-            border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
+        /* SECTION GALLERY */
+        .section { padding: 60px 40px; max-width: 1200px; margin: 0 auto; }
+        .section-title { font-size: 2rem; margin-bottom: 40px; text-align: center; letter-spacing: 2px; position: relative; }
+        .section-title::after { content: ''; display: block; width: 60px; height: 4px; background: var(--main); margin: 15px auto; border-radius: 2px; }
+
+        .image-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+        .image-card { 
+            position: relative; border-radius: 20px; overflow: hidden; 
+            aspect-ratio: 16/9; cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
+            transition: 0.4s;
         }
-        .card:hover { background: rgba(255,255,255,0.08); transform: translateY(-10px); }
-        .card i { font-size: 40px; color: var(--main); margin-bottom: 20px; }
-        .card h3 { margin-bottom: 15px; font-size: 1.5rem; }
-        .card p { color: #999; line-height: 1.6; }
+        .image-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .image-card:hover img { transform: scale(1.1); }
+        .image-card .overlay {
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            opacity: 0; transition: 0.3s;
+        }
+        .image-card:hover .overlay { opacity: 1; }
 
         /* MOBILE */
         @media (max-width: 768px) {
@@ -66,10 +75,8 @@
             .sidebar a { flex-direction: column; font-size: 10px; flex: 1; padding: 10px 0; margin-bottom: 0; }
             .sidebar a i { margin-right: 0; font-size: 18px; margin-bottom: 3px; }
             .main-content { margin-left: 0; padding-bottom: 80px; }
-            .hero { height: 60vh; }
-            .hero h1 { font-size: 45px; }
-            .ip-box { padding: 10px 20px; }
-            .ip-box b { font-size: 1.1rem; }
+            .hero h1 { font-size: 45px; letter-spacing: 4px; }
+            .ip-box b { font-size: 1.2rem; }
         }
     </style>
 </head>
@@ -86,82 +93,62 @@
     <div class="main-content">
         <section class="hero">
             <h1>YEAMIKO</h1>
-            <p>Chào mừng đến với máy chủ cộng đồng Minecraft lớn nhất khu vực. Nơi kết nối những tâm hồn sáng tạo!</p>
+            <p>Khám phá máy chủ cộng đồng Minecraft hội tụ những công trình vĩ đại và những người bạn đồng hành tuyệt vời.</p>
             
             <div class="ip-box" onclick="copyIP()">
                 <span>SERVER IP</span>
                 <b id="server-ip">Yeamiko.fun</b>
-                <i class="fas fa-copy" style="color: #666;"></i>
+                <i class="fas fa-copy" style="color: #666; font-size: 1.2rem;"></i>
             </div>
-            <p id="copy-msg" style="margin-top: 15px; font-size: 0.8rem; color: var(--main); opacity: 0; transition: 0.3s;">Đã sao chép IP thành công!</p>
+            <p id="copy-msg" style="margin-top: 15px; font-size: 0.85rem; color: var(--main); font-weight: bold; opacity: 0; transition: 0.3s;">✨ Đã sao chép IP thành công!</p>
         </section>
 
         <section class="section">
-            <h2 style="font-size: 2.5rem; text-align: center;">TẠI SAO CHỌN CHÚNG TÔI?</h2>
-            <div class="grid">
-                <div class="card">
-                    <i class="fas fa-users"></i>
-                    <h3>Máy chủ Cộng đồng</h3>
-                    <p>Yeamiko không chỉ là một server, đó là ngôi nhà chung nơi mọi người giao lưu, kết bạn và hỗ trợ lẫn nhau trong thế giới khối vuông.</p>
+            <h2 class="section-title">HÀNH TRÌNH TẠI YEAMIKO</h2>
+            <div class="image-grid">
+                <div class="image-card">
+                    <img src="https://iili.io/qmg9Qb1.jpg" alt="Minecraft Landscape">
+                    <div class="overlay">
+                        <b>Khám phá thế giới</b>
+                        <p>Những vùng đất kỳ bí đang chờ đợi bạn tại Yeamiko.fun</p>
+                    </div>
                 </div>
-                <div class="card">
-                    <i class="fas fa-bolt"></i>
-                    <h3>Tối ưu cực đỉnh</h3>
-                    <p>Sử dụng công nghệ Paper & Velocity mới nhất, đảm bảo trải nghiệm chơi mượt mà, không giật lag cho cả Java và Bedrock.</p>
+                <div class="image-card">
+                    <img src="https://iili.io/qmg9LOP.jpg" alt="Minecraft Architecture">
+                    <div class="overlay">
+                        <b>Xây dựng ước mơ</b>
+                        <p>Tự do sáng tạo những công trình kiến trúc để đời.</p>
+                    </div>
                 </div>
-                <div class="card">
-                    <i class="fas fa-shield-halved"></i>
-                    <h3>Bảo mật & Công bằng</h3>
-                    <p>Hệ thống chống hack tiên tiến và đội ngũ Admin nhiệt tình luôn túc trực để bảo vệ thành quả của bạn.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" style="background: rgba(255,255,255,0.02); max-width: 100%;">
-            <div style="max-width: 1100px; margin: 0 auto;">
-                <h2 style="margin-bottom: 40px;">HÌNH ẢNH MÁY CHỦ</h2>
-                <div class="grid">
-                    <img src="https://wallpaperset.com/w/full/d/0/a/483669.jpg" style="width:100%; border-radius: 15px; aspect-ratio: 16/9; object-fit: cover;">
-                    <img src="https://images6.alphacoders.com/133/1332837.png" style="width:100%; border-radius: 15px; aspect-ratio: 16/9; object-fit: cover;">
-                    <img src="https://getwallpapers.com/wallpaper/full/0/c/5/347641.jpg" style="width:100%; border-radius: 15px; aspect-ratio: 16/9; object-fit: cover;">
+                <div class="image-card">
+                    <img src="https://iili.io/qmg9DWg.jpg" alt="Minecraft Adventure">
+                    <div class="overlay">
+                        <b>Cuộc phiêu lưu mới</b>
+                        <p>Cùng cộng đồng chinh phục mọi thử thách khó khăn nhất.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <footer style="padding: 40px; text-align: center; color: #444; font-size: 0.9rem;">
-            &copy; 2026 Yeamiko Network. Designed with ❤️ for the community.
+        <footer style="padding: 60px 40px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
+            <div style="margin-bottom: 20px;">
+                <a href="#" style="color: #666; margin: 0 15px; text-decoration: none;"><i class="fab fa-discord"></i> Discord</a>
+                <a href="#" style="color: #666; margin: 0 15px; text-decoration: none;"><i class="fab fa-facebook"></i> Facebook</a>
+            </div>
+            <p style="color: #333; font-size: 0.85rem;">&copy; 2026 Yeamiko Network. All Rights Reserved.</p>
         </footer>
     </div>
 
     <script>
-        // Hàm copy IP chuyên nghiệp
+        // Hàm copy IP mượt mà
         function copyIP() {
             const ip = document.getElementById('server-ip').innerText;
             navigator.clipboard.writeText(ip);
             
             const msg = document.getElementById('copy-msg');
             msg.style.opacity = '1';
-            setTimeout(() => {
-                msg.style.opacity = '0';
-            }, 2000);
+            setTimeout(() => { msg.style.opacity = '0'; }, 2000);
         }
-    </script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
-            authDomain: "yeamiko-web.firebaseapp.com",
-            projectId: "yeamiko-web",
-            appId: "1:380442978172:web:52eeb187628ed3518266f9"
-        };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        // Chuyển hướng nếu chưa đăng nhập (Tuỳ chọn)
-        // onAuthStateChanged(auth, user => { if (!user) window.location.href = 'login.html'; });
     </script>
 </body>
 </html>
