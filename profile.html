@@ -2,61 +2,60 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Đăng nhập | Yeamiko</title>
+    <title>Hồ sơ Yeamiko</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#111; color:white;">
-        <div class="card" style="width:350px; padding:20px; background:#222; border-radius:10px;">
-            <h2 style="text-align:center;">TÀI KHOẢN YEAMIKO</h2>
-            <input type="email" id="email" placeholder="Email của bạn" style="width:100%; margin:10px 0; padding:10px;">
-            <input type="password" id="password" placeholder="Mật khẩu (>6 ký tự)" style="width:100%; margin:10px 0; padding:10px;">
-            <button id="btn-signup" style="width:100%; padding:10px; background:#2ecc71; border:none; color:white; cursor:pointer;">ĐĂNG KÝ MỚI</button>
-            <button id="btn-login" style="width:100%; padding:10px; background:#3498db; border:none; color:white; cursor:pointer; margin-top:10px;">ĐĂNG NHẬP</button>
-            <p id="msg" style="color:#e74c3c; margin-top:10px; text-align:center;"></p>
+    <div class="sidebar">
+        <div class="logo">YEAMIKO</div>
+        <a href="/"><i class="fas fa-home"></i> Trang chủ</a>
+        <a href="/profile.html" class="active"><i class="fas fa-user"></i> Hồ sơ</a>
+    </div>
+
+    <div class="main-content">
+        <div class="card" style="text-align: center;">
+            <h2>CHỈNH SỬA HỒ SƠ</h2>
+            <div id="avatar-container" style="cursor:pointer; margin: 20px 0;">
+                <img id="user-avatar" src="https://ui-avatars.com/api/?name=User" style="width:120px; height:120px; border-radius:50%; border:3px solid #00d4ff;">
+                <input type="file" id="file-input" hidden accept="image/*">
+            </div>
+            <input type="text" id="display-name" placeholder="Tên hiển thị mới..." style="width:100%; padding:10px; margin-bottom:10px;">
+            <button id="btn-save" class="btn-auth">LƯU THÔNG TIN</button>
+            <p id="msg" style="margin-top:10px;"></p>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0", //
             authDomain: "yeamiko-web.firebaseapp.com",
             projectId: "yeamiko-web",
-            storageBucket: "yeamiko-web.firebasestorage.app",
-            messagingSenderId: "380442978172",
             appId: "1:380442978172:web:52eeb187628ed3518266f9"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Xử lý Đăng ký
-        document.getElementById('btn-signup').onclick = async () => {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
-            try {
-                await createUserWithEmailAndPassword(auth, email, pass);
-                alert("Đăng ký thành công!");
-                window.location.href = '/'; 
-            } catch (err) {
-                document.getElementById('msg').innerText = "Lỗi: " + err.message;
+        // KIỂM TRA ĐĂNG NHẬP
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Nếu đã đăng nhập thì hiện thông tin
+                document.getElementById('display-name').value = user.displayName || "";
+                if (user.photoURL) document.getElementById('user-avatar').src = user.photoURL;
+            } else {
+                // Chỉ chuyển hướng nếu thực sự chưa đăng nhập
+                console.log("Chưa đăng nhập, đang chuyển hướng...");
+                window.location.href = '/login.html';
             }
-        };
+        });
 
-        // Xử lý Đăng nhập
-        document.getElementById('btn-login').onclick = async () => {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-                window.location.href = '/';
-            } catch (err) {
-                document.getElementById('msg').innerText = "Sai tài khoản hoặc mật khẩu!";
-            }
-        };
+        // Code xử lý đổi ảnh và tên giữ nguyên như cũ...
+        document.getElementById('avatar-container').onclick = () => document.getElementById('file-input').click();
+        // ... (phần code Imgur bạn đã có)
     </script>
 </body>
 </html>
