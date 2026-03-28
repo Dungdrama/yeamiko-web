@@ -31,6 +31,7 @@
         .post-header { display: flex; align-items: center; margin-bottom: 12px; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
         .user-info { display: flex; flex-direction: column; }
+        .post-user-name { font-weight: bold; color: #333; }
         .post-time { font-size: 11px; color: #888; margin-top: 2px; }
         
         .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
@@ -123,7 +124,8 @@
 
             await set(likeRef, true);
             runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 0) + 1);
-            document.getElementById(`l-cnt-${pid}`).innerText = parseInt(document.getElementById(`l-cnt-${pid}`).innerText) + 1;
+            const countEl = document.getElementById(`l-cnt-${pid}`);
+            if(countEl) countEl.innerText = parseInt(countEl.innerText) + 1;
             document.getElementById(`l-btn-${pid}`).classList.add('liked');
         };
 
@@ -131,7 +133,12 @@
             const u = auth.currentUser;
             const val = document.getElementById(`in-${pid}`).value.trim();
             if(!u || !val) return;
-            await push(ref(db, `posts/${pid}/comments`), { uid: u.uid, userName: u.displayName || u.email.split('@')[0], text: val, time: Date.now() });
+            await push(ref(db, `posts/${pid}/comments`), { 
+                uid: u.uid, 
+                userName: u.displayName || u.email.split('@')[0], 
+                text: val, 
+                time: Date.now() 
+            });
             location.reload();
         };
 
@@ -142,13 +149,16 @@
             
             const [snap, uSnap] = await Promise.all([get(q), get(ref(db, 'users'))]);
             const posts = snap.val();
-            const users = uSnap.val() || {};
+            const allUsers = uSnap.val() || {};
             if(!posts) { btn.innerText = "HẾT BÀI"; return; }
 
             const keys = Object.keys(posts).sort((a,b) => posts[b].time - posts[a].time);
             for(let k of keys) {
                 const p = posts[k];
-                const avt = users[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${p.userName}`;
+                // LẤY TÊN VÀ ẢNH MỚI NHẤT TỪ BẢNG USERS ĐỂ ĐỒNG BỘ
+                const latestName = allUsers[p.uid]?.name || p.userName;
+                const latestAvt = allUsers[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${latestName}`;
+                
                 let isLiked = false;
                 if(auth.currentUser) {
                     const lSnap = await get(ref(db, `likes/${k}/${auth.currentUser.uid}`));
@@ -157,17 +167,21 @@
 
                 let cmts = "";
                 if(p.comments) Object.values(p.comments).forEach(c => {
-                    const cavt = users[c.uid]?.avatar || `https://ui-avatars.com/api/?name=${c.userName}`;
-                    cmts += `<div class="comment-item"><img src="${cavt}" class="cmt-avatar"><div class="cmt-content"><b>${c.userName}</b> ${c.text}</div></div>`;
+                    const cName = allUsers[c.uid]?.name || c.userName;
+                    const cavt = allUsers[c.uid]?.avatar || `https://ui-avatars.com/api/?name=${cName}`;
+                    cmts += `<div class="comment-item"><img src="${cavt}" class="cmt-avatar"><div class="cmt-content"><b>${cName}</b> ${c.text}</div></div>`;
                 });
 
                 const html = `
                     <div class="post-card">
                         <div class="post-header">
-                            <img src="${avt}" class="user-avatar">
-                            <div class="user-info"><b>${p.userName}</b><span class="post-time">${formatTime(p.time)}</span></div>
+                            <img src="${latestAvt}" class="user-avatar">
+                            <div class="user-info">
+                                <span class="post-user-name">${latestName}</span>
+                                <span class="post-time">${formatTime(p.time)}</span>
+                            </div>
                         </div>
-                        <div style="margin:10px 0">${p.text}</div>
+                        <div style="margin:10px 0; line-height:1.5;">${p.text}</div>
                         ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
                         <div class="post-actions">
                             <span id="l-btn-${k}" class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ <span id="l-cnt-${k}">${p.likes||0}</span> Thích</span>
@@ -196,6 +210,11 @@
             const txt = document.getElementById('post-text').value;
             const file = document.getElementById('post-file').files[0];
             if(!u || (!txt && !file)) return;
+            
+            // Lấy tên hiện tại từ database trước khi đăng để lưu dự phòng
+            const uSnap = await get(ref(db, `users/${u.uid}`));
+            const currentName = uSnap.exists() ? uSnap.val().name : (u.displayName || u.email.split('@')[0]);
+
             document.getElementById('stt').innerText = "⏳ Đang đăng...";
             
             let img = "";
@@ -206,14 +225,24 @@
                         const i = new Image(); i.src = e.target.result;
                         i.onload = () => {
                             const c = document.createElement('canvas');
-                            c.width = 800; c.height = (i.height * 800) / i.width;
-                            c.getContext('2d').drawImage(i,0,0,c.width,c.height);
+                            const MAX_W = 800;
+                            let w = i.width; let h = i.height;
+                            if (w > MAX_W) { h *= MAX_W / w; w = MAX_W; }
+                            c.width = w; c.height = h;
+                            c.getContext('2d').drawImage(i,0,0,w,h);
                             res(c.toDataURL('image/jpeg', 0.6));
                         }
                     }
                 });
             }
-            await push(ref(db, 'posts'), { uid: u.uid, userName: u.displayName || u.email.split('@')[0], text: txt, img: img, time: Date.now(), likes: 0 });
+            await push(ref(db, 'posts'), { 
+                uid: u.uid, 
+                userName: currentName, 
+                text: txt, 
+                img: img, 
+                time: Date.now(), 
+                likes: 0 
+            });
             location.reload();
         };
     </script>
