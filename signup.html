@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký | Yeamiko</title>
+    <style>
+        :root { --main: #2ecc71; --bg: #111; }
+        body { background: var(--bg); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Segoe UI', sans-serif; color: white; }
+        .card { background: #1a1a1a; padding: 30px; border-radius: 20px; width: 350px; border: 1px solid #333; }
+        h2 { text-align: center; color: var(--main); margin-bottom: 25px; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #333; background: #222; color: white; outline: none; }
+        .btn-signup { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; background: var(--main); color: white; }
+        p { text-align: center; font-size: 14px; color: #888; margin-top: 15px; }
+        a { color: var(--main); text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>ĐĂNG KÝ MỚI</h2>
+        <div id="msg" style="color:#ff4d4d; text-align:center; font-size:12px; margin-bottom:10px;"></div>
+        <input type="email" id="email" placeholder="Nhập Email">
+        <input type="password" id="password" placeholder="Mật khẩu (>6 ký tự)">
+        <button id="btn-signup" class="btn-signup">TẠO TÀI KHOẢN</button>
+        <p>Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
+            authDomain: "yeamiko-web.firebaseapp.com",
+            projectId: "yeamiko-web",
+            appId: "1:380442978172:web:52eeb187628ed3518266f9"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.getElementById('btn-signup').onclick = () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            if(pass.length < 6) { document.getElementById('msg').innerText = "Mật khẩu quá ngắn!"; return; }
+            
+            createUserWithEmailAndPassword(auth, email, pass)
+                .then(() => window.location.href = 'index.html')
+                .catch(err => document.getElementById('msg').innerText = "Lỗi: " + err.message);
+        };
+    </script>
+</body>
+</html>
