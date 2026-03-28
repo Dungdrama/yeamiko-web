@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/nsfwjs@2.4.2/dist/nsfwjs.min.js"></script>
+    <script src="https://unpkg.com/nsfwjs@2.4.2/dist/browser/nsfwjs.min.js"></script>
 
     <style>
         :root { --main: #00d4ff; --bg: #f4f7f6; --sidebar-dark: #111; }
@@ -83,6 +83,25 @@
         </div>
     </div>
 
+    <script>
+        window.toggleMenu = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.querySelector('.sidebar-overlay').classList.toggle('show');
+        };
+
+        let nsfwModel;
+        async function initAI() {
+            try {
+                // nsfwjs sẽ tự động đăng ký vào biến window khi dùng bản browser build
+                nsfwModel = await nsfwjs.load();
+                console.log("AI Mod Ready!");
+            } catch (e) {
+                console.error("AI Load Fail:", e);
+            }
+        }
+        initAI();
+    </script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
@@ -99,23 +118,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-
-        let nsfwModel;
-
-        // ĐƯA HÀM RA GLOBAL ĐỂ KHÔNG BỊ LỖI "UNDEFINED"
-        window.toggleMenu = function() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.querySelector('.sidebar-overlay').classList.toggle('show');
-        };
-
-        // LOAD AI AN TOÀN
-        async function loadAI() {
-            try {
-                nsfwModel = await nsfwjs.load();
-                console.log("AI Mod Ready!");
-            } catch (e) { console.error("AI Load Fail:", e); }
-        }
-        loadAI();
 
         async function renderPosts() {
             const list = document.getElementById('forum-list');
@@ -146,7 +148,7 @@
             if(!u || (!txt && !file)) return alert("Trống!");
             
             document.getElementById('btn-post').disabled = true;
-            stt.innerText = "⏳ Đang kiểm tra...";
+            stt.innerText = "⏳ Đang kiểm tra an toàn...";
 
             let imgB64 = "";
             if(file) {
@@ -160,10 +162,17 @@
                             canvas.width = img.width * scale; canvas.height = img.height * scale;
                             canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
                             
-                            if(nsfwModel) {
-                                const pred = await nsfwModel.classify(canvas);
-                                const bad = pred.find(p => (p.className==='Porn'||p.className==='Hentai') && p.probability > 0.5);
-                                if(bad) { alert("⚠️ Ảnh nhạy cảm bị chặn!"); res(null); return; }
+                            if(window.nsfwModel) {
+                                try {
+                                    const pred = await window.nsfwModel.classify(canvas);
+                                    const bad = pred.find(p => (p.className==='Porn'||p.className==='Hentai') && p.probability > 0.5);
+                                    if(bad) { 
+                                        alert("⚠️ Hình ảnh không phù hợp quy định và đã bị hệ thống chặn!"); 
+                                        res(null); return; 
+                                    }
+                                } catch (aiErr) {
+                                    console.error("AI check error:", aiErr);
+                                }
                             }
                             res(canvas.toDataURL('image/jpeg', 0.6));
                         };
@@ -178,17 +187,21 @@
                 document.getElementById('btn-post').disabled = false; return; 
             }
 
-            const uData = (await get(ref(db, `users/${u.uid}`))).val() || {};
-            await push(ref(db, 'posts'), {
-                uid: u.uid, userName: uData.name || u.email.split('@')[0],
-                text: txt, img: imgB64, time: Date.now()
-            });
+            try {
+                const uData = (await get(ref(db, `users/${u.uid}`))).val() || {};
+                await push(ref(db, 'posts'), {
+                    uid: u.uid, userName: uData.name || u.email.split('@')[0],
+                    text: txt, img: imgB64, time: Date.now()
+                });
 
-            document.getElementById('post-text').value = "";
-            document.getElementById('post-file').value = "";
-            stt.innerText = "✅ Đã đăng!";
+                document.getElementById('post-text').value = "";
+                document.getElementById('post-file').value = "";
+                stt.innerText = "✅ Đã đăng!";
+                renderPosts();
+            } catch (dbErr) {
+                stt.innerText = "❌ Lỗi bảo mật hoặc kết nối!";
+            }
             document.getElementById('btn-post').disabled = false;
-            renderPosts();
         };
 
         onAuthStateChanged(auth, (user) => {
