@@ -18,25 +18,23 @@
         .btn-upload { display: inline-block; padding: 10px 20px; background: white; border: 1px solid var(--main); color: var(--main); border-radius: 25px; cursor: pointer; font-weight: bold; }
         .btn-save { display: none; width: 100%; background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 10px; margin-top: 20px; cursor: pointer; font-weight: bold; }
         .info { text-align: left; margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px; }
-        #stt { margin-top: 10px; font-weight: bold; font-size: 13px; }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
-        <a href="/index.html"><i class="fas fa-home"></i> Trang chủ</a>
-        <a href="/forum.html"><i class="fas fa-comments"></i> Diễn đàn</a>
-        <a href="/profile.html" class="active"><i class="fas fa-user"></i> Hồ sơ</a>
+        <a href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
+        <a href="forum.html"><i class="fas fa-comments"></i> Diễn đàn</a>
+        <a href="profile.html" class="active"><i class="fas fa-user"></i> Hồ sơ</a>
     </div>
-
     <div class="main-content">
         <div class="profile-card">
-            <h2>Hồ sơ Yeamiko</h2>
+            <h2>Hồ sơ của tôi</h2>
             <img id="user-avatar" src="https://ui-avatars.com/api/?name=User">
             <br>
             <label class="btn-upload">Chọn ảnh mới <input type="file" id="f-input" hidden accept="image/*"></label>
             <button id="s-btn" class="btn-save">XÁC NHẬN LƯU</button>
-            <p id="stt"></p>
+            <p id="stt" style="margin-top:10px; font-weight:bold;"></p>
             <div class="info">
                 <p><strong>👤 Tên:</strong> <span id="u-name">...</span></p>
                 <p><strong>📧 Email:</strong> <span id="u-email">...</span></p>
@@ -62,22 +60,12 @@
 
         onAuthStateChanged(auth, user => {
             if (user) {
-                const uid = user.uid;
                 document.getElementById('u-name').innerText = user.displayName || user.email.split('@')[0];
                 document.getElementById('u-email').innerText = user.email;
-
-                // Lấy ảnh từ Database thay vì Auth
-                onValue(ref(db, 'users/' + uid), (snapshot) => {
-                    const data = snapshot.val();
-                    if (data && data.avatar) {
-                        document.getElementById('user-avatar').src = data.avatar;
-                    } else if (user.photoURL) {
-                        document.getElementById('user-avatar').src = user.photoURL;
-                    }
+                onValue(ref(db, 'users/' + user.uid), s => {
+                    if (s.val() && s.val().avatar) document.getElementById('user-avatar').src = s.val().avatar;
                 });
-            } else {
-                window.location.href = '/login.html';
-            }
+            } else { window.location.href = '/login.html'; }
         });
 
         document.getElementById('f-input').onchange = e => {
@@ -87,47 +75,33 @@
             }
         };
 
-        // Hàm nén ảnh siêu nhẹ (Base64)
-        const compressAvatar = (file) => new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (e) => {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 200; canvas.height = 200; // Avatar nhỏ cho nhẹ
-                    canvas.getContext('2d').drawImage(img, 0, 0, 200, 200);
-                    resolve(canvas.toDataURL('image/jpeg', 0.6)); // Nén 60%
-                };
-            };
-        });
-
         document.getElementById('s-btn').onclick = async () => {
             const file = document.getElementById('f-input').files[0];
-            const stt = document.getElementById('stt');
             const user = auth.currentUser;
+            const stt = document.getElementById('stt');
             if(!file || !user) return;
-
-            stt.style.color = "#00d4ff";
-            stt.innerText = "⏳ Đang lưu trực tiếp...";
-
-            try {
-                const base64Avatar = await compressAvatar(file);
-                
-                // Lưu thẳng vào Realtime Database (Giống cách lưu bài viết diễn đàn)
-                await set(ref(db, 'users/' + user.uid), {
-                    username: user.displayName || user.email.split('@')[0],
-                    avatar: base64Avatar
-                });
-
-                stt.style.color = "#2ecc71";
-                stt.innerText = "✅ Đã lưu thành công!";
-                document.getElementById('s-btn').style.display = 'none';
-            } catch (err) {
-                stt.style.color = "red";
-                stt.innerText = "❌ Lỗi: " + err.message;
-            }
+            stt.innerText = "⏳ Đang lưu...";
+            
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const img = new Image();
+                img.src = reader.result;
+                img.onload = async () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 150; canvas.height = 150;
+                    canvas.getContext('2d').drawImage(img, 0,0,150,150);
+                    const b64 = canvas.toDataURL('image/jpeg', 0.5);
+                    
+                    await set(ref(db, 'users/' + user.uid), {
+                        username: user.displayName || user.email.split('@')[0],
+                        avatar: b64
+                    });
+                    stt.style.color = "green";
+                    stt.innerText = "✅ Đã lưu!";
+                    document.getElementById('s-btn').style.display = 'none';
+                };
+            };
         };
     </script>
 </body>
