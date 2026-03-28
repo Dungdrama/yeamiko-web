@@ -5,18 +5,34 @@
     <title>Hồ sơ Yeamiko</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main: #00d4ff; --bg: #ffffff; --sidebar: #111; }
+        :root { --main: #00d4ff; --bg: #f8f9fa; --sidebar: #111; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); display: flex; min-height: 100vh; }
+        
         .sidebar { width: 250px; background: var(--sidebar); height: 100vh; position: fixed; padding: 25px; color: white; }
         .sidebar .logo { font-size: 24px; font-weight: bold; color: var(--main); margin-bottom: 40px; text-align: center; }
         .sidebar a { display: block; color: #bbb; padding: 15px; text-decoration: none; border-radius: 10px; margin-bottom: 8px; }
         .sidebar a.active { background: rgba(0,212,255,0.1); color: var(--main); }
+
         .main-content { margin-left: 250px; flex: 1; padding: 40px; display: flex; justify-content: center; }
-        .profile-card { background: #fff; border: 1px solid #eee; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        #user-avatar { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 3px solid var(--main); margin-bottom: 15px; background: #f0f0f0; }
-        .btn-upload { display: inline-block; padding: 10px 20px; border: 1px solid var(--main); color: var(--main); border-radius: 25px; cursor: pointer; font-weight: bold; }
-        .btn-save { display: none; width: 100%; background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 10px; margin-top: 20px; cursor: pointer; font-weight: bold; }
+        .profile-card { background: #fff; padding: 30px; border-radius: 20px; width: 100%; max-width: 500px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        
+        /* Avatar section */
+        .avatar-box { text-align: center; margin-bottom: 30px; }
+        #user-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--main); margin-bottom: 10px; }
+        .btn-upload { font-size: 13px; color: var(--main); cursor: pointer; font-weight: bold; }
+
+        /* Form section */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; color: #555; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--main); box-shadow: 0 0 5px rgba(0, 212, 255, 0.2); }
+
+        .btn-save { width: 100%; background: var(--main); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn-save:hover { opacity: 0.9; }
+        
+        #status { text-align: center; margin-top: 15px; font-weight: bold; font-size: 14px; }
+        .section-title { border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px; color: #333; }
     </style>
 </head>
 <body>
@@ -29,22 +45,39 @@
 
     <div class="main-content">
         <div class="profile-card">
-            <h2>Hồ sơ cá nhân</h2>
-            <img id="user-avatar" src="https://ui-avatars.com/api/?name=User">
-            <br>
-            <label class="btn-upload">Chọn ảnh đại diện <input type="file" id="f-input" hidden accept="image/*"></label>
-            <button id="s-btn" class="btn-save">LƯU THAY ĐỔI</button>
-            <p id="stt" style="margin-top:10px; font-weight:bold;"></p>
-            <div style="text-align: left; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
-                <p><strong>Tên:</strong> <span id="u-name">...</span></p>
-                <p><strong>Email:</strong> <span id="u-email">...</span></p>
+            <h2 class="section-title">Hồ sơ cá nhân</h2>
+            
+            <div class="avatar-box">
+                <img id="user-avatar" src="https://ui-avatars.com/api/?name=User">
+                <br>
+                <label class="btn-upload">Đổi ảnh đại diện <input type="file" id="f-input" hidden accept="image/*"></label>
             </div>
+
+            <div class="form-group">
+                <label>Tên hiển thị</label>
+                <input type="text" id="display-name" placeholder="Nhập tên của bạn">
+            </div>
+
+            <h2 class="section-title" style="margin-top: 40px;">Thay đổi mật khẩu</h2>
+            
+            <div class="form-group">
+                <label>Mật khẩu mới</label>
+                <input type="password" id="new-password" placeholder="Ít nhất 6 ký tự">
+            </div>
+
+            <div class="form-group">
+                <label>Xác nhận mật khẩu mới</label>
+                <input type="password" id="confirm-password" placeholder="Nhập lại mật khẩu mới">
+            </div>
+
+            <button id="btn-update" class="btn-save">LƯU THAY ĐỔI</button>
+            <p id="status"></p>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, updatePassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -58,49 +91,80 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
+        let currentAvatarB64 = "";
+
+        // Load dữ liệu cũ
         onAuthStateChanged(auth, user => {
             if (user) {
-                document.getElementById('u-name').innerText = user.displayName || user.email.split('@')[0];
-                document.getElementById('u-email').innerText = user.email;
+                document.getElementById('display-name').value = user.displayName || "";
                 onValue(ref(db, 'users/' + user.uid), s => {
-                    if (s.exists() && s.val().avatar) document.getElementById('user-avatar').src = s.val().avatar;
+                    if (s.exists() && s.val().avatar) {
+                        document.getElementById('user-avatar').src = s.val().avatar;
+                        currentAvatarB64 = s.val().avatar;
+                    }
                 });
             } else { window.location.href = 'login.html'; }
         });
 
+        // Xử lý chọn ảnh
         document.getElementById('f-input').onchange = e => {
-            if (e.target.files[0]) {
-                document.getElementById('user-avatar').src = URL.createObjectURL(e.target.files[0]);
-                document.getElementById('s-btn').style.display = 'block';
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    const img = new Image();
+                    img.src = reader.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 150; canvas.height = 150;
+                        canvas.getContext('2d').drawImage(img, 0, 0, 150, 150);
+                        currentAvatarB64 = canvas.toDataURL('image/jpeg', 0.6);
+                        document.getElementById('user-avatar').src = currentAvatarB64;
+                    };
+                };
             }
         };
 
-        document.getElementById('s-btn').onclick = async () => {
-            const file = document.getElementById('f-input').files[0];
+        // Nút Cập nhật tổng thể
+        document.getElementById('btn-update').onclick = async () => {
             const user = auth.currentUser;
-            if(!file || !user) return;
-            document.getElementById('stt').innerText = "⏳ Đang nén và lưu...";
-            
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => {
-                const img = new Image();
-                img.src = reader.result;
-                img.onload = async () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 120; canvas.height = 120; // Size nhỏ để lưu database mượt
-                    canvas.getContext('2d').drawImage(img, 0, 0, 120, 120);
-                    const base64 = canvas.toDataURL('image/jpeg', 0.6);
-                    
-                    await set(ref(db, 'users/' + user.uid), {
-                        avatar: base64,
-                        name: user.displayName || user.email.split('@')[0]
-                    });
-                    document.getElementById('stt').style.color = "green";
-                    document.getElementById('stt').innerText = "✅ Đã lưu thành công!";
-                    document.getElementById('s-btn').style.display = 'none';
-                };
-            };
+            const newName = document.getElementById('display-name').value;
+            const newPass = document.getElementById('new-password').value;
+            const confirmPass = document.getElementById('confirm-password').value;
+            const stt = document.getElementById('status');
+
+            stt.style.color = "orange";
+            stt.innerText = "⏳ Đang xử lý...";
+
+            try {
+                // 1. Cập nhật Tên và Ảnh vào Database
+                await set(ref(db, 'users/' + user.uid), {
+                    name: newName,
+                    avatar: currentAvatarB64
+                });
+
+                // 2. Cập nhật Display Name trong Auth
+                await updateProfile(user, { displayName: newName });
+
+                // 3. Cập nhật Mật khẩu (nếu có nhập)
+                if (newPass) {
+                    if (newPass.length < 6) throw new Error("Mật khẩu phải từ 6 ký tự!");
+                    if (newPass !== confirmPass) throw new Error("Mật khẩu xác nhận không khớp!");
+                    await updatePassword(user, newPass);
+                }
+
+                stt.style.color = "green";
+                stt.innerText = "✅ Đã cập nhật hồ sơ và mật khẩu!";
+                document.getElementById('new-password').value = "";
+                document.getElementById('confirm-password').value = "";
+            } catch (err) {
+                stt.style.color = "red";
+                stt.innerText = "❌ Lỗi: " + err.message;
+                if (err.message.includes("recent-login")) {
+                    stt.innerText = "❌ Bạn cần đăng nhập lại để đổi mật khẩu vì lý do bảo mật!";
+                }
+            }
         };
     </script>
 </body>
