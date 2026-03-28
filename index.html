@@ -2,19 +2,43 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Yeamiko Network - Trang chủ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yeamiko Network | Minecraft Server</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="overlay"></div>
+    
     <nav>
-        <a href="/">Trang chủ</a>
-        <a href="/luat-choi">Luật chơi</a>
-        <a href="/nap-the">Nạp thẻ</a>
+        <div class="logo">YEAMIKO</div>
+        <div class="menu">
+            <a href="/">Trang chủ</a>
+            <a href="/luat-choi">Luật chơi</a>
+            <a href="https://discord.gg/yourlink" target="_blank">Discord</a>
+        </div>
     </nav>
-    <div class="container">
-        <h1>Chào mừng đến với Yeamiko!</h1>
-        <p>Server Minecraft đa nền tảng cực vui.</p>
-        <div class="ip-box">IP: play.yeamiko.com</div>
-    </div>
+
+    <header class="hero">
+        <img src="https://images.wallpapersden.com/image/download/minecraft-night-view_bWptZ2mUmZqaraWkpJRmbmdlrWlnZ2U.jpg" alt="Server Background" class="bg-image">
+        
+        <div class="hero-content">
+            <h1>YEAMIKO <span class="highlight">NETWORK</span></h1>
+            <p>Trải nghiệm Minecraft đa nền tảng đỉnh cao</p>
+            
+            <div class="ip-container" onclick="copyIP()">
+                <span id="ip-text">IP: YEAMIKO.FUN</span>
+                <span class="copy-hint">(Click để copy)</span>
+            </div>
+        </div>
+    </header>
+
+    <script>
+        function copyIP() {
+            const ip = "Yeamiko.fun";
+            navigator.clipboard.writeText(ip);
+            alert("Đã copy IP: " + ip);
+        }
+    </script>
 </body>
 </html>
