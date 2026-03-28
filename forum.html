@@ -37,7 +37,7 @@
         .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
         .post-actions { margin-top: 15px; display: flex; gap: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
         .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; transition: 0.2s; }
-        .action-btn.liked { color: #ff4d4d; }
+        .action-btn.liked { color: #ff4d4d; pointer-events: none; }
 
         .comment-section { margin-top: 15px; }
         .comment-item { display: flex; margin-bottom: 10px; }
@@ -47,7 +47,7 @@
         .cmt-input { flex: 1; padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
         .btn-cmt { background: none; border: none; color: var(--main); cursor: pointer; font-weight: bold; }
 
-        .post-box-fixed { position: fixed; bottom: 0; left: 250px; right: 0; background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 900; }
+        .post-box-fixed { position: fixed; bottom: 0; left: 250px; right: 0; background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 900; border-top: 1px solid #eee; }
         .btn-load-more { background: white; border: 2px solid var(--main); color: var(--main); padding: 10px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; margin: 20px 0; }
 
         /* MOBILE */
@@ -57,7 +57,7 @@
             .sidebar a { flex-direction: column; font-size: 10px; flex: 1; color: #666 !important; padding: 10px 0; margin-bottom: 0; }
             .sidebar a i { margin-right: 0; font-size: 18px; margin-bottom: 3px; }
             .sidebar a.active { background: #f0faff !important; color: var(--main) !important; }
-            .btn-discord { background: transparent !important; color: #5865F2 !important; }
+            .btn-discord { background: transparent !important; color: #5865F2 !important; margin-top: 0; }
             .btn-discord img { filter: none; margin-right: 0; width: 20px; }
             .main-content { margin-left: 0; padding-bottom: 250px; }
             .post-box-fixed { left: 0; bottom: 65px; }
@@ -77,7 +77,7 @@
 
     <div class="main-content">
         <div id="forum-list" class="container"></div>
-        <button id="btn-load-more" class="btn-load-more">XEM THÊM</button>
+        <button id="btn-load-more" class="btn-load-more" style="display:none;">XEM THÊM</button>
     </div>
 
     <div class="post-box-fixed">
@@ -94,7 +94,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, push, get, set, query, limitToLast, orderByChild, endBefore, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, push, get, set, query, limitToLast, orderByChild, endBefore, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.app";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
@@ -115,42 +115,44 @@
             return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
         }
 
+        // Like bài viết
         window.handleLike = async (pid) => {
             const u = auth.currentUser;
-            if(!u) return alert("Đăng nhập để Like!");
+            if(!u) return alert("Vui lòng đăng nhập!");
             const likeRef = ref(db, `likes/${pid}/${u.uid}`);
             const snap = await get(likeRef);
-            if(snap.exists()) return alert("Bạn đã like rồi!");
+            if(snap.exists()) return alert("Bạn đã like bài này rồi!");
 
             await set(likeRef, true);
             runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 0) + 1);
-            const countEl = document.getElementById(`l-cnt-${pid}`);
-            if(countEl) countEl.innerText = parseInt(countEl.innerText) + 1;
-            document.getElementById(`l-btn-${pid}`).classList.add('liked');
+            location.reload(); 
         };
 
+        // Bình luận
         window.sendComment = async (pid) => {
             const u = auth.currentUser;
             const val = document.getElementById(`in-${pid}`).value.trim();
             if(!u || !val) return;
             await push(ref(db, `posts/${pid}/comments`), { 
-                uid: u.uid, 
-                userName: u.displayName || u.email.split('@')[0], 
-                text: val, 
-                time: Date.now() 
+                uid: u.uid, userName: u.displayName || u.email.split('@')[0], 
+                text: val, time: Date.now() 
             });
             location.reload();
         };
 
+        // Tải bài viết
         async function loadPosts() {
-            const btn = document.getElementById('btn-load-more');
-            btn.innerText = "Đang tải...";
+            const forumList = document.getElementById('forum-list');
+            const loadBtn = document.getElementById('btn-load-more');
+            
             let q = lastTime ? query(ref(db, 'posts'), orderByChild('time'), endBefore(lastTime), limitToLast(5)) : query(ref(db, 'posts'), orderByChild('time'), limitToLast(5));
             
             const [snap, uSnap] = await Promise.all([get(q), get(ref(db, 'users'))]);
             const posts = snap.val();
             const allUsers = uSnap.val() || {};
-            if(!posts) { btn.innerText = "HẾT BÀI"; return; }
+
+            if(!posts) { loadBtn.style.display = 'none'; return; }
+            loadBtn.style.display = 'block';
 
             const keys = Object.keys(posts).sort((a,b) => posts[b].time - posts[a].time);
             for(let k of keys) {
@@ -180,92 +182,65 @@
                                 <span class="post-time">${formatTime(p.time)}</span>
                             </div>
                         </div>
-                        <div style="margin:10px 0; line-height:1.5;">${p.text}</div>
+                        <div style="margin:10px 0;">${p.text}</div>
                         ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
                         <div class="post-actions">
-                            <span id="l-btn-${k}" class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ <span id="l-cnt-${k}">${p.likes||0}</span> Thích</span>
+                            <span class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ ${p.likes||0} Thích</span>
                         </div>
                         <div class="comment-section">
                             <div id="clist-${k}">${cmts}</div>
                             <div class="cmt-input-box"><input id="in-${k}" class="cmt-input" placeholder="Bình luận..."><button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button></div>
                         </div>
                     </div>`;
-                document.getElementById('forum-list').insertAdjacentHTML('beforeend', html);
+                forumList.insertAdjacentHTML('beforeend', html);
             }
             lastTime = posts[keys[keys.length-1]].time;
-            btn.innerText = "XEM THÊM";
         }
+
+        // Đăng bài
+        document.getElementById('btn-post').onclick = async () => {
+            const u = auth.currentUser;
+            const text = document.getElementById('post-text').value.trim();
+            const file = document.getElementById('post-file').files[0];
+
+            if(!u) return alert("Hãy đăng nhập!");
+            if(!text && !file) return alert("Nội dung trống!");
+
+            document.getElementById('stt').innerText = "⏳ Đang đăng bài...";
+            document.getElementById('btn-post').disabled = true;
+
+            let b64 = "";
+            if(file) {
+                const reader = new FileReader();
+                b64 = await new Promise(resolve => {
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const w = 800; const h = (img.height * 800) / img.width;
+                            canvas.width = w; canvas.height = h;
+                            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                            resolve(canvas.toDataURL('image/jpeg', 0.6));
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            await push(ref(db, 'posts'), {
+                uid: u.uid, userName: u.displayName || u.email.split('@')[0],
+                text: text, img: b64, time: Date.now(), likes: 0
+            });
+            location.reload();
+        };
 
         onAuthStateChanged(auth, () => {
             document.getElementById('forum-list').innerHTML = "";
             lastTime = null;
             loadPosts();
         });
-
         document.getElementById('btn-load-more').onclick = loadPosts;
-
-        // --- SỬA LẠI HÀM ĐĂNG BÀI ---
-        document.getElementById('btn-post').onclick = async () => {
-            const u = auth.currentUser;
-            const txt = document.getElementById('post-text').value.trim();
-            const file = document.getElementById('post-file').files[0];
-            
-            if(!u) return alert("Vui lòng đăng nhập!");
-            if(!txt && !file) return alert("Vui lòng nhập nội dung hoặc chọn ảnh!");
-            
-            document.getElementById('stt').innerText = "⏳ Đang đăng bài...";
-            document.getElementById('btn-post').disabled = true;
-
-            try {
-                // Lấy tên hiện tại từ database để lưu vào bài viết (dự phòng)
-                const uSnap = await get(ref(db, `users/${u.uid}`));
-                const currentName = uSnap.exists() ? uSnap.val().name : (u.displayName || u.email.split('@')[0]);
-
-                let imgData = "";
-                if(file) {
-                    imgData = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.readAsDataURL(file);
-                        reader.onload = (e) => {
-                            const img = new Image();
-                            img.src = e.target.result;
-                            img.onload = () => {
-                                const canvas = document.createElement('canvas');
-                                const MAX_W = 800;
-                                let w = img.width; let h = img.height;
-                                if (w > MAX_W) { h *= MAX_W / w; w = MAX_W; }
-                                canvas.width = w; canvas.height = h;
-                                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                                resolve(canvas.toDataURL('image/jpeg', 0.6));
-                            };
-                            img.onerror = reject;
-                        };
-                        reader.onerror = reject;
-                    });
-                }
-
-                await push(ref(db, 'posts'), { 
-                    uid: u.uid, 
-                    userName: currentName, 
-                    text: txt, 
-                    img: imgData, 
-                    time: Date.now(), 
-                    likes: 0 
-                });
-
-                // Reset form
-                document.getElementById('post-text').value = "";
-                document.getElementById('post-file').value = "";
-                document.getElementById('stt').innerText = "✅ Đăng thành công!";
-                setTimeout(() => location.reload(), 500);
-
-            } catch (error) {
-                console.error(error);
-                alert("Lỗi khi đăng bài!");
-                document.getElementById('stt').innerText = "";
-                document.getElementById('btn-post').disabled = false;
-            }
-        };
     </script>
 </body>
 </html>
