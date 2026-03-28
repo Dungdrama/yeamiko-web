@@ -2,43 +2,64 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeamiko Network | Minecraft Server</title>
+    <title>Yeamiko Network | Home</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="overlay"></div>
-    
-    <nav>
+    <div class="navbar">
+        <i class="fas fa-bars"></i>
+        <div id="user-display">Đang tải...</div>
+    </div>
+
+    <div class="sidebar">
         <div class="logo">YEAMIKO</div>
-        <div class="menu">
-            <a href="/">Trang chủ</a>
-            <a href="/luat-choi">Luật chơi</a>
-            <a href="https://discord.gg/yourlink" target="_blank">Discord</a>
-        </div>
-    </nav>
+        <a href="/" class="active"><i class="fas fa-home"></i> Trang chủ</a>
+        <a href="/luat-choi.html"><i class="fas fa-gavel"></i> Luật chơi</a>
+        <a href="/profile.html"><i class="fas fa-user"></i> Profile của tôi</a>
+        <hr style="border:0.1px solid #333; margin:10px;">
+        <div id="auth-section" style="padding:0 10px;"></div>
+    </div>
 
-    <header class="hero">
-        <img src="https://images.wallpapersden.com/image/download/minecraft-night-view_bWptZ2mUmZqaraWkpJRmbmdlrWlnZ2U.jpg" alt="Server Background" class="bg-image">
-        
-        <div class="hero-content">
-            <h1>YEAMIKO <span class="highlight">NETWORK</span></h1>
-            <p>Trải nghiệm Minecraft đa nền tảng đỉnh cao</p>
-            
-            <div class="ip-container" onclick="copyIP()">
-                <span id="ip-text">IP: YEAMIKO.FUN</span>
-                <span class="copy-hint">(Click để copy)</span>
-            </div>
+    <div class="main-content">
+        <h1>Chào mừng tới Yeamiko.fun</h1>
+        <div class="card" style="margin-top:20px;">
+            <p>Server Minecraft đa nền tảng cực vui.</p>
+            <p style="color:var(--primary); font-weight:bold; font-size:20px; margin-top:10px;">IP: YEAMIKO.FUN</p>
         </div>
-    </header>
+    </div>
 
-    <script>
-        function copyIP() {
-            const ip = "Yeamiko.fun";
-            navigator.clipboard.writeText(ip);
-            alert("Đã copy IP: " + ip);
-        }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+        // DÁN MÃ TỪ ẢNH FIREBASE CỦA BẠN VÀO ĐÂY
+        const firebaseConfig = {
+            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQLbJBM4b9c0",
+            authDomain: "yeamiko-web.firebaseapp.com",
+            projectId: "yeamiko-web",
+            storageBucket: "yeamiko-web.firebasestorage.app",
+            messagingSenderId: "380442978172",
+            appId: "1:380442978172:web:d28cf59982da86278266f9",
+            measurementId: "G-QD3CV8DFGE"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            const display = document.getElementById('user-display');
+            const authSection = document.getElementById('auth-section');
+            if (user) {
+                display.innerText = "Chào, " + user.email.split('@')[0];
+                authSection.innerHTML = `<button onclick="window.logout()" class="btn-auth" style="background:#e74c3c; color:white;">Đăng xuất</button>`;
+            } else {
+                display.innerText = "Khách";
+                authSection.innerHTML = `<button onclick="window.location.href='/login.html'" class="btn-auth">Đăng nhập</button>`;
+            }
+        });
+
+        window.logout = () => signOut(auth).then(() => location.reload());
     </script>
 </body>
 </html>
