@@ -2,55 +2,142 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Yeamiko Network | Home</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ - Yeamiko</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --main: #00d4ff; --sidebar: rgba(17, 17, 17, 0.9); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            /* CÀI ĐẶT ẢNH NỀN CHỐNG LỖI MÁY TÍNH */
+            background-image: url('https://freeimage.host/i/qmYvvC7');
+            background-size: cover;      /* Phủ kín toàn màn hình */
+            background-position: center; /* Luôn lấy tâm ảnh */
+            background-attachment: fixed; /* Ảnh đứng yên khi cuộn trang */
+            background-repeat: no-repeat;
+            color: white;
+        }
+
+        /* Lớp phủ mờ giúp chữ dễ đọc hơn */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); 
+            z-index: 0;
+        }
+
+        /* Sidebar */
+        .sidebar { 
+            width: 250px; 
+            background: var(--sidebar); 
+            height: 100vh; 
+            position: fixed; 
+            padding: 25px; 
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px); /* Hiệu ứng mờ đục xuyên thấu */
+        }
+        .sidebar .logo { 
+            font-size: 26px; 
+            font-weight: bold; 
+            color: var(--main); 
+            margin-bottom: 40px; 
+            text-align: center;
+            letter-spacing: 2px;
+        }
+        .sidebar a { 
+            display: flex; 
+            align-items: center; 
+            color: #ddd; 
+            padding: 15px; 
+            text-decoration: none; 
+            border-radius: 12px; 
+            margin-bottom: 10px; 
+            transition: 0.3s; 
+        }
+        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar a:hover, .sidebar a.active { 
+            background: rgba(0, 212, 255, 0.2); 
+            color: var(--main); 
+        }
+
+        /* Nút đăng xuất */
+        .logout-item {
+            margin-top: 10px;
+            color: #ff4d4d !important;
+            border: 1px solid rgba(255, 77, 77, 0.3);
+        }
+
+        /* Nội dung chính */
+        .main-content { 
+            margin-left: 250px; 
+            flex: 1; 
+            z-index: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center;
+            padding: 20px;
+        }
+        h1 { font-size: 50px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        p { font-size: 20px; margin-top: 10px; opacity: 0.9; }
+
+        /* Responsive cho điện thoại */
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .main-content { margin-left: 0; height: 70vh; }
+            body { flex-direction: column; }
+            h1 { font-size: 35px; }
+        }
+    </style>
 </head>
 <body>
-    <div class="navbar"><div id="user-display">Đang kết nối...</div></div>
-    
+    <div class="overlay"></div>
+
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
-        <a href="/index.html" class="active"><i class="fas fa-home"></i> Trang chủ</a>
-        <a href="/forum.html"><i class="fas fa-comments"></i> Diễn đàn</a>
-        <a href="/profile.html"><i class="fas fa-user"></i> Hồ sơ</a>
-        <div id="auth-section" style="padding:10px;"></div>
+        <a href="index.html" class="active"><i class="fas fa-home"></i> Trang chủ</a>
+        <a href="forum.html"><i class="fas fa-comments"></i> Diễn đàn</a>
+        <a href="profile.html"><i class="fas fa-user"></i> Hồ sơ</a>
+        <a href="#" id="btn-logout" class="logout-item"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
     </div>
 
     <div class="main-content">
-        <h1>CHÀO MỪNG ĐẾN VỚI <span style="color:#00d4ff">YEAMIKO.FUN</span></h1>
-        <div class="card" style="margin-top:20px;">
-            <p>Server Minecraft Java & Bedrock cực vui!</p>
-            <p style="color:#00d4ff; font-weight:bold; font-size:1.5em; margin-top:10px;">IP: YEAMIKO.FUN</p>
-        </div>
+        <h1>Chào mừng tới Yeamiko</h1>
+        <p>Hệ thống quản lý máy chủ Minecraft chuyên nghiệp</p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0", //
+            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
+            databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "yeamiko-web",
             appId: "1:380442978172:web:52eeb187628ed3518266f9"
         };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        onAuthStateChanged(auth, (user) => {
-            const display = document.getElementById('user-display');
-            const authSection = document.getElementById('auth-section');
-            if (user) {
-                display.innerText = "Chào, " + (user.displayName || user.email.split('@')[0]);
-                authSection.innerHTML = `<button id="logout-btn" class="btn-auth" style="background:#e74c3c; color:white; width:100%;">Đăng xuất</button>`;
-                document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
-            } else {
-                display.innerText = "Khách";
-                authSection.innerHTML = `<button onclick="window.location.href='/login.html'" class="btn-auth" style="width:100%;">Đăng nhập</button>`;
-            }
+        // Kiểm tra đăng nhập
+        onAuthStateChanged(auth, user => {
+            if (!user) { window.location.href = 'login.html'; }
         });
+
+        // Xử lý Đăng xuất
+        document.getElementById('btn-logout').onclick = (e) => {
+            e.preventDefault();
+            if(confirm("Dũng muốn đăng xuất à?")) {
+                signOut(auth).then(() => { window.location.href = 'login.html'; });
+            }
+        };
     </script>
 </body>
 </html>
