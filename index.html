@@ -22,7 +22,6 @@
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
         
-        /* Nút Discord với Icon mới */
         .btn-discord { margin-top: auto; background: var(--discord-color) !important; color: white !important; justify-content: center; font-weight: bold; }
         .btn-discord img { width: 24px; margin-right: 10px; }
 
@@ -43,13 +42,28 @@
         .ip-box {
             background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px);
             padding: 15px 35px; border-radius: 50px; border: 2px solid var(--main);
-            display: flex; align-items: center; gap: 20px; cursor: pointer;
+            display: flex; align-items: center; gap: 15px; cursor: pointer;
             transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
             box-shadow: 0 0 25px rgba(0, 212, 255, 0.3);
         }
         .ip-box:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 0 40px rgba(0, 212, 255, 0.5); }
         .ip-box b { font-size: 1.6rem; color: var(--main); letter-spacing: 1px; }
-        .ip-box span { color: #fff; font-size: 0.8rem; font-weight: bold; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
+        .ip-box span.label { color: #fff; font-size: 0.8rem; font-weight: bold; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
+        
+        /* Player Count Badge */
+        .player-status {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--main);
+        }
+        .dot { height: 8px; width: 8px; background-color: #2ecc71; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
         /* GALLERY SECTION */
         .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; }
@@ -72,7 +86,7 @@
         .image-card b { font-size: 1.3rem; color: var(--main); display: block; margin-bottom: 5px; }
         .image-card p { font-size: 0.9rem; color: #ccc; }
 
-        /* --- MOBILE RESPONSIVE (GIỮ MÀU ĐEN) --- */
+        /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
             .sidebar { 
                 width: 100%; height: 70px; bottom: 0; top: auto; 
@@ -89,6 +103,8 @@
             
             .main-content { margin-left: 0; padding-bottom: 80px; }
             .hero h1 { font-size: 45px; letter-spacing: 4px; }
+            .ip-box { padding: 10px 20px; gap: 10px; flex-wrap: wrap; justify-content: center; }
+            .ip-box b { font-size: 1.2rem; }
         }
     </style>
 </head>
@@ -109,11 +125,17 @@
         <section class="hero">
             <h1>YEAMIKO</h1>
             <p>Khám phá máy chủ cộng đồng Minecraft hội tụ những công trình vĩ đại và những người bạn đồng hành tuyệt vời.</p>
+            
             <div class="ip-box" onclick="copyIP()">
-                <span>SERVER IP</span>
+                <span class="label">SERVER IP</span>
                 <b id="server-ip">Yeamiko.fun</b>
+                <div class="player-status">
+                    <span class="dot" id="status-dot"></span>
+                    <span id="player-count">... đang tải</span>
+                </div>
                 <i class="fas fa-copy" style="color: #666;"></i>
             </div>
+            
             <p id="copy-msg" style="margin-top: 15px; font-size: 0.85rem; color: var(--main); font-weight: bold; opacity: 0; transition: 0.3s;">✨ Đã sao chép IP thành công!</p>
         </section>
 
@@ -150,6 +172,7 @@
     </div>
 
     <script>
+        // Hàm copy IP
         function copyIP() {
             const ip = document.getElementById('server-ip').innerText;
             navigator.clipboard.writeText(ip);
@@ -157,6 +180,33 @@
             msg.style.opacity = '1';
             setTimeout(() => { msg.style.opacity = '0'; }, 2000);
         }
+
+        // Hàm lấy số lượng người chơi online
+        async function fetchServerStatus() {
+            const ip = "Yeamiko.fun";
+            const countEl = document.getElementById('player-count');
+            const dotEl = document.getElementById('status-dot');
+
+            try {
+                const response = await fetch(`https://api.mcstatus.io/v2/status/java/${ip}`);
+                const data = await response.json();
+
+                if (data.online) {
+                    countEl.innerText = `${data.players.online} đang chơi`;
+                    dotEl.style.backgroundColor = "#2ecc71"; // Xanh lá khi online
+                } else {
+                    countEl.innerText = "Máy chủ Offline";
+                    dotEl.style.backgroundColor = "#ff4d4d"; // Đỏ khi offline
+                }
+            } catch (error) {
+                console.error("Lỗi API:", error);
+                countEl.innerText = "Lỗi kết nối";
+            }
+        }
+
+        // Tự động cập nhật mỗi 60 giây
+        fetchServerStatus();
+        setInterval(fetchServerStatus, 60000);
     </script>
 </body>
 </html>
