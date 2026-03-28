@@ -11,7 +11,7 @@
         
         body { background: var(--bg); color: white; min-height: 100vh; overflow-x: hidden; display: flex; }
 
-        /* --- SIDEBAR ĐEN ĐỒNG BỘ --- */
+        /* --- SIDEBAR --- */
         .sidebar { 
             width: 250px; background: var(--sidebar); height: 100vh; 
             position: fixed; padding: 25px; color: white; z-index: 1000;
@@ -21,7 +21,6 @@
         .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
-        
         .btn-discord { margin-top: auto; background: var(--discord-color) !important; color: white !important; justify-content: center; font-weight: bold; }
         .btn-discord img { width: 24px; margin-right: 10px; }
 
@@ -30,57 +29,116 @@
 
         /* HERO SECTION */
         .hero {
-            height: 85vh; width: 100%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.4), var(--bg)), url('https://iili.io/qmYvvC7.jpg');
+            height: 90vh; width: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), var(--bg)), url('https://iili.io/qmYvvC7.jpg');
             background-size: cover; background-position: center;
             display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
         }
-        .hero h1 { font-size: clamp(45px, 10vw, 90px); text-transform: uppercase; letter-spacing: 8px; margin-bottom: 10px; text-shadow: 0 10px 30px rgba(0,0,0,1); }
-        .hero p { font-size: 1.2rem; color: #ddd; max-width: 700px; margin-bottom: 35px; }
+        .hero h1 { font-size: clamp(45px, 10vw, 90px); text-transform: uppercase; letter-spacing: 8px; margin-bottom: 50px; text-shadow: 0 10px 30px rgba(0,0,0,1); }
 
-        /* IP BOX */
-        .ip-box {
-            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px);
-            padding: 15px 35px; border-radius: 50px; border: 2px solid var(--main);
-            display: flex; align-items: center; gap: 15px; cursor: pointer;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            box-shadow: 0 0 25px rgba(0, 212, 255, 0.3);
-        }
-        .ip-box:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 0 40px rgba(0, 212, 255, 0.5); }
-        .ip-box b { font-size: 1.6rem; color: var(--main); letter-spacing: 1px; }
-        .ip-box span.label { color: #fff; font-size: 0.8rem; font-weight: bold; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
-        
-        /* Player Count Badge */
-        .player-status {
-            background: rgba(0, 212, 255, 0.1);
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.9rem;
-            font-weight: bold;
+        /* --- GIAO DIỆN MÔ PHỎNG MINECRAFT SERVER LIST --- */
+        .mc-server-box {
+            background: rgba(0, 0, 0, 0.85);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 600px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: var(--main);
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: 0.1s ease-in-out;
+            border-radius: 4px;
+            position: relative;
         }
-        .dot { height: 8px; width: 8px; background-color: #2ecc71; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        /* Hover làm nổi bật như trong game */
+        .mc-server-box:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.02);
+            background: rgba(16, 16, 16, 0.95);
+        }
 
-        /* GALLERY SECTION */
+        /* Icon Server */
+        .mc-server-icon {
+            width: 64px;
+            height: 64px;
+            background: #333; /* Default icon */
+            margin-right: 15px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .mc-server-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Vùng nội dung chữ */
+        .mc-server-info {
+            flex: 1;
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 5px;
+        }
+
+        /* Hàng trên: Tên & Số người */
+        .mc-row-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .mc-row-top b { font-size: 1.2rem; color: #fff; letter-spacing: 1px; font-weight: bold; text-shadow: 0 2px 0 rgba(0,0,0,0.5); }
+        .mc-player-count {
+            color: #aaa;
+            font-size: 1rem;
+            text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+            font-weight: bold;
+        }
+
+        /* Hàng dưới: IP & Ping Sóng */
+        .mc-row-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .mc-ip { font-size: 1rem; color: #aaa; text-shadow: 0 1px 0 rgba(0,0,0,0.5); }
+        
+        /* Sóng Ping */
+        .mc-ping-waves {
+            display: flex;
+            gap: 2px;
+            align-items: flex-end;
+            height: 18px;
+            opacity: 0.7;
+        }
+        .wave { width: 3px; background-color: #555; border-radius: 1px; }
+        .wave-1 { height: 6px; }
+        .wave-2 { height: 9px; }
+        .wave-3 { height: 12px; }
+        .wave-4 { height: 15px; }
+        .wave-5 { height: 18px; }
+
+        /* Trạng thái sóng khi online */
+        .online-ping .wave { background-color: #2ecc71; animation: none; }
+        /* Offline ping */
+        .offline-ping .wave-5::after { content: '❌'; font-size: 10px; position: absolute; bottom: 0; right: 0; }
+
+        /* Thông báo sảo chép */
+        .copy-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--main); font-weight: bold; border-radius: 4px;
+            opacity: 0; transition: 0.3s;
+        }
+
+        /* --- GALLERY SECTION --- */
         .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; }
         .section-title { font-size: 2.2rem; margin-bottom: 50px; text-align: center; letter-spacing: 2px; position: relative; }
         .section-title::after { content: ''; display: block; width: 60px; height: 4px; background: var(--main); margin: 15px auto; border-radius: 2px; }
-
         .image-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
-        .image-card { 
-            position: relative; border-radius: 20px; overflow: hidden; 
-            aspect-ratio: 16/9; cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
-        }
+        .image-card { position: relative; border-radius: 20px; overflow: hidden; aspect-ratio: 16/9; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
         .image-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        .image-card .overlay {
-            position: absolute; bottom: 0; left: 0; width: 100%; padding: 30px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.9));
-            transform: translateY(100%); transition: 0.4s;
-        }
+        .image-card .overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 30px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); transform: translateY(100%); transition: 0.4s; }
         .image-card:hover .overlay { transform: translateY(0); }
         .image-card:hover img { transform: scale(1.1); }
         .image-card b { font-size: 1.3rem; color: var(--main); display: block; margin-bottom: 5px; }
@@ -88,23 +146,21 @@
 
         /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
-            .sidebar { 
-                width: 100%; height: 70px; bottom: 0; top: auto; 
-                flex-direction: row; padding: 0 5px; 
-                background: #111 !important; border-top: 1px solid #222; 
-            }
+            .sidebar { width: 100%; height: 70px; bottom: 0; top: auto; flex-direction: row; padding: 0 5px; background: #111 !important; border-top: 1px solid #222; }
             .sidebar .logo { display: none; }
             .sidebar a { flex-direction: column; font-size: 10px; flex: 1; padding: 10px 0; color: #bbb !important; margin-bottom: 0; }
             .sidebar a i { margin-right: 0; font-size: 18px; margin-bottom: 4px; }
             .sidebar a.active { background: rgba(0, 212, 255, 0.1) !important; color: var(--main) !important; }
-            
             .btn-discord { margin-top: 0; background: transparent !important; color: #fff !important; }
             .btn-discord img { margin-right: 0; width: 26px; }
-            
             .main-content { margin-left: 0; padding-bottom: 80px; }
             .hero h1 { font-size: 45px; letter-spacing: 4px; }
-            .ip-box { padding: 10px 20px; gap: 10px; flex-wrap: wrap; justify-content: center; }
-            .ip-box b { font-size: 1.2rem; }
+            .hero p { display: none; } /* Bỏ mô tả cho thoáng mobile */
+            .mc-server-box { max-width: 320px; flex-direction: column; text-align: center; }
+            .mc-server-icon { margin-right: 0; margin-bottom: 10px; }
+            .mc-server-info { gap: 10px; }
+            .mc-row-top, .mc-row-bottom { flex-direction: column; align-items: center; text-align: center; }
+            .mc-player-count, .mc-ping-waves { margin-top: 5px; }
         }
     </style>
 </head>
@@ -116,7 +172,7 @@
         <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
         <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
         <a href="https://discord.gg/TCyKP7m9Bs" target="_blank" class="btn-discord">
-            <img src="https://iili.io/qm6BClI.png" alt="Discord New Icon">
+            <img src="https://iili.io/qm6BClI.png" alt="Discord Icon">
             <span>Discord</span>
         </a>
     </div>
@@ -124,19 +180,33 @@
     <div class="main-content">
         <section class="hero">
             <h1>YEAMIKO</h1>
-            <p>Khám phá máy chủ cộng đồng Minecraft hội tụ những công trình vĩ đại và những người bạn đồng hành tuyệt vời.</p>
             
-            <div class="ip-box" onclick="copyIP()">
-                <span class="label">SERVER IP</span>
-                <b id="server-ip">Yeamiko.fun</b>
-                <div class="player-status">
-                    <span class="dot" id="status-dot"></span>
-                    <span id="player-count">... đang tải</span>
+            <div class="mc-server-box" id="mc-server-box" onclick="copyIP()">
+                <div class="mc-server-icon">
+                    <img id="server-icon-img" src="" alt="YEAMIKO" style="display: none;">
+                    <div id="default-icon" style="width:100%; height:100%; background:linear-gradient(135deg, #111, #333); color:#555; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:2rem;">Y</div>
                 </div>
-                <i class="fas fa-copy" style="color: #666;"></i>
+
+                <div class="mc-server-info">
+                    <div class="mc-row-top">
+                        <b>YEAMIKO</b>
+                        <span id="player-count" class="mc-player-count">... đang tải</span>
+                    </div>
+                    <div class="mc-row-bottom">
+                        <span id="server-ip" class="mc-ip">Yeamiko.fun</span>
+                        <div id="ping-waves" class="mc-ping-waves">
+                            <div class="wave wave-1"></div>
+                            <div class="wave wave-2"></div>
+                            <div class="wave wave-3"></div>
+                            <div class="wave wave-4"></div>
+                            <div class="wave wave-5"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="copy-overlay" class="copy-overlay">✨ Đã sao chép IP thành công!</div>
             </div>
             
-            <p id="copy-msg" style="margin-top: 15px; font-size: 0.85rem; color: var(--main); font-weight: bold; opacity: 0; transition: 0.3s;">✨ Đã sao chép IP thành công!</p>
         </section>
 
         <section class="section">
@@ -172,36 +242,51 @@
     </div>
 
     <script>
-        // Hàm copy IP
-        function copyIP() {
-            const ip = document.getElementById('server-ip').innerText;
-            navigator.clipboard.writeText(ip);
-            const msg = document.getElementById('copy-msg');
-            msg.style.opacity = '1';
-            setTimeout(() => { msg.style.opacity = '0'; }, 2000);
-        }
+        const ipStr = "Yeamiko.fun";
+        const playerCntEl = document.getElementById('player-count');
+        const wavesEl = document.getElementById('ping-waves');
+        const iconEl = document.getElementById('server-icon-img');
+        const defaultIconEl = document.getElementById('default-icon');
 
-        // Hàm lấy số lượng người chơi online
         async function fetchServerStatus() {
-            const ip = "Yeamiko.fun";
-            const countEl = document.getElementById('player-count');
-            const dotEl = document.getElementById('status-dot');
-
             try {
-                const response = await fetch(`https://api.mcstatus.io/v2/status/java/${ip}`);
+                const response = await fetch(`https://api.mcstatus.io/v2/status/java/${ipStr}`);
                 const data = await response.json();
 
                 if (data.online) {
-                    countEl.innerText = `${data.players.online} đang chơi`;
-                    dotEl.style.backgroundColor = "#2ecc71"; // Xanh lá khi online
+                    // Cập nhật số người online
+                    playerCntEl.innerText = `${data.players.online}/${data.players.max}`;
+                    playerCntEl.style.color = "#2ecc71"; // Màu xanh online
+
+                    // Cập nhật sóng ping sang màu xanh và tắt hiệu ứng động
+                    wavesEl.classList.add('online-ping');
+                    wavesEl.classList.remove('offline-ping');
+                    wavesEl.title = `Ping: ~50ms (Simulated)`;
+
+                    // Cập nhật Icon server nếu có
+                    if (data.icon) {
+                        iconEl.src = data.icon;
+                        iconEl.style.display = 'block';
+                        defaultIconEl.style.display = 'none';
+                    }
                 } else {
-                    countEl.innerText = "Máy chủ Offline";
-                    dotEl.style.backgroundColor = "#ff4d4d"; // Đỏ khi offline
+                    playerCntEl.innerText = "Offline";
+                    playerCntEl.style.color = "#ff4d4d"; // Màu đỏ
+                    wavesEl.classList.remove('online-ping');
+                    wavesEl.classList.add('offline-ping');
+                    wavesEl.title = "Offline";
                 }
             } catch (error) {
                 console.error("Lỗi API:", error);
-                countEl.innerText = "Lỗi kết nối";
+                playerCntEl.innerText = "Lỗi kết nối";
             }
+        }
+
+        function copyIP() {
+            navigator.clipboard.writeText(ipStr);
+            const overlay = document.getElementById('copy-overlay');
+            overlay.style.opacity = '1';
+            setTimeout(() => { overlay.style.opacity = '0'; }, 1500);
         }
 
         // Tự động cập nhật mỗi 60 giây
