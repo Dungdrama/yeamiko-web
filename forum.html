@@ -1,17 +1,67 @@
-<style>
-    /* Thêm style cho nút Xem thêm */
-    .load-more-container { width: 100%; display: flex; justify-content: center; margin: 20px 0; }
-    .btn-load-more { 
-        background: white; border: 2px solid var(--main); color: var(--main);
-        padding: 10px 30px; border-radius: 25px; cursor: pointer; font-weight: bold;
-        transition: 0.3s;
-    }
-    .btn-load-more:hover { background: var(--main); color: white; }
-    .btn-load-more:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; }
-</style>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diễn đàn Yeamiko</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --main: #00d4ff; --bg: #f4f7f6; --sidebar: #111; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); display: flex; min-height: 100vh; }
 
+        /* --- SIDEBAR --- */
+        .sidebar { 
+            width: 250px; background: var(--sidebar); height: 100vh; 
+            position: fixed; padding: 25px; color: white; z-index: 1000;
+            display: flex; flex-direction: column;
+        }
+        .sidebar .logo { font-size: 24px; font-weight: bold; color: var(--main); margin-bottom: 40px; text-align: center; text-transform: uppercase; }
+        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
+        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); }
+        .back-home { color: var(--main) !important; border: 1px solid rgba(0, 212, 255, 0.3); margin-top: auto; }
+
+        /* --- CONTENT --- */
+        .main-content { margin-left: 250px; flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%; padding-bottom: 250px; }
+        .container { width: 100%; max-width: 600px; }
+
+        .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; }
+        .post-header { display: flex; align-items: center; margin-bottom: 12px; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
+        .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
+        
+        /* --- NÚT XEM THÊM --- */
+        .load-more-container { margin: 20px 0; text-align: center; width: 100%; }
+        .btn-load-more { 
+            background: white; border: 2px solid var(--main); color: var(--main);
+            padding: 10px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+        .btn-load-more:hover:not(:disabled) { background: var(--main); color: white; }
+        .btn-load-more:disabled { border-color: #ccc; color: #ccc; cursor: default; }
+
+        .post-box-fixed { position: fixed; bottom: 0; left: 250px; right: 0; background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 900; }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; height: 65px; bottom: 0; top: auto; flex-direction: row; padding: 0 5px; background: #fff; border-top: 1px solid #eee; }
+            .sidebar .logo { display: none; }
+            .sidebar a { flex-direction: column; font-size: 10px; padding: 10px 5px; flex: 1; color: #666; margin-bottom: 0; }
+            .sidebar a.active { background: #e0faff; }
+            .sidebar a i { margin-right: 0; font-size: 18px; margin-bottom: 3px; }
+            .back-home { border: none; margin-top: 0; color: var(--main) !important; }
+            .main-content { margin-left: 0; padding-bottom: 250px; }
+            .post-box-fixed { left: 0; bottom: 65px; }
+        }
+    </style>
+</head>
 <body>
-    <div class="sidebar">...</div>
+    <div class="sidebar">
+        <div class="logo">YEAMIKO</div>
+        <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
+        <a href="forum.html" class="active"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
+        <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
+        <a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i><span>Về Home</span></a>
+    </div>
 
     <div class="main-content">
         <div class="container" id="forum-list"></div>
@@ -20,12 +70,22 @@
         </div>
     </div>
 
+    <div class="post-box-fixed">
+        <div style="max-width:600px; margin:0 auto;">
+            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Dũng ơi, hôm nay có gì mới?"></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                <input type="file" id="post-file" accept="image/*" style="font-size:12px; width:60%;">
+                <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; cursor:pointer; font-weight:bold;">ĐĂNG</button>
+            </div>
+            <p id="stt" style="font-size:11px; color:var(--main); text-align:center; margin-top:3px; font-weight:bold;"></p>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
         import { getDatabase, ref, push, get, query, limitToLast, orderByChild, endBefore } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        // Firebase Config của Dũng
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -33,29 +93,38 @@
             projectId: "yeamiko-web",
             appId: "1:380442978172:web:52eeb187628ed3518266f9"
         };
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let lastPostTime = null; // Biến lưu mốc thời gian của bài cuối cùng để tải tiếp
-        const pageSize = 5;      // Số lượng bài viết mỗi lần tải
+        let lastPostTime = null;
+        const pageSize = 5;
 
-        // Hàm hiển thị bài viết lên giao diện
-        const renderPost = (id, post, allUsers) => {
-            const avatar = (post.uid && allUsers[post.uid]?.avatar) || `https://ui-avatars.com/api/?name=${post.userName}`;
-            return `
-                <div class="post-card">
-                    <div class="post-header">
-                        <img src="${avatar}" class="user-avatar" onerror="this.src='https://ui-avatars.com/api/?name=User'">
-                        <b>${post.userName}</b>
-                    </div>
-                    <div style="margin-bottom:10px; word-wrap: break-word;">${post.text}</div>
-                    ${post.img ? `<img src="${post.img}" class="post-img" loading="lazy">` : ""}
-                    <div style="margin-top:10px; color:#666; font-size:13px;">❤️ ${post.likes || 0} lượt thích</div>
-                </div>`;
+        // Hàm nén ảnh
+        const compressImage = (file) => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800;
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                        canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.6));
+                    };
+                };
+            });
         };
 
-        // Hàm tải bài viết
+        // Hàm tải bài viết (Sửa lỗi Query)
         const loadPosts = async () => {
             const btn = document.getElementById('btn-load-more');
             const list = document.getElementById('forum-list');
@@ -63,57 +132,80 @@
             btn.innerText = "Đang tải...";
 
             try {
-                let postsQuery;
+                let q;
                 if (!lastPostTime) {
-                    // Lần đầu tiên: Lấy 5 bài mới nhất
-                    postsQuery = query(ref(db, 'posts'), orderByChild('time'), limitToLast(pageSize));
+                    q = query(ref(db, 'posts'), orderByChild('time'), limitToLast(pageSize));
                 } else {
-                    // Các lần sau: Lấy 5 bài tiếp theo trước bài cuối cùng đã tải
-                    postsQuery = query(ref(db, 'posts'), orderByChild('time'), endBefore(lastPostTime), limitToLast(pageSize));
+                    q = query(ref(db, 'posts'), orderByChild('time'), endBefore(lastPostTime), limitToLast(pageSize));
                 }
 
-                const snap = await get(postsQuery);
+                const snap = await get(q);
                 const userSnap = await get(ref(db, 'users'));
                 const allUsers = userSnap.val() || {};
                 const data = snap.val();
 
                 if (!data) {
                     btn.innerText = "HẾT BÀI VIẾT";
-                    btn.disabled = true;
                     return;
                 }
 
                 const keys = Object.keys(data).sort((a, b) => data[b].time - data[a].time);
                 
                 keys.forEach(id => {
-                    list.innerHTML += renderPost(id, data[id], allUsers);
+                    const post = data[id];
+                    const avatar = (post.uid && allUsers[post.uid]?.avatar) || `https://ui-avatars.com/api/?name=${post.userName}`;
+                    list.innerHTML += `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <img src="${avatar}" class="user-avatar" onerror="this.src='https://ui-avatars.com/api/?name=User'">
+                                <b>${post.userName}</b>
+                            </div>
+                            <div style="margin-bottom:10px;">${post.text}</div>
+                            ${post.img ? `<img src="${post.img}" class="post-img" loading="lazy">` : ""}
+                            <div style="margin-top:10px; color:#666; font-size:13px;">❤️ ${post.likes || 0} thích</div>
+                        </div>`;
                 });
 
-                // Lưu lại thời gian của bài cũ nhất trong lượt tải này
                 lastPostTime = data[keys[keys.length - 1]].time;
-
                 btn.disabled = false;
                 btn.innerText = "XEM THÊM BÀI VIẾT";
-                
-                // Nếu tải về ít hơn pageSize tức là đã hết bài
-                if (keys.length < pageSize) {
-                    btn.innerText = "HẾT BÀI VIẾT";
-                    btn.disabled = true;
-                }
+                if (keys.length < pageSize) btn.innerText = "HẾT BÀI VIẾT";
 
             } catch (err) {
                 console.error(err);
                 btn.innerText = "LỖI TẢI BÀI";
-                btn.disabled = false;
             }
         };
 
-        // Khởi tạo lần đầu
         loadPosts();
-
-        // Gán sự kiện cho nút xem thêm
         document.getElementById('btn-load-more').onclick = loadPosts;
 
-        // Giữ nguyên logic Đăng bài và nén ảnh từ bản trước...
+        // Xử lý đăng bài (Tối ưu)
+        document.getElementById('btn-post').onclick = async () => {
+            const u = auth.currentUser;
+            const txt = document.getElementById('post-text').value;
+            const file = document.getElementById('post-file').files[0];
+            const stt = document.getElementById('stt');
+
+            if(!u) { alert("Dũng đăng nhập đã nhé!"); return; }
+            if(!txt && !file) return;
+            
+            stt.innerText = "⏳ Đang tải...";
+            let imgB64 = "";
+
+            try {
+                if(file) imgB64 = await compressImage(file);
+                await push(ref(db, 'posts'), {
+                    uid: u.uid,
+                    userName: u.displayName || u.email.split('@')[0],
+                    text: txt,
+                    img: imgB64,
+                    likes: 0,
+                    time: Date.now()
+                });
+                location.reload(); // Reload để hiện bài mới nhất trên đầu
+            } catch (err) { stt.innerText = "Lỗi!"; }
+        };
     </script>
 </body>
+</html>
