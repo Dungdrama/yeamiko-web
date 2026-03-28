@@ -1,108 +1,65 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Hồ sơ Yeamiko</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { --main: #00d4ff; --bg: #ffffff; --text: #222; --sidebar: #111; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-        .sidebar { width: 250px; background: var(--sidebar); height: 100vh; position: fixed; padding: 25px; color: white; }
-        .sidebar .logo { font-size: 26px; font-weight: bold; color: var(--main); margin-bottom: 40px; text-align: center; }
-        .sidebar a { display: block; color: #bbb; padding: 15px; text-decoration: none; border-radius: 10px; margin-bottom: 8px; }
-        .sidebar a.active { background: rgba(0,212,255,0.1); color: var(--main); }
-        .main-content { margin-left: 250px; flex: 1; padding: 40px; display: flex; justify-content: center; }
-        .profile-card { background: #fdfdfd; border: 1px solid #eee; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        #user-avatar { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 3px solid var(--main); margin-bottom: 15px; background: #eee; }
-        .btn-upload { display: inline-block; padding: 10px 20px; background: white; border: 1px solid var(--main); color: var(--main); border-radius: 25px; cursor: pointer; font-weight: bold; }
-        .btn-save { display: none; width: 100%; background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 10px; margin-top: 20px; cursor: pointer; font-weight: bold; }
-        .info { text-align: left; margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px; }
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <div class="logo">YEAMIKO</div>
-        <a href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
-        <a href="forum.html"><i class="fas fa-comments"></i> Diễn đàn</a>
-        <a href="profile.html" class="active"><i class="fas fa-user"></i> Hồ sơ</a>
-    </div>
-    <div class="main-content">
-        <div class="profile-card">
-            <h2>Hồ sơ của tôi</h2>
-            <img id="user-avatar" src="https://ui-avatars.com/api/?name=User">
-            <br>
-            <label class="btn-upload">Chọn ảnh mới <input type="file" id="f-input" hidden accept="image/*"></label>
-            <button id="s-btn" class="btn-save">XÁC NHẬN LƯU</button>
-            <p id="stt" style="margin-top:10px; font-weight:bold;"></p>
-            <div class="info">
-                <p><strong>👤 Tên:</strong> <span id="u-name">...</span></p>
-                <p><strong>📧 Email:</strong> <span id="u-email">...</span></p>
-            </div>
-        </div>
-    </div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+    const firebaseConfig = {
+        apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
+        authDomain: "yeamiko-web.firebaseapp.com",
+        databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "yeamiko-web",
+        appId: "1:380442978172:web:52eeb187628ed3518266f9"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
-            authDomain: "yeamiko-web.firebaseapp.com",
-            databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "yeamiko-web",
-            appId: "1:380442978172:web:52eeb187628ed3518266f9"
-        };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            document.getElementById('u-name').innerText = user.displayName || user.email.split('@')[0];
+            document.getElementById('u-email').innerText = user.email;
+            // Load ảnh cũ nếu có
+            onValue(ref(db, 'users/' + user.uid), s => {
+                if (s.exists() && s.val().avatar) {
+                    document.getElementById('user-avatar').src = s.val().avatar;
+                }
+            });
+        }
+    });
 
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                document.getElementById('u-name').innerText = user.displayName || user.email.split('@')[0];
-                document.getElementById('u-email').innerText = user.email;
-                onValue(ref(db, 'users/' + user.uid), s => {
-                    if (s.val() && s.val().avatar) document.getElementById('user-avatar').src = s.val().avatar;
-                });
-            } else { window.location.href = '/login.html'; }
-        });
+    document.getElementById('f-input').onchange = e => {
+        if (e.target.files[0]) {
+            document.getElementById('user-avatar').src = URL.createObjectURL(e.target.files[0]);
+            document.getElementById('s-btn').style.display = 'block';
+        }
+    };
 
-        document.getElementById('f-input').onchange = e => {
-            if (e.target.files[0]) {
-                document.getElementById('user-avatar').src = URL.createObjectURL(e.target.files[0]);
-                document.getElementById('s-btn').style.display = 'block';
-            }
-        };
-
-        document.getElementById('s-btn').onclick = async () => {
-            const file = document.getElementById('f-input').files[0];
-            const user = auth.currentUser;
-            const stt = document.getElementById('stt');
-            if(!file || !user) return;
-            stt.innerText = "⏳ Đang lưu...";
-            
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = async () => {
-                const img = new Image();
-                img.src = reader.result;
-                img.onload = async () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 150; canvas.height = 150;
-                    canvas.getContext('2d').drawImage(img, 0,0,150,150);
-                    const b64 = canvas.toDataURL('image/jpeg', 0.5);
-                    
+    document.getElementById('s-btn').onclick = async () => {
+        const file = document.getElementById('f-input').files[0];
+        const user = auth.currentUser;
+        if(!file || !user) return;
+        
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async () => {
+            const img = new Image();
+            img.src = reader.result;
+            img.onload = async () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 100; canvas.height = 100; // Nén cực nhỏ để lưu nhanh
+                canvas.getContext('2d').drawImage(img, 0, 0, 100, 100);
+                const b64 = canvas.toDataURL('image/jpeg', 0.5);
+                
+                // LƯU VÀO DATABASE
+                try {
                     await set(ref(db, 'users/' + user.uid), {
-                        username: user.displayName || user.email.split('@')[0],
-                        avatar: b64
+                        avatar: b64,
+                        name: user.displayName || user.email.split('@')[0]
                     });
-                    stt.style.color = "green";
-                    stt.innerText = "✅ Đã lưu!";
-                    document.getElementById('s-btn').style.display = 'none';
-                };
+                    alert("Đã lưu ảnh profile thành công!");
+                    location.reload(); // Load lại để chắc chắn
+                } catch(e) { alert("Lỗi lưu: " + e.message); }
             };
         };
-    </script>
-</body>
-</html>
+    };
+</script>
