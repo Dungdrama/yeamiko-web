@@ -22,9 +22,9 @@
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
         
-        /* Nút Discord */
+        /* Nút Discord với Icon mới */
         .btn-discord { margin-top: auto; background: var(--discord-color) !important; color: white !important; justify-content: center; font-weight: bold; }
-        .btn-discord img { width: 20px; margin-right: 10px; filter: brightness(0) invert(1); }
+        .btn-discord img { width: 24px; margin-right: 10px; }
 
         /* --- MAIN CONTENT --- */
         .main-content { margin-left: 250px; flex: 1; position: relative; }
@@ -51,7 +51,7 @@
         .ip-box b { font-size: 1.6rem; color: var(--main); letter-spacing: 1px; }
         .ip-box span { color: #fff; font-size: 0.8rem; font-weight: bold; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; }
 
-        /* GALLERY SECTION (GIỮ NGUYÊN BẢN GỐC) */
+        /* GALLERY SECTION */
         .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; }
         .section-title { font-size: 2.2rem; margin-bottom: 50px; text-align: center; letter-spacing: 2px; position: relative; }
         .section-title::after { content: ''; display: block; width: 60px; height: 4px; background: var(--main); margin: 15px auto; border-radius: 2px; }
@@ -72,20 +72,20 @@
         .image-card b { font-size: 1.3rem; color: var(--main); display: block; margin-bottom: 5px; }
         .image-card p { font-size: 0.9rem; color: #ccc; }
 
-        /* --- MOBILE RESPONSIVE (MÀU ĐEN) --- */
+        /* --- MOBILE RESPONSIVE (GIỮ MÀU ĐEN) --- */
         @media (max-width: 768px) {
             .sidebar { 
                 width: 100%; height: 70px; bottom: 0; top: auto; 
                 flex-direction: row; padding: 0 5px; 
-                background: #111 !important; border-top: 1px solid #222; border-right: none;
+                background: #111 !important; border-top: 1px solid #222; 
             }
             .sidebar .logo { display: none; }
             .sidebar a { flex-direction: column; font-size: 10px; flex: 1; padding: 10px 0; color: #bbb !important; margin-bottom: 0; }
             .sidebar a i { margin-right: 0; font-size: 18px; margin-bottom: 4px; }
             .sidebar a.active { background: rgba(0, 212, 255, 0.1) !important; color: var(--main) !important; }
             
-            .btn-discord { margin-top: 0; background: transparent !important; color: var(--discord-color) !important; }
-            .btn-discord img { margin-right: 0; filter: none; width: 22px; }
+            .btn-discord { margin-top: 0; background: transparent !important; color: #fff !important; }
+            .btn-discord img { margin-right: 0; width: 26px; }
             
             .main-content { margin-left: 0; padding-bottom: 80px; }
             .hero h1 { font-size: 45px; letter-spacing: 4px; }
@@ -100,7 +100,7 @@
         <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
         <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
         <a href="https://discord.gg/TCyKP7m9Bs" target="_blank" class="btn-discord">
-            <img src="https://iili.io/qm4f0PI.png" alt="Discord">
+            <img src="https://iili.io/qm6BClI.png" alt="Discord New Icon">
             <span>Discord</span>
         </a>
     </div>
