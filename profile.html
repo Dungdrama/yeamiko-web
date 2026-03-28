@@ -171,7 +171,7 @@
         // Nút Đăng xuất
         document.getElementById('btn-logout').onclick = (e) => {
             e.preventDefault();
-            if(confirm("Dũng muốn đăng xuất à?")) {
+            if(confirm("Bạn muốn đăng xuất à?")) {
                 signOut(auth).then(() => { window.location.href = 'login.html'; });
             }
         };
