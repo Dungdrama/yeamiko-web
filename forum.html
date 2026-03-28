@@ -34,16 +34,19 @@
         
         .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
         .post-actions { margin-top: 15px; display: flex; gap: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
-        .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; padding: 5px 10px; border-radius: 8px; }
+        .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; padding: 5px 10px; border-radius: 8px; transition: 0.2s; }
         .action-btn.liked { color: #ff4d4d; }
 
         .comment-section { margin-top: 15px; }
         .comment-item { display: flex; margin-bottom: 10px; }
         .cmt-avatar { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; }
         .cmt-content { background: #f0f2f5; padding: 8px 12px; border-radius: 18px; font-size: 14px; max-width: 85%; }
-        
+        .cmt-input-box { display: flex; margin-top: 10px; gap: 10px; }
+        .cmt-input { flex: 1; padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+        .btn-cmt { background: none; border: none; color: var(--main); cursor: pointer; font-weight: bold; }
+
         /* PHÂN TRANG */
-        .pagination { display: flex; gap: 8px; margin: 20px 0; justify-content: center; flex-wrap: wrap; }
+        .pagination { display: flex; gap: 8px; margin: 20px 0; justify-content: center; }
         .page-btn { padding: 8px 15px; border: 1px solid var(--main); background: white; color: var(--main); border-radius: 8px; cursor: pointer; font-weight: bold; }
         .page-btn.active { background: var(--main); color: white; }
 
@@ -75,7 +78,7 @@
 
     <div class="post-box-fixed">
         <div style="max-width:600px; margin:0 auto;">
-            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Bạn ơi, chia sẻ gì đi..."></textarea>
+            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Dũng ơi, chia sẻ gì đi..."></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                 <input type="file" id="post-file" accept="image/*">
                 <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG</button>
@@ -109,24 +112,24 @@
             return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
         }
 
-        // Like bài viết không load lại trang
+        // --- XỬ LÝ LIKE KHÔNG RELOAD ---
         window.handleLike = async (pid) => {
             const u = auth.currentUser;
             if(!u) return alert("Vui lòng đăng nhập!");
             const likeRef = ref(db, `likes/${pid}/${u.uid}`);
             const snap = await get(likeRef);
-            if(snap.exists()) return alert("Bạn đã like rồi!");
+            if(snap.exists()) return alert("Dũng đã like rồi!");
 
             await set(likeRef, true);
             await runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 0) + 1);
             
             const countEl = document.getElementById(`l-cnt-${pid}`);
             const btnEl = document.getElementById(`l-btn-${pid}`);
-            countEl.innerText = parseInt(countEl.innerText) + 1;
-            btnEl.classList.add('liked');
+            if(countEl) countEl.innerText = parseInt(countEl.innerText) + 1;
+            if(btnEl) btnEl.classList.add('liked');
         };
 
-        // Bình luận không load lại trang
+        // --- XỬ LÝ BÌNH LUẬN KHÔNG RELOAD ---
         window.sendComment = async (pid) => {
             const u = auth.currentUser;
             const input = document.getElementById(`in-${pid}`);
@@ -134,20 +137,26 @@
             if(!u || !val) return;
 
             const uSnap = await get(ref(db, `users/${u.uid}`));
-            const name = uSnap.exists() ? uSnap.val().name : (u.displayName || u.email.split('@')[0]);
-            const avt = uSnap.exists() ? uSnap.val().avatar : `https://ui-avatars.com/api/?name=${name}`;
+            const userData = uSnap.val() || {};
+            const name = userData.name || u.displayName || u.email.split('@')[0];
+            const avt = userData.avatar || `https://ui-avatars.com/api/?name=${name}`;
 
             const newCmt = { uid: u.uid, userName: name, text: val, time: Date.now() };
             await push(ref(db, `posts/${pid}/comments`), newCmt);
             
             const cmtList = document.getElementById(`clist-${pid}`);
-            cmtList.insertAdjacentHTML('beforeend', `<div class="comment-item"><img src="${avt}" class="cmt-avatar"><div class="cmt-content"><b>${name}</b> ${val}</div></div>`);
+            cmtList.insertAdjacentHTML('beforeend', `
+                <div class="comment-item">
+                    <img src="${avt}" class="cmt-avatar">
+                    <div class="cmt-content"><b>${name}</b> ${val}</div>
+                </div>`);
             input.value = "";
         };
 
+        // --- TẢI BÀI VIẾT THEO TRANG ---
         async function renderPosts(page) {
             const forumList = document.getElementById('forum-list');
-            forumList.innerHTML = "<p style='text-align:center;'>Đang tải bài viết...</p>";
+            forumList.innerHTML = "<p style='text-align:center; padding:20px;'>Đang tải bài viết...</p>";
             
             const [postSnap, userSnap] = await Promise.all([
                 get(query(ref(db, 'posts'), orderByChild('time'))),
@@ -197,7 +206,10 @@
                         </div>
                         <div class="comment-section">
                             <div id="clist-${k}">${cmts}</div>
-                            <div class="cmt-input-box"><input id="in-${k}" class="cmt-input" placeholder="Bình luận..."><button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button></div>
+                            <div class="cmt-input-box">
+                                <input id="in-${k}" class="cmt-input" placeholder="Bình luận...">
+                                <button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button>
+                            </div>
                         </div>
                     </div>`);
             }
@@ -207,6 +219,7 @@
         function renderPagination(total, current) {
             const nav = document.getElementById('pagination');
             nav.innerHTML = "";
+            if(total <= 1) return;
             for(let i=1; i<=total; i++) {
                 const btn = document.createElement('button');
                 btn.innerText = i;
@@ -216,7 +229,7 @@
             }
         }
 
-        // Đăng bài Fix lỗi treo
+        // --- ĐĂNG BÀI KHÔNG RELOAD ---
         document.getElementById('btn-post').onclick = async () => {
             const u = auth.currentUser;
             const txt = document.getElementById('post-text').value.trim();
@@ -253,7 +266,14 @@
             await push(ref(db, 'posts'), {
                 uid: u.uid, userName: name, text: txt, img: imgB64, time: Date.now(), likes: 0
             });
-            location.reload();
+
+            // Sau khi đăng xong, quay về trang 1 và xóa ô nhập
+            document.getElementById('post-text').value = "";
+            document.getElementById('post-file').value = "";
+            document.getElementById('stt').innerText = "✅ Đã đăng!";
+            document.getElementById('btn-post').disabled = false;
+            currentPage = 1;
+            renderPosts(1);
         };
 
         onAuthStateChanged(auth, () => { renderPosts(currentPage); });
