@@ -10,10 +10,14 @@
         body { background: var(--bg); display: flex; min-height: 100vh; }
         
         /* Sidebar */
-        .sidebar { width: 250px; background: var(--sidebar); height: 100vh; position: fixed; padding: 25px; color: white; }
+        .sidebar { width: 250px; background: var(--sidebar); height: 100vh; position: fixed; padding: 25px; color: white; display: flex; flex-direction: column; }
         .sidebar .logo { font-size: 24px; font-weight: bold; color: var(--main); margin-bottom: 40px; text-align: center; }
         .sidebar a { display: block; color: #bbb; padding: 15px; text-decoration: none; border-radius: 10px; margin-bottom: 8px; transition: 0.3s; }
         .sidebar a:hover, .sidebar a.active { background: rgba(0,212,255,0.1); color: var(--main); }
+        
+        /* Nút Đăng xuất ở cuối Sidebar */
+        .logout-link { margin-top: auto; color: #ff4d4d !important; border: 1px solid rgba(255,77,77,0.2); }
+        .logout-link:hover { background: rgba(255,77,77,0.1) !important; }
 
         /* Main Content */
         .main-content { margin-left: 250px; flex: 1; padding: 40px; display: flex; justify-content: center; }
@@ -28,7 +32,6 @@
         input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: 0.3s; padding-right: 45px; }
         input:focus { border-color: var(--main); box-shadow: 0 0 5px rgba(0, 212, 255, 0.2); }
 
-        /* Icon con mắt */
         .toggle-password { position: absolute; right: 15px; top: 40px; cursor: pointer; color: #999; transition: 0.3s; font-size: 18px; }
         .toggle-password:hover { color: var(--main); }
 
@@ -45,6 +48,8 @@
         <a href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
         <a href="forum.html"><i class="fas fa-comments"></i> Diễn đàn</a>
         <a href="profile.html" class="active"><i class="fas fa-user"></i> Hồ sơ</a>
+        
+        <a href="#" id="btn-logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
     </div>
 
     <div class="main-content">
@@ -83,7 +88,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, updatePassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, updatePassword, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -144,6 +149,15 @@
             }
         };
 
+        // Xử lý Đăng xuất
+        document.getElementById('btn-logout').onclick = () => {
+            if(confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+                signOut(auth).then(() => {
+                    window.location.href = 'login.html';
+                });
+            }
+        };
+
         // Nút Lưu thay đổi
         document.getElementById('btn-update').onclick = async () => {
             const user = auth.currentUser;
@@ -156,33 +170,21 @@
             stt.innerText = "⏳ Đang cập nhật...";
 
             try {
-                // 1. Lưu Database (Tên và Ảnh)
                 await set(ref(db, 'users/' + user.uid), {
                     name: newName,
                     avatar: currentAvatarB64
                 });
-
-                // 2. Cập nhật tên trong Auth
                 await updateProfile(user, { displayName: newName });
-
-                // 3. Cập nhật Mật khẩu
                 if (newPass) {
                     if (newPass.length < 6) throw new Error("Mật khẩu mới phải từ 6 ký tự!");
                     if (newPass !== confirmPass) throw new Error("Mật khẩu xác nhận không khớp!");
                     await updatePassword(user, newPass);
                 }
-
                 stt.style.color = "#2ecc71";
-                stt.innerText = "✅ Đã lưu thành công tất cả thay đổi!";
-                document.getElementById('new-password').value = "";
-                document.getElementById('confirm-password').value = "";
+                stt.innerText = "✅ Đã lưu thành công!";
             } catch (err) {
                 stt.style.color = "#e74c3c";
-                if (err.message.includes("recent-login")) {
-                    stt.innerText = "❌ Lỗi: Bạn cần đăng nhập lại để thực hiện đổi mật khẩu!";
-                } else {
-                    stt.innerText = "❌ Lỗi: " + err.message;
-                }
+                stt.innerText = "❌ Lỗi: " + err.message;
             }
         };
     </script>
