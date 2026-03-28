@@ -2,25 +2,23 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Diễn đàn cộng đồng | Yeamiko</title>
+    <title>Diễn đàn Yeamiko</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .post-card { background: #222; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
         .post-user { font-weight: bold; color: #00d4ff; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .post-user img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid #00d4ff; }
-        .post-content { line-height: 1.6; color: #eee; margin-bottom: 15px; white-space: pre-wrap; font-size: 1.05em; }
-        .post-img { max-width: 100%; border-radius: 8px; border: 1px solid #444; margin-bottom: 15px; display: block; cursor: pointer; }
-        .like-btn { background: #333; border: none; color: #00d4ff; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .like-btn:hover { background: #444; transform: scale(1.05); }
-        textarea { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 15px; border-radius: 10px; resize: none; font-family: inherit; font-size: 1em; }
-        .file-label { cursor: pointer; color: #aaa; background: #333; padding: 10px 15px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid transparent; }
-        .file-label:hover { border-color: #00d4ff; color: #fff; }
-        #preview-container img { max-width: 150px; border-radius: 5px; margin-top: 10px; display: none; border: 1px solid #555; }
+        .post-user img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+        .post-content { line-height: 1.6; color: #eee; margin-bottom: 15px; white-space: pre-wrap; }
+        .post-img { max-width: 100%; border-radius: 8px; margin-bottom: 15px; display: block; }
+        .like-btn { background: #333; border: none; color: #00d4ff; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        textarea { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 15px; border-radius: 10px; resize: none; font-family: inherit; }
+        .file-label { cursor: pointer; color: #aaa; background: #333; padding: 10px 15px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; }
+        #img-preview { max-width: 200px; border-radius: 5px; margin: 10px 0; display: none; border: 1px solid #444; }
     </style>
 </head>
 <body>
-    <div class="navbar"><div id="user-display">Đang kết nối hệ thống...</div></div>
+    <div class="navbar"><div id="user-display">Kết nối...</div></div>
     
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
@@ -31,31 +29,29 @@
     </div>
 
     <div class="main-content">
-        <h1 style="margin-bottom: 25px; color: #00d4ff;">DIỄN ĐÀN CỘNG ĐỒNG</h1>
+        <h1 style="color: #00d4ff; margin-bottom: 20px;">DIỄN ĐÀN CỘNG ĐỒNG</h1>
         
-        <div class="card" style="margin-bottom: 30px; background: #1a1a1a; border: 1px solid #333;">
-            <textarea id="post-text" rows="3" placeholder="Hôm nay bạn có gì mới để chia sẻ không?"></textarea>
-            <div id="preview-container"><img id="img-preview" src=""></div>
-            
+        <div class="card" style="margin-bottom: 30px; background: #1a1a1a;">
+            <textarea id="post-text" rows="3" placeholder="Bạn đang nghĩ gì?"></textarea>
+            <img id="img-preview" src="">
             <div style="margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
                 <label class="file-label">
                     <i class="fas fa-image"></i> Chọn ảnh
                     <input type="file" id="post-file" hidden accept="image/*">
                 </label>
-                <button id="btn-post" class="btn-auth" style="width:140px; font-weight: bold;">ĐĂNG BÀI</button>
+                <button id="btn-post" class="btn-auth" style="width:130px;">ĐĂNG BÀI</button>
             </div>
-            <p id="status-msg" style="text-align:center; margin-top:12px; font-size:0.95em; font-weight: 500;"></p>
+            <p id="status-msg" style="text-align:center; margin-top:10px; font-size:0.9em;"></p>
         </div>
 
-        <div id="forum-list">Đang tải các bài viết mới nhất...</div>
+        <div id="forum-list">Đang tải bản tin...</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, push, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        // Cấu hình chuẩn cho dự án Yeamiko
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -68,31 +64,27 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // Hiển thị trạng thái người dùng
         onAuthStateChanged(auth, (user) => {
             const display = document.getElementById('user-display');
             const authSection = document.getElementById('auth-section');
             if (user) {
-                display.innerText = "Chào mừng, " + (user.displayName || user.email.split('@')[0]);
-                authSection.innerHTML = `<button id="logout-btn" class="btn-auth" style="background:#ff4757; width:100%;">Đăng xuất</button>`;
+                display.innerText = "Chào, " + (user.displayName || user.email.split('@')[0]);
+                authSection.innerHTML = `<button id="logout-btn" class="btn-auth" style="background:#e74c3c; width:100%;">Đăng xuất</button>`;
                 document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
             } else {
-                display.innerText = "Chế độ Khách";
-                authSection.innerHTML = `<button onclick="window.location.href='/login.html'" class="btn-auth" style="width:100%;">Đăng nhập ngay</button>`;
+                display.innerText = "Khách";
+                authSection.innerHTML = `<button onclick="window.location.href='/login.html'" class="btn-auth" style="width:100%;">Đăng nhập</button>`;
             }
         });
 
-        // Xem trước ảnh khi chọn file
         document.getElementById('post-file').onchange = (e) => {
-            const preview = document.getElementById('img-preview');
             const file = e.target.files[0];
             if (file) {
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = "block";
+                document.getElementById('img-preview').src = URL.createObjectURL(file);
+                document.getElementById('img-preview').style.display = "block";
             }
         };
 
-        // Tải danh sách bài viết thời gian thực
         onValue(ref(db, 'posts'), (snapshot) => {
             const container = document.getElementById('forum-list');
             container.innerHTML = "";
@@ -107,28 +99,23 @@
                                 ${post.userName}
                             </div>
                             <div class="post-content">${post.text}</div>
-                            ${post.img ? `<img src="${post.img}" class="post-img" onclick="window.open('${post.img}', '_blank')">` : ""}
+                            ${post.img ? `<img src="${post.img}" class="post-img">` : ""}
                             <button class="like-btn" onclick="window.handleLike('${id}')">
-                                <i class="fas fa-heart"></i> ${post.likes || 0} lượt thích
+                                <i class="fas fa-heart"></i> ${post.likes || 0} Like
                             </button>
                         </div>`;
                 });
-            } else {
-                container.innerHTML = "<p style='text-align:center; color:#888;'>Chưa có bài viết nào trên diễn đàn.</p>";
-            }
+            } else { container.innerHTML = "<p style='text-align:center;'>Chưa có bài viết.</p>"; }
         });
 
-        // Xử lý nút Like
         window.handleLike = (id) => {
-            if (!auth.currentUser) return alert("Bạn phải đăng nhập để thích bài viết!");
-            runTransaction(ref(db, `posts/${id}/likes`), (count) => (count || 0) + 1);
+            if (!auth.currentUser) return alert("Cần đăng nhập!");
+            runTransaction(ref(db, `posts/${id}/likes`), (c) => (c || 0) + 1);
         };
 
-        // Xử lý đăng bài (Sửa lỗi tải ảnh và lỗi treo)
         document.getElementById('btn-post').onclick = async () => {
             const user = auth.currentUser;
-            if (!user) return alert("Vui lòng đăng nhập để đăng bài!");
-
+            if (!user) return alert("Vui lòng đăng nhập!");
             const text = document.getElementById('post-text').value;
             const file = document.getElementById('post-file').files[0];
             const status = document.getElementById('status-msg');
@@ -136,44 +123,45 @@
             if (!text.trim() && !file) return;
 
             status.style.color = "#00d4ff";
-            status.innerText = "⏳ Đang tải lên hệ thống...";
+            status.innerText = "⏳ Đang tải bài viết...";
             let imgUrl = "";
 
             try {
-                // 1. Tải ảnh lên Imgur
                 if (file) {
-                    status.innerText = "⏳ Đang xử lý hình ảnh...";
+                    status.innerText = "⏳ Đang gửi ảnh lên máy chủ...";
                     const formData = new FormData();
                     formData.append('image', file);
+                    
+                    // SỬ DỤNG CLIENT-ID MỚI ĐÃ ĐƯỢC XÁC THỰC
                     const res = await fetch('https://api.imgur.com/3/image', {
                         method: 'POST',
-                        headers: { Authorization: 'Client-ID 546c25a59c58ad7' },
+                        headers: { Authorization: 'Client-ID 2933010f3c023d5' },
                         body: formData
                     });
+
                     const resData = await res.json();
                     if (resData.success) imgUrl = resData.data.link;
-                    else throw new Error("Lỗi máy chủ ảnh Imgur.");
+                    else throw new Error("Máy chủ ảnh bận. Hãy thử lại!");
                 }
 
-                // 2. Lưu vào Firebase Realtime Database
                 await push(ref(db, 'posts'), {
                     userName: user.displayName || user.email.split('@')[0],
                     text: text || "",
-                    img: imgUrl || "", // Chống lỗi undefined
+                    img: imgUrl || "",
                     likes: 0,
                     timestamp: Date.now()
                 });
 
-                // Reset form
                 document.getElementById('post-text').value = "";
                 document.getElementById('post-file').value = "";
                 document.getElementById('img-preview').style.display = "none";
                 status.style.color = "#2ecc71";
-                status.innerText = "✅ Bài viết đã được đăng!";
+                status.innerText = "✅ Đã đăng thành công!";
                 setTimeout(() => status.innerText = "", 3000);
+
             } catch (err) {
                 status.style.color = "#ff4757";
-                status.innerText = "❌ Lỗi: " + err.message;
+                status.innerText = "❌ " + err.message;
             }
         };
     </script>
