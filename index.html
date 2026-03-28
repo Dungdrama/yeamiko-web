@@ -3,130 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang chủ - Yeamiko</title>
+    <title>Yeamiko | Máy Chủ Cộng Đồng Minecraft</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main: #00d4ff; --sidebar: rgba(17, 17, 17, 0.95); }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        :root { 
+            --main: #00d4ff; 
+            --accent: #a855f7; /* Màu tím đặc trưng của Yeamiko */
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
         body {
             min-height: 100vh;
-            display: flex;
-            background-image: url('https://i.ibb.co/6R8mH6P/qm-Yvv-C7.jpg'); 
+            /* Thay link ảnh nền bằng ảnh bến thuyền shader của bạn nếu có link trực tiếp */
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://i.ibb.co/6R8mH6P/qm-Yvv-C7.jpg'); 
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            background-repeat: no-repeat;
             color: white;
             overflow-x: hidden;
         }
 
-        .overlay {
+        /* --- NAVIGATION --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 10%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); 
-            z-index: 0;
+            width: 100%;
+            top: 0;
+            z-index: 100;
         }
 
-        /* --- SIDEBAR CHO MÁY TÍNH --- */
-        .sidebar { 
-            width: 250px; 
-            background: var(--sidebar); 
-            height: 100vh; 
-            position: fixed; 
-            padding: 25px; 
-            z-index: 10;
+        .logo { font-size: 28px; font-weight: 900; letter-spacing: 2px; color: var(--main); text-transform: uppercase; }
+        .nav-links { display: flex; gap: 25px; list-style: none; }
+        .nav-links a { color: white; text-decoration: none; font-weight: 500; transition: 0.3s; opacity: 0.8; }
+        .nav-links a:hover, .nav-links a.active { opacity: 1; color: var(--main); }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
-        }
-        .sidebar .logo { font-size: 26px; font-weight: bold; color: var(--main); margin-bottom: 40px; text-align: center; }
-        .sidebar a { 
-            display: flex; align-items: center; color: #ddd; padding: 15px; 
-            text-decoration: none; border-radius: 12px; margin-bottom: 10px; transition: 0.3s; 
-        }
-        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
-        .sidebar a.active { background: rgba(0, 212, 255, 0.2); color: var(--main); font-weight: bold; }
-        .logout-item { color: #ff4d4d !important; border: 1px solid rgba(255, 77, 77, 0.3); }
-
-        /* Nội dung chính */
-        .main-content { 
-            margin-left: 250px; 
-            flex: 1; 
-            z-index: 1; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            padding: 20px;
+            padding: 0 20px;
         }
-        h1 { font-size: clamp(28px, 8vw, 60px); text-shadow: 0 4px 10px rgba(0,0,0,0.8); }
-        p { font-size: clamp(14px, 4vw, 20px); opacity: 0.8; margin-top: 10px; }
 
-        /* --- GIAO DIỆN CHO ĐIỆN THOẠI (Dưới 768px) --- */
+        .hero h1 { 
+            font-size: clamp(40px, 10vw, 80px); 
+            text-transform: uppercase;
+            background: linear-gradient(to right, #fff, var(--main));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+        }
+
+        .hero p { font-size: 1.2rem; margin: 20px 0; max-width: 600px; line-height: 1.6; }
+
+        /* --- IP BOX --- */
+        .ip-container {
+            background: var(--glass);
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            backdrop-filter: blur(5px);
+            margin-top: 30px;
+        }
+
+        .ip-container:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px); }
+        .ip-container i { color: var(--main); }
+        .server-ip { font-weight: bold; letter-spacing: 1px; }
+
+        /* --- LOGOUT BUTTON --- */
+        .btn-logout {
+            padding: 10px 20px;
+            border: 1px solid #ff4d4d;
+            color: #ff4d4d;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-logout:hover { background: #ff4d4d; color: white; }
+
+        /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
-            body { flex-direction: column; }
-            
-            /* Chuyển menu xuống dưới đáy */
-            .sidebar { 
-                width: 100%; 
-                height: 70px; /* Chiều cao cố định cho thanh dưới */
-                position: fixed; 
-                bottom: 0; /* Nằm ở dưới cùng */
-                top: auto;
-                padding: 5px 10px; 
-                flex-direction: row; /* Nằm ngang */
-                justify-content: space-around; 
-                align-items: center;
-                backdrop-filter: blur(15px);
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 20px 20px 0 0; /* Bo góc trên cho đẹp */
-            }
-            
-            .sidebar .logo { display: none; } /* Ẩn logo trên mobile */
-            
-            .sidebar a { 
-                margin-bottom: 0; 
-                padding: 8px; 
-                font-size: 11px; 
-                flex-direction: column; /* Icon ở trên, chữ ở dưới */
-                gap: 4px;
-                border-radius: 8px;
-                flex: 1;
-            }
-            .sidebar a i { margin-right: 0; font-size: 20px; }
-            .logout-item { border: none; }
-
-            /* Căn giữa nội dung chính */
-            .main-content { 
-                margin-left: 0; 
-                margin-bottom: 70px; /* Đẩy nội dung lên để không bị menu che */
-                min-height: 100vh;
-            }
+            nav { padding: 15px 5%; }
+            .nav-links { display: none; } /* Có thể làm menu burger sau */
+            .hero h1 { font-size: 50px; }
         }
     </style>
 </head>
 <body>
-    <div class="overlay"></div>
 
-    <div class="sidebar">
+    <nav>
         <div class="logo">YEAMIKO</div>
-        <a href="index.html" class="active"><i class="fas fa-home"></i><span>Trang chủ</span></a>
-        <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
-        <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
-        <a href="#" id="btn-logout" class="logout-item"><i class="fas fa-sign-out-alt"></i><span>Thoát</span></a>
-    </div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">Trang chủ</a></li>
+            <li><a href="forum.html">Diễn đàn</a></li>
+            <li><a href="profile.html">Hồ sơ</a></li>
+        </ul>
+        <button id="btn-logout" class="btn-logout">Thoát</button>
+    </nav>
 
-    <div class="main-content">
-        <h1>Chào mừng tới Yeamiko</h1>
-        <p>Hệ thống quản lý máy chủ Minecraft chuyên nghiệp</p>
+    <div class="hero">
+        <h1>YEAMIKO.FUN</h1>
+        <p>Gia nhập cộng đồng Minecraft Việt Nam thân thiện, sáng tạo và chuyên nghiệp nhất. Nơi bạn viết nên câu chuyện của riêng mình!</p>
+        
+        <div class="ip-container" onclick="copyIP()">
+            <i class="fas fa-play-circle"></i>
+            <span class="server-ip" id="serverIP">YEAMIKO.FUN</span>
+            <i class="fas fa-copy" style="font-size: 14px; opacity: 0.6;"></i>
+        </div>
+        <p style="font-size: 0.9rem; margin-top: 10px;">Click để sao chép địa chỉ máy chủ</p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
+        // Giữ nguyên config của bạn
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -147,6 +154,13 @@
                 signOut(auth).then(() => { window.location.href = 'login.html'; });
             }
         };
+
+        // Hàm copy IP xịn
+        window.copyIP = function() {
+            const ip = "Yeamiko.fun";
+            navigator.clipboard.writeText(ip);
+            alert("Đã sao chép IP: " + ip + ". Chào mừng bạn tham gia!");
+        }
     </script>
 </body>
 </html>
