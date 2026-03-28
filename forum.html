@@ -13,14 +13,13 @@
         .sidebar a.active { background: rgba(0,212,255,0.1); color: var(--main); }
         .main-content { margin-left: 250px; flex: 1; padding: 30px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 600px; }
-        .post-box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        textarea { width: 100%; height: 80px; border: 1px solid #eee; border-radius: 10px; padding: 10px; outline: none; }
-        .btn-post { background: var(--main); color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .post-box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        textarea { width: 100%; height: 80px; border: 1px solid #eee; border-radius: 10px; padding: 12px; outline: none; margin-bottom: 10px; }
+        .btn-post { background: var(--main); color: white; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; }
         .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .post-header { display: flex; align-items: center; margin-bottom: 10px; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 10px; border: 1px solid var(--main); }
-        .post-content { font-size: 15px; color: #333; }
-        .post-img { width: 100%; border-radius: 10px; margin-top: 10px; }
+        .post-header { display: flex; align-items: center; margin-bottom: 15px; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
+        .post-img { width: 100%; border-radius: 10px; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -34,10 +33,10 @@
     <div class="main-content">
         <div class="container">
             <div class="post-box">
-                <textarea id="post-text" placeholder="Đăng tin mới..."></textarea>
+                <textarea id="post-text" placeholder="Dũng ơi, đăng bài nhé..."></textarea>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <input type="file" id="post-file" accept="image/*" style="font-size:12px;">
-                    <button id="btn-post" class="btn-post">Đăng bài</button>
+                    <input type="file" id="post-file" accept="image/*">
+                    <button id="btn-post" class="btn-post">ĐĂNG BÀI</button>
                 </div>
                 <p id="stt" style="font-size:12px; margin-top:5px;"></p>
             </div>
@@ -61,10 +60,10 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // HIỂN THỊ BÀI VIẾT KÈM ẢNH ĐẠI DIỆN TỪ KHO USERS
+        // HIỂN THỊ BÀI VIẾT KÈM TRA CỨU ẢNH TỪ KHO USERS
         onValue(ref(db, 'posts'), async snap => {
             const list = document.getElementById('forum-list');
-            const userSnap = await get(ref(db, 'users')); // Lấy toàn bộ ảnh đại diện
+            const userSnap = await get(ref(db, 'users'));
             const allUsers = userSnap.val() || {};
             const data = snap.val();
             list.innerHTML = "";
@@ -72,16 +71,16 @@
 
             Object.keys(data).reverse().forEach(id => {
                 const post = data[id];
-                // Tìm ảnh của người đăng trong kho Users bằng UID
-                const avatar = (allUsers[post.uid] && allUsers[post.uid].avatar) 
+                // Ưu tiên lấy ảnh Base64 từ Users, nếu không có mới dùng UI-Avatar
+                const avatar = (post.uid && allUsers[post.uid] && allUsers[post.uid].avatar) 
                                 ? allUsers[post.uid].avatar 
-                                : "https://ui-avatars.com/api/?name=" + post.userName;
+                                : `https://ui-avatars.com/api/?name=${post.userName}&background=random`;
 
                 list.innerHTML += `
                     <div class="post-card">
                         <div class="post-header">
-                            <img src="${avatar}" class="user-avatar">
-                            <b>${post.userName}</b>
+                            <img src="${avatar}" class="user-avatar" onerror="this.src='https://ui-avatars.com/api/?name=User'">
+                            <b style="font-size:16px;">${post.userName}</b>
                         </div>
                         <div class="post-content">${post.text}</div>
                         ${post.img ? `<img src="${post.img}" class="post-img">` : ""}
@@ -94,7 +93,7 @@
             const txt = document.getElementById('post-text').value;
             const file = document.getElementById('post-file').files[0];
             if(!u || (!txt && !file)) return;
-            document.getElementById('stt').innerText = "⏳ Đang đăng...";
+            document.getElementById('stt').innerText = "⏳ Đang tải bài...";
 
             let imgB64 = "";
             if(file) {
@@ -104,13 +103,14 @@
             }
 
             await push(ref(db, 'posts'), {
-                uid: u.uid, // LƯU UID ĐỂ TRA CỨU ẢNH
+                uid: u.uid, // Gắn ID người dùng vào bài đăng để tra cứu ảnh
                 userName: u.displayName || u.email.split('@')[0],
                 text: txt,
                 img: imgB64,
                 time: Date.now()
             });
             document.getElementById('post-text').value = "";
+            document.getElementById('post-file').value = "";
             document.getElementById('stt').innerText = "";
         };
     </script>
