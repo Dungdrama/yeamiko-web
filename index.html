@@ -6,12 +6,11 @@
     <title>Yeamiko Network | Minecraft Community</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main: #00d4ff; --bg: #0a0a0a; --sidebar: #111; --card: rgba(255, 255, 255, 0.05); --discord-color: #5865F2; }
+        :root { --main: #00d4ff; --bg: #0a0a0a; --sidebar: #111; --discord-color: #5865F2; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        
-        body { background: var(--bg); color: white; min-height: 100vh; overflow-x: hidden; display: flex; }
+        body { background: var(--bg); color: white; min-height: 100vh; display: flex; }
 
-        /* --- SIDEBAR MÁY TÍNH (MÀU ĐEN) --- */
+        /* --- SIDEBAR ĐEN ĐỒNG BỘ --- */
         .sidebar { 
             width: 250px; background: var(--sidebar); height: 100vh; 
             position: fixed; padding: 25px; color: white; z-index: 1000;
@@ -22,121 +21,49 @@
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
         
-        /* Nút Discord trên PC */
-        .btn-discord { 
-            margin-top: auto; 
-            background: var(--discord-color) !important; 
-            color: white !important; 
-            justify-content: center;
-            font-weight: bold;
-        }
+        .btn-discord { margin-top: auto; background: var(--discord-color) !important; color: white !important; justify-content: center; }
         .btn-discord img { width: 20px; margin-right: 10px; filter: brightness(0) invert(1); }
 
-        /* --- MAIN CONTENT --- */
-        .main-content { margin-left: 250px; flex: 1; position: relative; }
+        .main-content { margin-left: 250px; flex: 1; }
+        .hero { height: 75vh; background: linear-gradient(to bottom, rgba(0,0,0,0.4), var(--bg)), url('https://iili.io/qmYvvC7.jpg'); background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+        .hero h1 { font-size: clamp(40px, 8vw, 80px); text-transform: uppercase; letter-spacing: 8px; }
+        .ip-box { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px); padding: 12px 30px; border-radius: 50px; border: 2px solid var(--main); display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; }
+        .ip-box:hover { transform: scale(1.05); }
 
-        /* HERO SECTION */
-        .hero {
-            height: 75vh; width: 100%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.4), var(--bg)), url('https://iili.io/qmYvvC7.jpg');
-            background-size: cover; background-position: center;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
-        }
-        .hero h1 { font-size: clamp(40px, 8vw, 80px); text-transform: uppercase; letter-spacing: 8px; margin-bottom: 10px; text-shadow: 0 10px 30px rgba(0,0,0,1); }
-        .hero p { font-size: 1.1rem; color: #ccc; max-width: 600px; margin-bottom: 30px; }
-
-        /* IP BOX */
-        .ip-box {
-            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px);
-            padding: 12px 30px; border-radius: 50px; border: 2px solid var(--main);
-            display: flex; align-items: center; gap: 15px; cursor: pointer;
-            transition: 0.3s; box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
-        }
-        .ip-box:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); }
-        .ip-box b { font-size: 1.4rem; color: var(--main); }
-        .ip-box span { color: #fff; font-size: 0.75rem; font-weight: bold; background: rgba(255,255,255,0.1); padding: 3px 10px; border-radius: 20px; }
-
-        /* GALLERY */
-        .section { padding: 60px 40px; max-width: 1200px; margin: 0 auto; }
-        .section-title { font-size: 1.8rem; margin-bottom: 40px; text-align: center; letter-spacing: 2px; }
-        .section-title::after { content: ''; display: block; width: 50px; height: 3px; background: var(--main); margin: 10px auto; }
-
-        .image-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .image-card { border-radius: 15px; overflow: hidden; aspect-ratio: 16/9; border: 1px solid rgba(255,255,255,0.05); }
-        .image-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        .image-card:hover img { transform: scale(1.1); }
-
-        /* --- MOBILE RESPONSIVE (MENU TRẮNG) --- */
         @media (max-width: 768px) {
-            .sidebar { 
-                width: 100%; height: 70px; bottom: 0; top: auto; 
-                flex-direction: row; padding: 0 5px; 
-                background: #ffffff !important; 
-                border-top: 1px solid #eee; border-right: none;
-                box-shadow: 0 -2px 15px rgba(0,0,0,0.1);
-            }
+            .sidebar { width: 100%; height: 70px; bottom: 0; top: auto; flex-direction: row; padding: 0 5px; border-top: 1px solid #222; border-right: none; }
             .sidebar .logo { display: none; }
-            .sidebar a { flex-direction: column; font-size: 10px; flex: 1; color: #555 !important; margin-bottom: 0; padding: 10px 0; }
-            .sidebar a i { margin-right: 0; font-size: 20px; margin-bottom: 4px; color: #444; }
-            .sidebar a.active { background: transparent !important; color: var(--main) !important; }
-            .sidebar a.active i { color: var(--main); }
-            
-            /* Nút Discord trên Mobile */
-            .btn-discord { background: transparent !important; color: var(--discord-color) !important; margin-top: 0; }
-            .btn-discord img { margin-right: 0; margin-bottom: 4px; width: 22px; filter: none; }
-            
+            .sidebar a { flex-direction: column; font-size: 10px; flex: 1; padding: 10px 0; margin-bottom: 0; }
+            .sidebar a i { margin-right: 0; font-size: 18px; margin-bottom: 4px; }
+            .btn-discord { margin-top: 0; background: transparent !important; }
+            .btn-discord img { margin-right: 0; filter: none; }
             .main-content { margin-left: 0; padding-bottom: 80px; }
-            .hero h1 { font-size: 40px; }
         }
     </style>
 </head>
 <body>
-
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
         <a href="index.html" class="active"><i class="fas fa-home"></i><span>Trang chủ</span></a>
         <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
         <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
-        
         <a href="https://discord.gg/TCyKP7m9Bs" target="_blank" class="btn-discord">
-            <img src="https://iili.io/qm4f0PI.png" alt="Discord Icon">
-            <span>Discord</span>
+            <img src="https://iili.io/qm4f0PI.png" alt="Discord"><span>Discord</span>
         </a>
     </div>
-
     <div class="main-content">
         <section class="hero">
             <h1>YEAMIKO</h1>
-            <p>Tham gia cộng đồng Minecraft sáng tạo và kết nối những người bạn cùng đam mê.</p>
             <div class="ip-box" onclick="copyIP()">
-                <span>IP SERVER</span>
-                <b id="server-ip">Yeamiko.fun</b>
-                <i class="fas fa-copy" style="color: #666;"></i>
-            </div>
-            <p id="copy-msg" style="margin-top: 15px; font-size: 0.85rem; color: var(--main); opacity: 0; transition: 0.3s;">✨ Đã sao chép IP!</p>
-        </section>
-
-        <section class="section">
-            <h2 class="section-title">HÌNH ẢNH MÁY CHỦ</h2>
-            <div class="image-grid">
-                <div class="image-card"><img src="https://iili.io/qmg9Qb1.jpg" alt="Gallery 1"></div>
-                <div class="image-card"><img src="https://iili.io/qmg9LOP.jpg" alt="Gallery 2"></div>
-                <div class="image-card"><img src="https://iili.io/qmg9DWg.jpg" alt="Gallery 3"></div>
+                <span>IP SERVER</span> <b id="server-ip">Yeamiko.fun</b> <i class="fas fa-copy"></i>
             </div>
         </section>
-
-        <footer style="padding: 40px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
-            <p style="color: #555; font-size: 0.8rem;">&copy; 2026 Yeamiko Network. Design for Dũng.</p>
-        </footer>
     </div>
-
     <script>
         function copyIP() {
             const ip = document.getElementById('server-ip').innerText;
             navigator.clipboard.writeText(ip);
-            const msg = document.getElementById('copy-msg');
-            msg.style.opacity = '1';
-            setTimeout(() => { msg.style.opacity = '0'; }, 2000);
+            alert("Đã sao chép IP: " + ip);
         }
     </script>
 </body>
