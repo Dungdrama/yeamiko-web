@@ -42,6 +42,18 @@
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
         .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
         
+        .post-actions { margin-top: 15px; display: flex; gap: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
+        .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; padding: 5px 10px; border-radius: 8px; transition: 0.2s; }
+        .action-btn.liked { color: #ff4d4d; }
+
+        .comment-section { margin-top: 15px; }
+        .comment-item { display: flex; margin-bottom: 10px; }
+        .cmt-avatar { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; }
+        .cmt-content { background: #f0f2f5; padding: 8px 12px; border-radius: 18px; font-size: 14px; max-width: 85%; }
+        .cmt-input-box { display: flex; margin-top: 10px; gap: 10px; }
+        .cmt-input { flex: 1; padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+        .btn-cmt { background: none; border: none; color: var(--main); cursor: pointer; font-weight: bold; }
+
         .post-box-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 900; border-top: 1px solid #eee; }
     </style>
 </head>
@@ -59,7 +71,6 @@
         <a href="admin-verify.html" id="admin-menu-item" style="display: none; color: #00d4ff; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
             <i class="fas fa-user-shield"></i><span>Phê duyệt bài</span>
         </a>
-
         <a href="index.html" style="margin-top: auto; border: 1px solid rgba(0, 212, 255, 0.2);"><i class="fas fa-arrow-left"></i><span>Về Home</span></a>
     </div>
 
@@ -81,7 +92,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, push, get, set, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, push, get, set, query, orderByChild, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
@@ -100,6 +111,30 @@
             document.querySelector('.sidebar-overlay').classList.toggle('show');
         };
 
+        window.handleLike = async (pid) => {
+            const u = auth.currentUser;
+            if(!u) return alert("Vui lòng đăng nhập!");
+            const likeRef = ref(db, `likes/${pid}/${u.uid}`);
+            const snap = await get(likeRef);
+            if(snap.exists()) return alert("Bạn đã like rồi!");
+            await set(likeRef, true);
+            await runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 0) + 1);
+            renderPosts();
+        };
+
+        window.sendComment = async (pid) => {
+            const u = auth.currentUser;
+            const input = document.getElementById(`in-${pid}`);
+            const val = input.value.trim();
+            if(!u || !val) return;
+            const uSnap = await get(ref(db, `users/${u.uid}`));
+            const userData = uSnap.val() || {};
+            const name = userData.name || u.displayName || u.email.split('@')[0];
+            await push(ref(db, `posts/${pid}/comments`), { uid: u.uid, userName: name, text: val, time: Date.now() });
+            input.value = "";
+            renderPosts();
+        };
+
         async function renderPosts() {
             const list = document.getElementById('forum-list');
             const [pSnap, uSnap] = await Promise.all([
@@ -110,17 +145,34 @@
             const allUsers = uSnap.val() || {};
             const keys = Object.keys(allPosts).sort((a,b) => allPosts[b].time - allPosts[a].time);
             list.innerHTML = keys.length ? "" : "<p style='text-align:center;'>Chưa có bài viết nào.</p>";
-            keys.forEach(k => {
+            
+            for (let k of keys) {
                 const p = allPosts[k];
                 const name = allUsers[p.uid]?.name || p.userName;
                 const avt = allUsers[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${name}`;
+                
+                let isLiked = false;
+                if(auth.currentUser) {
+                    const lSnap = await get(ref(db, `likes/${k}/${auth.currentUser.uid}`));
+                    if(lSnap.exists()) isLiked = true;
+                }
+
+                let cmts = "";
+                if(p.comments) Object.values(p.comments).forEach(c => {
+                    const cName = allUsers[c.uid]?.name || c.userName;
+                    const cavt = allUsers[c.uid]?.avatar || `https://ui-avatars.com/api/?name=${cName}`;
+                    cmts += `<div class="comment-item"><img src="${cavt}" class="cmt-avatar"><div class="cmt-content"><b>${cName}</b> ${c.text}</div></div>`;
+                });
+
                 list.insertAdjacentHTML('beforeend', `
                     <div class="post-card">
                         <div class="post-header"><img src="${avt}" class="user-avatar"><b>${name}</b></div>
-                        <div>${p.text}</div>
+                        <div style="margin:10px 0;">${p.text}</div>
                         ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
+                        <div class="post-actions"><span class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ ${p.likes||0} Thích</span></div>
+                        <div class="comment-section"><div id="clist-${k}">${cmts}</div><div class="cmt-input-box"><input id="in-${k}" class="cmt-input" placeholder="Bình luận..."><button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button></div></div>
                     </div>`);
-            });
+            }
         }
 
         document.getElementById('btn-post').onclick = async () => {
@@ -144,7 +196,6 @@
             const uSnap = await get(ref(db, `users/${u.uid}`));
             const name = uSnap.exists() ? uSnap.val().name : (u.displayName || u.email.split('@')[0]);
 
-            // LƯU VÀO MỤC CHỜ DUYỆT
             await push(ref(db, 'pending_posts'), { 
                 uid: u.uid, userName: name, text: txt, img: imgB64, time: Date.now() 
             });
@@ -157,7 +208,6 @@
 
         onAuthStateChanged(auth, (user) => {
             if(user) {
-                // KIỂM TRA ADMIN ĐỂ HIỆN MENU
                 if(user.uid === "kRvctZ12xsfyugkQVCaInAVzt3d2") { 
                     document.getElementById('admin-menu-item').style.display = 'flex';
                 }
