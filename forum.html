@@ -78,7 +78,7 @@
 
     <div class="post-box-fixed">
         <div style="max-width:600px; margin:0 auto;">
-            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Dũng ơi, chia sẻ gì đi..."></textarea>
+            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Bạn ơi, chia sẻ gì đi..."></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                 <input type="file" id="post-file" accept="image/*">
                 <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG</button>
@@ -118,7 +118,7 @@
             if(!u) return alert("Vui lòng đăng nhập!");
             const likeRef = ref(db, `likes/${pid}/${u.uid}`);
             const snap = await get(likeRef);
-            if(snap.exists()) return alert("Dũng đã like rồi!");
+            if(snap.exists()) return alert("Bạn đã like rồi!");
 
             await set(likeRef, true);
             await runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 0) + 1);
