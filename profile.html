@@ -2,27 +2,44 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hồ sơ Yeamiko</title>
+    <title>Hồ sơ | Yeamiko</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .profile-container { text-align: center; }
+        .avatar-img {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #00d4ff;
+            margin-bottom: 15px;
+        }
+        .info-group { text-align: left; margin-top: 20px; }
+        label { display: block; margin-bottom: 5px; color: #aaa; font-size: 0.9em; }
+    </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
         <a href="/"><i class="fas fa-home"></i> Trang chủ</a>
-        <a href="/profile.html" class="active"><i class="fas fa-user"></i> Hồ sơ</a>
+        <a href="/profile.html" class="active"><i class="fas fa-user-edit"></i> Hồ sơ của tôi</a>
     </div>
 
     <div class="main-content">
-        <div class="card" style="text-align: center;">
-            <h2>CHỈNH SỬA HỒ SƠ</h2>
-            <div id="avatar-container" style="cursor:pointer; margin: 20px 0;">
-                <img id="user-avatar" src="https://ui-avatars.com/api/?name=User" style="width:120px; height:120px; border-radius:50%; border:3px solid #00d4ff;">
-                <input type="file" id="file-input" hidden accept="image/*">
+        <div class="card profile-container">
+            <h2>HỒ SƠ YEAMIKO</h2>
+            <hr style="margin: 20px 0; opacity: 0.1;">
+            
+            <img id="user-avatar" src="https://ui-avatars.com/api/?name=User" class="avatar-img" alt="Avatar">
+            
+            <div class="info-group">
+                <label>Tên người chơi hiển thị</label>
+                <input type="text" id="display-name" placeholder="Ví dụ: YeamikoPlayer_Vip">
+                
+                <button id="btn-update" class="btn-auth">CẬP NHẬT TÊN</button>
+                <p id="update-msg" style="margin-top: 10px; font-size: 0.9em;"></p>
+                <a href="/" style="display:block; text-align:center; color:#aaa; margin-top:15px; text-decoration:none;">Quay lại trang chủ</a>
             </div>
-            <input type="text" id="display-name" placeholder="Tên hiển thị mới..." style="width:100%; padding:10px; margin-bottom:10px;">
-            <button id="btn-save" class="btn-auth">LƯU THÔNG TIN</button>
-            <p id="msg" style="margin-top:10px;"></p>
         </div>
     </div>
 
@@ -30,32 +47,56 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
+        // Cấu hình Yeamiko
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0", //
             authDomain: "yeamiko-web.firebaseapp.com",
             projectId: "yeamiko-web",
+            storageBucket: "yeamiko-web.firebasestorage.app",
+            messagingSenderId: "380442978172",
             appId: "1:380442978172:web:52eeb187628ed3518266f9"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // KIỂM TRA ĐĂNG NHẬP
+        // Hiển thị thông tin hiện tại
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Nếu đã đăng nhập thì hiện thông tin
+                // Lấy tên hoặc email làm tên mặc định
+                const nameToShow = user.displayName || user.email.split('@')[0];
                 document.getElementById('display-name').value = user.displayName || "";
-                if (user.photoURL) document.getElementById('user-avatar').src = user.photoURL;
+                // Cập nhật avatar mặc định theo tên
+                document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${nameToShow}&background=random&color=fff`;
             } else {
-                // Chỉ chuyển hướng nếu thực sự chưa đăng nhập
-                console.log("Chưa đăng nhập, đang chuyển hướng...");
-                window.location.href = '/login.html';
+                window.location.href = '/login.html'; // Đẩy về đăng nhập nếu chưa có acc
             }
         });
 
-        // Code xử lý đổi ảnh và tên giữ nguyên như cũ...
-        document.getElementById('avatar-container').onclick = () => document.getElementById('file-input').click();
-        // ... (phần code Imgur bạn đã có)
+        // Xử lý nút cập nhật tên
+        document.getElementById('btn-update').onclick = async () => {
+            const user = auth.currentUser;
+            const newName = document.getElementById('display-name').value;
+            const msg = document.getElementById('update-msg');
+
+            if (!newName) {
+                msg.style.color = "#e74c3c";
+                msg.innerText = "Lỗi: Vui lòng nhập tên bạn muốn đổi.";
+                return;
+            }
+
+            try {
+                // Gọi lệnh cập nhật tên của Firebase
+                await updateProfile(user, { displayName: newName });
+                msg.style.color = "#2ecc71";
+                msg.innerText = "Cập nhật tên thành công! Đang tải lại...";
+                // Tải lại trang để hiện tên mới
+                setTimeout(() => location.reload(), 1500);
+            } catch (error) {
+                msg.style.color = "#e74c3c";
+                msg.innerText = "Lỗi cập nhật: " + error.message;
+            }
+        };
     </script>
 </body>
 </html>
