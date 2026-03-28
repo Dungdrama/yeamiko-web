@@ -2,53 +2,55 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Diễn đàn Yeamiko</title>
+    <title>Diễn đàn | Yeamiko</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .post-card { background: #222; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #00d4ff; }
-        .post-img { max-width: 100%; border-radius: 5px; margin-top: 10px; display: block; }
-        .post-user { font-weight: bold; color: #00d4ff; font-size: 0.9em; }
-        .post-content { margin: 10px 0; line-height: 1.5; }
-        #upload-section { margin-bottom: 30px; border-bottom: 1px solid #444; padding-bottom: 20px; }
-        textarea { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; }
+        .post-card { background: #222; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; }
+        .post-user { font-weight: bold; color: #00d4ff; display: flex; align-items: center; gap: 10px; }
+        .post-img { max-width: 100%; border-radius: 8px; margin: 15px 0; border: 1px solid #444; }
+        .like-btn { background: #333; border: none; color: #00d4ff; padding: 8px 15px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
+        .like-btn:hover { background: #444; transform: scale(1.05); }
+        textarea { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 15px; border-radius: 8px; resize: none; }
+        .upload-label { cursor: pointer; color: #aaa; font-size: 0.9em; padding: 10px; border: 1px dashed #444; border-radius: 8px; display: inline-block; }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
-        <a href="/"><i class="fas fa-home"></i> Trang chủ</a>
-        <a href="/forum.html" class="active">🏠 Diễn đàn</a>
-        <a href="/profile.html">👤 Hồ sơ</a>
+        <a href="/index.html"><i class="fas fa-home"></i> Trang chủ</a>
+        <a href="/forum.html" class="active"><i class="fas fa-comments"></i> Diễn đàn</a>
+        <a href="/profile.html"><i class="fas fa-user"></i> Hồ sơ</a>
+        <div id="auth-section" style="padding:10px;"></div>
     </div>
 
     <div class="main-content">
-        <h1>DIỄN ĐÀN CỘNG ĐỒNG</h1>
+        <h2>DIỄN ĐÀN YEAMIKO</h2>
         
-        <div id="upload-section" class="card">
-            <h3>ĐĂNG BÀI MỚI</h3>
-            <textarea id="post-text" rows="3" placeholder="Bạn đang nghĩ gì?"></textarea>
-            <div style="margin-top:10px;">
-                <label style="cursor:pointer; background:#444; padding:8px; border-radius:5px;">
-                    📷 Thêm ảnh
-                    <input type="file" id="post-file" accept="image/*" hidden>
+        <div class="card" style="margin-bottom:30px;">
+            <textarea id="post-text" rows="3" placeholder="Chia sẻ điều gì đó với server..."></textarea>
+            <div style="margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
+                <label class="upload-label">
+                    <i class="fas fa-image"></i> Thêm ảnh từ máy
+                    <input type="file" id="post-file" hidden accept="image/*">
                 </label>
-                <button id="btn-post" class="btn-auth" style="float:right; width:120px;">ĐĂNG BÀI</button>
+                <button id="btn-post" class="btn-auth" style="width:120px;">ĐĂNG BÀI</button>
             </div>
-            <p id="status" style="font-size:0.8em; margin-top:10px;"></p>
+            <p id="status" style="font-size:0.8em; margin-top:10px; text-align:center;"></p>
         </div>
 
-        <div id="forum-posts">Đang tải bài viết...</div>
+        <div id="forum-posts">Đang tải các bài viết...</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, push, onValue, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0", //
             authDomain: "yeamiko-web.firebaseapp.com",
-            databaseURL: "https://yeamiko-web-default-rtdb.firebaseio.com", // Dũng cần bật Database trong Firebase Console
+            databaseURL: "https://yeamiko-web-default-rtdb.firebaseio.com", //
             projectId: "yeamiko-web",
             appId: "1:380442978172:web:52eeb187628ed3518266f9"
         };
@@ -57,30 +59,41 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // 1. Tải bài viết từ Firebase Database
-        const postsRef = ref(db, 'posts');
-        onValue(postsRef, (snapshot) => {
+        // Hiển thị bài viết và nút Like
+        onValue(ref(db, 'posts'), (snapshot) => {
             const data = snapshot.val();
             const container = document.getElementById('forum-posts');
             container.innerHTML = "";
             if (data) {
-                Object.values(data).reverse().forEach(post => {
+                Object.keys(data).reverse().forEach(postId => {
+                    const post = data[postId];
                     container.innerHTML += `
                         <div class="post-card">
-                            <div class="post-user">${post.userName}</div>
-                            <div class="post-content">${post.text}</div>
+                            <div class="post-user">
+                                <img src="https://ui-avatars.com/api/?name=${post.userName}&background=random" style="width:30px; border-radius:50%;">
+                                ${post.userName}
+                            </div>
+                            <div style="margin:15px 0;">${post.text}</div>
                             ${post.img ? `<img src="${post.img}" class="post-img">` : ""}
-                            <div style="font-size:0.7em; color:#666; margin-top:10px;">Vừa xong</div>
+                            <button class="like-btn" onclick="window.likePost('${postId}')">
+                                <i class="fas fa-heart"></i> ${post.likes || 0} Like
+                            </button>
                         </div>
                     `;
                 });
             }
         });
 
-        // 2. Xử lý đăng bài
+        // Xử lý nút Like
+        window.likePost = (postId) => {
+            if (!auth.currentUser) return alert("Bạn cần đăng nhập để thả tim!");
+            runTransaction(ref(db, `posts/${postId}/likes`), (count) => (count || 0) + 1);
+        };
+
+        // Xử lý Đăng bài
         document.getElementById('btn-post').onclick = async () => {
             const user = auth.currentUser;
-            if (!user) return alert("Bạn cần đăng nhập!");
+            if (!user) return alert("Vui lòng đăng nhập!");
 
             const text = document.getElementById('post-text').value;
             const file = document.getElementById('post-file').files[0];
@@ -88,38 +101,41 @@
             let imgUrl = "";
 
             if (!text && !file) return;
-            status.innerText = "Đang tải lên...";
+            status.innerText = "⏳ Đang tải bài viết lên...";
 
             try {
-                // Nếu có ảnh, tải lên Imgur trước
                 if (file) {
                     const formData = new FormData();
                     formData.append('image', file);
                     const res = await fetch('https://api.imgur.com/3/image', {
                         method: 'POST',
-                        headers: { Authorization: 'Client-ID 546c25a59c58ad7' }, // Thay bằng ID của bạn
+                        headers: { Authorization: 'Client-ID 546c25a59c58ad7' }, //
                         body: formData
                     });
                     const resData = await res.json();
-                    imgUrl = resData.data.link;
+                    if (resData.success) imgUrl = resData.data.link;
                 }
 
-                // Lưu bài viết vào Realtime Database
-                const newPostRef = push(postsRef);
-                await set(newPostRef, {
+                await set(push(ref(db, 'posts')), {
                     userName: user.displayName || user.email.split('@')[0],
                     text: text,
                     img: imgUrl,
+                    likes: 0,
                     timestamp: Date.now()
                 });
-
                 document.getElementById('post-text').value = "";
                 document.getElementById('post-file').value = "";
-                status.innerText = "Đã đăng bài!";
+                status.innerText = "✅ Đã đăng thành công!";
             } catch (err) {
-                status.innerText = "Lỗi: " + err.message;
+                status.innerText = "❌ Lỗi: " + err.message;
             }
         };
+
+        // Đồng bộ trạng thái đăng nhập menu
+        onAuthStateChanged(auth, (user) => {
+            const authSection = document.getElementById('auth-section');
+            if (!user) authSection.innerHTML = `<button onclick="window.location.href='/login.html'" class="btn-auth" style="width:100%;">Đăng nhập</button>`;
+        });
     </script>
 </body>
 </html>
