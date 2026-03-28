@@ -2,52 +2,72 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập | Yeamiko</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --main: #00d4ff; --bg: #111; }
+        body { background: var(--bg); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Segoe UI', sans-serif; color: white; }
+        .card { background: #1a1a1a; padding: 30px; border-radius: 20px; width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; }
+        h2 { text-align: center; color: var(--main); margin-bottom: 25px; letter-spacing: 2px; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #333; background: #222; color: white; outline: none; }
+        .btn-auth { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
+        .btn-login { background: var(--main); color: #000; }
+        .btn-google { background: white; color: #444; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-google:hover { background: #eee; }
+        .btn-auth:hover { transform: translateY(-2px); opacity: 0.9; }
+        p { text-align: center; font-size: 14px; color: #888; margin-top: 15px; }
+        a { color: var(--main); text-decoration: none; font-weight: bold; }
+        #msg { color: #ff4d4d; font-size: 12px; margin-bottom: 10px; text-align: center; min-height: 18px; }
+    </style>
 </head>
 <body>
-    <div style="display:flex; justify-content:center; align-items:center; height:100vh;">
-        <div class="card" style="width:350px;">
-            <h2 style="text-align:center; margin-bottom:20px;">TÀI KHOẢN YEAMIKO</h2>
-            <input type="email" id="email" placeholder="Email của bạn">
-            <input type="password" id="password" placeholder="Mật khẩu (>6 ký tự)">
-            <button id="btn-signup" class="btn-auth" style="background:#2ecc71;">Đăng ký mới</button>
-            <button id="btn-login" class="btn-auth">Đăng nhập</button>
-            <p id="msg" style="color:#e74c3c; margin-top:10px; text-align:center; font-size:0.9em;"></p>
-            <a href="/" style="display:block; text-align:center; margin-top:15px; color:#aaa; text-decoration:none;">Quay lại trang chủ</a>
-        </div>
+    <div class="card">
+        <h2>ĐĂNG NHẬP</h2>
+        <div id="msg"></div>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Mật khẩu">
+        <button id="btn-login" class="btn-auth btn-login">ĐĂNG NHẬP</button>
+        
+        <div style="text-align: center; margin: 15px 0; color: #555;">——— HOẶC ———</div>
+        
+        <button id="btn-google" class="btn-auth btn-google">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.svg" width="18">
+            Tiếp tục với Google
+        </button>
+
+        <p>Chưa có tài khoản? <a href="signup.html">Đăng ký ngay</a></p>
+        <a href="index.html" style="display:block; text-align:center; margin-top:20px; font-size:12px; color:#555;">Quay lại trang chủ</a>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
             projectId: "yeamiko-web",
-            storageBucket: "yeamiko-web.firebasestorage.app",
-            messagingSenderId: "380442978172",
             appId: "1:380442978172:web:52eeb187628ed3518266f9"
         };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
-        document.getElementById('btn-signup').onclick = () => {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
-            createUserWithEmailAndPassword(auth, email, pass)
-                .then(() => window.location.href = '/')
-                .catch(err => document.getElementById('msg').innerText = "Lỗi: " + err.message);
-        };
-
+        // Đăng nhập Email/Pass
         document.getElementById('btn-login').onclick = () => {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
             signInWithEmailAndPassword(auth, email, pass)
-                .then(() => window.location.href = '/')
-                .catch(err => document.getElementById('msg').innerText = "Sai tài khoản hoặc mật khẩu!");
+                .then(() => window.location.href = 'index.html')
+                .catch(() => document.getElementById('msg').innerText = "Sai email hoặc mật khẩu!");
+        };
+
+        // Đăng nhập Google
+        document.getElementById('btn-google').onclick = () => {
+            signInWithPopup(auth, provider)
+                .then(() => window.location.href = 'index.html')
+                .catch((err) => document.getElementById('msg').innerText = "Lỗi Google: " + err.message);
         };
     </script>
 </body>
