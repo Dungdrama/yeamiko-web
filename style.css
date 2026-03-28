@@ -1,0 +1,5 @@
+body { background: #121212; color: white; font-family: sans-serif; text-align: center; }
+nav { background: #1f1f1f; padding: 15px; }
+nav a { color: #00bbff; margin: 0 15px; text-decoration: none; font-weight: bold; }
+.container { margin-top: 50px; }
+.ip-box { background: #333; display: inline-block; padding: 10px 20px; border-radius: 5px; border: 1px solid #00bbff; margin-top: 20px; }
