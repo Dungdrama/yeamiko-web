@@ -4,25 +4,17 @@
     <meta charset="UTF-8">
     <title>Profile | Yeamiko</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="navbar">
-        <i class="fas fa-bars"></i>
-        <div>Hồ sơ cá nhân</div>
-    </div>
-
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
-        <a href="/"><i class="fas fa-home"></i> Trang chủ</a>
-        <a href="/profile.html" class="active"><i class="fas fa-user"></i> Profile của tôi</a>
+        <a href="/">Trang chủ</a>
+        <a href="/profile.html" class="active">Profile cá nhân</a>
     </div>
-
     <div class="main-content">
         <div class="card">
-            <h2>THÔNG TIN TÀI KHOẢN</h2>
-            <hr style="margin:20px 0; opacity:0.1;">
-            <div id="profile-data">Đang tải...</div>
+            <h2>THÔNG TIN CỦA BẠN</h2>
+            <div id="user-info" style="margin-top:20px;">Đang tải...</div>
         </div>
     </div>
 
@@ -36,8 +28,7 @@
             projectId: "yeamiko-web",
             storageBucket: "yeamiko-web.firebasestorage.app",
             messagingSenderId: "380442978172",
-            appId: "1:380442978172:web:52eeb187628ed3518266f9",
-            measurementId: "G-TQEK8VF978"
+            appId: "1:380442978172:web:52eeb187628ed3518266f9"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -45,10 +36,9 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                document.getElementById('profile-data').innerHTML = `
+                document.getElementById('user-info').innerHTML = `
                     <p><strong>Email:</strong> ${user.email}</p>
-                    <p><strong>ID người dùng:</strong> ${user.uid}</p>
-                    <p><strong>Ngày tạo:</strong> ${user.metadata.creationTime}</p>
+                    <p><strong>ID:</strong> ${user.uid}</p>
                 `;
             } else {
                 window.location.href = '/login.html';
