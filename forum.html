@@ -20,8 +20,6 @@
         .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
-        .btn-discord { margin-top: auto; background: #5865F2 !important; color: white !important; justify-content: center; font-weight: bold; }
-        .btn-discord img { width: 22px; margin-right: 8px; }
 
         /* NỘI DUNG */
         .main-content { margin-left: 250px; flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%; padding-bottom: 250px; }
@@ -36,8 +34,9 @@
         
         .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
         .post-actions { margin-top: 15px; display: flex; gap: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
-        .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; }
-        .action-btn.liked { color: #ff4d4d; pointer-events: none; }
+        .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; padding: 5px 10px; border-radius: 8px; transition: 0.2s; }
+        .action-btn:hover { background: #f0f0f0; }
+        .action-btn.liked { color: #ff4d4d; }
 
         .comment-section { margin-top: 15px; }
         .comment-item { display: flex; margin-bottom: 10px; }
@@ -50,15 +49,12 @@
         .post-box-fixed { position: fixed; bottom: 0; left: 250px; right: 0; background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 900; border-top: 1px solid #eee; }
         .btn-load-more { background: white; border: 2px solid var(--main); color: var(--main); padding: 10px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; margin: 20px 0; }
 
-        /* MOBILE */
         @media (max-width: 768px) {
             .sidebar { width: 100%; height: 65px; bottom: 0; top: auto; flex-direction: row; padding: 0 5px; background: white !important; border-top: 1px solid #eee; }
             .sidebar .logo { display: none; }
             .sidebar a { flex-direction: column; font-size: 10px; flex: 1; color: #666 !important; padding: 10px 0; margin-bottom: 0; }
             .sidebar a i { margin-right: 0; font-size: 18px; margin-bottom: 3px; }
             .sidebar a.active { background: #f0faff !important; color: var(--main) !important; }
-            .btn-discord { background: transparent !important; color: #5865F2 !important; margin-top: 0; }
-            .btn-discord img { width: 20px; margin-right: 0; }
             .main-content { margin-left: 0; padding-bottom: 250px; }
             .post-box-fixed { left: 0; bottom: 65px; }
         }
@@ -70,10 +66,7 @@
         <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
         <a href="forum.html" class="active"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
         <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
-        <a href="https://discord.gg/TCyKP7m9Bs" target="_blank" class="btn-discord">
-            <img src="https://iili.io/qm6BClI.png" alt="Discord"><span>Discord</span>
-        </a>
-    </div>
+        </div>
 
     <div class="main-content">
         <div id="forum-list" class="container"></div>
@@ -82,7 +75,7 @@
 
     <div class="post-box-fixed">
         <div style="max-width:600px; margin:0 auto;">
-            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Dũng ơi, chia sẻ gì đi..."></textarea>
+            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Bạn ơi, chia sẻ gì đi..."></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                 <input type="file" id="post-file" accept="image/*">
                 <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG</button>
@@ -115,17 +108,24 @@
             return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
         }
 
+        // --- SỬA LỖI LIKE LOAD LẠI TRANG ---
         window.handleLike = async (pid) => {
             const u = auth.currentUser;
-            if(!u) return alert("Vui lòng đăng nhập!");
+            if(!u) return alert("Bạn cần đăng nhập!");
+            
             const likeRef = ref(db, `likes/${pid}/${u.uid}`);
             const snap = await get(likeRef);
-            if(snap.exists()) return alert("Bạn đã like bài này rồi!");
+            if(snap.exists()) return alert("Bạn đã like rồi nè!");
 
+            // Cập nhật lên Database
             await set(likeRef, true);
-            runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 0) + 1).then(() => {
-                location.reload();
-            });
+            runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 0) + 1);
+
+            // Cập nhật giao diện ngay lập tức (không reload)
+            const countEl = document.getElementById(`l-cnt-${pid}`);
+            const btnEl = document.getElementById(`l-btn-${pid}`);
+            if(countEl) countEl.innerText = parseInt(countEl.innerText) + 1;
+            if(btnEl) btnEl.classList.add('liked');
         };
 
         window.sendComment = async (pid) => {
@@ -136,20 +136,20 @@
                 uid: u.uid, userName: u.displayName || u.email.split('@')[0], 
                 text: val, time: Date.now() 
             });
-            location.reload();
+            document.getElementById(`in-${pid}`).value = "";
+            // Tải lại bình luận riêng của post đó hoặc reload nhẹ
+            location.reload(); 
         };
 
         async function loadPosts() {
             const forumList = document.getElementById('forum-list');
             const loadBtn = document.getElementById('btn-load-more');
-            
             let q = lastTime ? query(ref(db, 'posts'), orderByChild('time'), endBefore(lastTime), limitToLast(5)) : query(ref(db, 'posts'), orderByChild('time'), limitToLast(5));
             
             try {
                 const [snap, uSnap] = await Promise.all([get(q), get(ref(db, 'users'))]);
                 const posts = snap.val();
                 const allUsers = uSnap.val() || {};
-
                 if(!posts) { loadBtn.style.display = 'none'; return; }
                 loadBtn.style.display = 'block';
 
@@ -184,7 +184,7 @@
                             <div style="margin:10px 0;">${p.text}</div>
                             ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
                             <div class="post-actions">
-                                <span class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ ${p.likes||0} Thích</span>
+                                <span id="l-btn-${k}" class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ <span id="l-cnt-${k}">${p.likes||0}</span> Thích</span>
                             </div>
                             <div class="comment-section">
                                 <div id="clist-${k}">${cmts}</div>
@@ -200,15 +200,10 @@
         document.getElementById('btn-post').onclick = async () => {
             const u = auth.currentUser;
             const text = document.getElementById('post-text').value.trim();
-            const fileInput = document.getElementById('post-file');
-            const file = fileInput.files[0];
+            const file = document.getElementById('post-file').files[0];
+            if(!u || (!text && !file)) return alert("Vui lòng nhập nội dung!");
 
-            if(!u) return alert("Hãy đăng nhập!");
-            if(!text && !file) return alert("Nội dung trống!");
-
-            document.getElementById('stt').innerText = "⏳ Đang đăng bài...";
-            document.getElementById('btn-post').disabled = true;
-
+            document.getElementById('stt').innerText = "⏳ Đang đăng...";
             let b64 = "";
             if(file) {
                 b64 = await new Promise(res => {
@@ -218,7 +213,7 @@
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
                             const MAX_W = 800;
-                            let w = img.width; let h = img.height;
+                            let w = img.width, h = img.height;
                             if (w > MAX_W) { h *= MAX_W / w; w = MAX_W; }
                             canvas.width = w; canvas.height = h;
                             canvas.getContext('2d').drawImage(img, 0, 0, w, h);
@@ -229,14 +224,11 @@
                     r.readAsDataURL(file);
                 });
             }
-
-            try {
-                await push(ref(db, 'posts'), {
-                    uid: u.uid, userName: u.displayName || u.email.split('@')[0],
-                    text: text, img: b64, time: Date.now(), likes: 0
-                });
-                location.reload();
-            } catch(e) { alert("Lỗi đăng bài!"); document.getElementById('btn-post').disabled = false; }
+            await push(ref(db, 'posts'), {
+                uid: u.uid, userName: u.displayName || u.email.split('@')[0],
+                text: text, img: b64, time: Date.now(), likes: 0
+            });
+            location.reload();
         };
 
         onAuthStateChanged(auth, () => {
