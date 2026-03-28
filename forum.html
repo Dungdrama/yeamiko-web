@@ -10,56 +10,76 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); display: flex; min-height: 100vh; }
 
-        /* --- SIDEBAR CHO MÁY TÍNH --- */
+        /* --- SIDEBAR MÁY TÍNH --- */
         .sidebar { 
-            width: 250px; 
-            background: var(--sidebar); 
-            height: 100vh; 
-            position: fixed; 
-            padding: 25px; 
-            color: white; 
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
+            width: 250px; background: var(--sidebar); height: 100vh; 
+            position: fixed; padding: 25px; color: white; z-index: 100;
+            display: flex; flex-direction: column;
         }
         .sidebar .logo { font-size: 24px; font-weight: bold; color: var(--main); margin-bottom: 30px; text-align: center; }
-        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 12px; text-decoration: none; border-radius: 10px; margin-bottom: 10px; transition: 0.3s; }
+        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 12px; text-decoration: none; border-radius: 10px; margin-bottom: 10px; }
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar a.active { background: rgba(0,212,255,0.1); color: var(--main); }
-        .sidebar a:hover { background: rgba(255,255,255,0.05); }
-        
-        /* Nút đăng xuất cho forum */
         .logout-item { color: #ff4d4d !important; border: 1px solid rgba(255,77,77,0.2); margin-top: auto; }
 
-        /* Nội dung chính */
-        .main-content { margin-left: 250px; flex: 1; padding: 30px; display: flex; flex-direction: column; align-items: center; width: 100%; }
+        /* --- NỘI DUNG CHÍNH --- */
+        .main-content { 
+            margin-left: 250px; flex: 1; padding: 30px; 
+            display: flex; flex-direction: column; align-items: center; width: 100%;
+            padding-bottom: 180px; /* Chừa chỗ cho ô đăng bài cố định */
+        }
         .container { width: 100%; max-width: 600px; }
+
+        /* --- Ô ĐĂNG BÀI CỐ ĐỊNH Ở DƯỚI --- */
+        .post-box-fixed {
+            position: fixed;
+            bottom: 0;
+            left: 250px; /* Canh lề theo sidebar máy tính */
+            right: 0;
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+            z-index: 90;
+            display: flex;
+            justify-content: center;
+        }
+        .post-box-inner { width: 100%; max-width: 600px; }
         
-        /* Các style cho bài viết (giữ nguyên từ bản cũ) */
-        .post-box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        textarea { width: 100%; height: 80px; border: 1px solid #eee; border-radius: 10px; padding: 12px; outline: none; margin-bottom: 10px; resize: none; }
-        .btn-post { background: var(--main); color: white; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: left; }
+        textarea { 
+            width: 100%; height: 60px; border: 1px solid #ddd; 
+            border-radius: 12px; padding: 10px; outline: none; 
+            margin-bottom: 8px; resize: none; font-size: 14px;
+        }
+        .post-controls { display: flex; justify-content: space-between; align-items: center; }
+        .btn-post { background: var(--main); color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+
+        /* --- STYLE BÀI VIẾT --- */
+        .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .post-header { display: flex; align-items: center; margin-bottom: 15px; }
         .user-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
         .post-img { width: 100%; border-radius: 10px; margin-top: 15px; }
-        .like-btn { background: #f9f9f9; border: 1px solid #eee; padding: 5px 15px; border-radius: 15px; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .like-btn { background: #f9f9f9; border: 1px solid #eee; padding: 5px 15px; border-radius: 15px; cursor: pointer; margin-top: 10px; }
 
-        /* --- GIAO DIỆN CHO ĐIỆN THOẠI --- */
+        /* --- GIAO DIỆN DI ĐỘNG --- */
         @media (max-width: 768px) {
-            body { flex-direction: column; }
             .sidebar { 
-                width: 100%; height: 70px; position: fixed; bottom: 0; top: auto; 
-                padding: 5px; flex-direction: row; justify-content: space-around; 
-                align-items: center; border-top: 1px solid #eee; background: white;
+                width: 100%; height: 60px; bottom: 0; top: auto; 
+                flex-direction: row; padding: 5px; background: #fff; border-top: 1px solid #eee;
             }
             .sidebar .logo { display: none; }
-            .sidebar a { margin-bottom: 0; padding: 8px; font-size: 11px; flex-direction: column; gap: 4px; color: #666; flex: 1; }
-            .sidebar a i { margin-right: 0; font-size: 20px; }
-            .sidebar a.active { background: transparent; color: var(--main); }
-            .logout-item { margin-top: 0; border: none; }
+            .sidebar a { flex-direction: column; font-size: 10px; padding: 5px; flex: 1; color: #666; margin-bottom: 0; }
+            .sidebar a i { margin-right: 0; font-size: 18px; }
+            .logout-item { border: none; margin-top: 0; }
+
+            .main-content { margin-left: 0; padding: 20px 15px 230px 15px; }
             
-            .main-content { margin-left: 0; padding: 20px 15px 90px 15px; }
+            /* Ô đăng bài nằm trên Menu Bottom một chút */
+            .post-box-fixed { 
+                left: 0; 
+                bottom: 60px; 
+                padding: 10px 15px;
+                background: #fdfdfd;
+            }
         }
     </style>
 </head>
@@ -73,17 +93,18 @@
     </div>
 
     <div class="main-content">
-        <div class="container">
-            <div class="post-box">
-                <textarea id="post-text" placeholder="Dũng ơi, hôm nay có gì mới không?"></textarea>
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <input type="file" id="post-file" accept="image/*" style="font-size: 12px; width: 60%;">
-                    <button id="btn-post" class="btn-post">ĐĂNG BÀI</button>
-                </div>
-                <p id="stt" style="font-size:12px; margin-top:5px; color: var(--main);"></p>
+        <div class="container" id="forum-list">
             </div>
+    </div>
 
-            <div id="forum-list"></div>
+    <div class="post-box-fixed">
+        <div class="post-box-inner">
+            <textarea id="post-text" placeholder="Dũng ơi, viết gì đó đi..."></textarea>
+            <div class="post-controls">
+                <input type="file" id="post-file" accept="image/*" style="font-size: 11px; width: 60%;">
+                <button id="btn-post" class="btn-post">ĐĂNG</button>
+            </div>
+            <p id="stt" style="font-size:11px; color: var(--main); margin-top: 3px;"></p>
         </div>
     </div>
 
@@ -103,21 +124,18 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // Xử lý Đăng xuất
+        // Đăng xuất
         document.getElementById('btn-logout').onclick = (e) => {
             e.preventDefault();
-            if(confirm("Dũng muốn thoát diễn đàn à?")) {
-                signOut(auth).then(() => { window.location.href = 'login.html'; });
-            }
+            if(confirm("Dũng muốn thoát à?")) { signOut(auth).then(() => window.location.href='login.html'); }
         };
 
+        // Like bài viết
         window.handleLike = (postId) => {
-            const postRef = ref(db, `posts/${postId}/likes`);
-            runTransaction(postRef, (currentLikes) => {
-                return (currentLikes || 0) + 1;
-            });
+            runTransaction(ref(db, `posts/${postId}/likes`), (curr) => (curr || 0) + 1);
         };
 
+        // Lấy dữ liệu bài viết
         onValue(ref(db, 'posts'), async snap => {
             const list = document.getElementById('forum-list');
             const userSnap = await get(ref(db, 'users'));
@@ -136,26 +154,23 @@
                     <div class="post-card">
                         <div class="post-header">
                             <img src="${avatar}" class="user-avatar" onerror="this.src='https://ui-avatars.com/api/?name=User'">
-                            <b style="font-size:16px;">${post.userName}</b>
+                            <b>${post.userName}</b>
                         </div>
-                        <div class="post-content">${post.text}</div>
+                        <div>${post.text}</div>
                         ${post.img ? `<img src="${post.img}" class="post-img">` : ""}
-                        <div style="margin-top:10px;">
-                            <button class="like-btn" onclick="handleLike('${id}')">
-                                ❤️ ${post.likes || 0} Like
-                            </button>
-                        </div>
+                        <button class="like-btn" onclick="handleLike('${id}')">❤️ ${post.likes || 0}</button>
                     </div>`;
             });
         });
 
+        // Xử lý đăng bài
         document.getElementById('btn-post').onclick = async () => {
             const u = auth.currentUser;
             const txt = document.getElementById('post-text').value;
             const file = document.getElementById('post-file').files[0];
             if(!u || (!txt && !file)) return;
-            document.getElementById('stt').innerText = "⏳ Đang tải bài...";
 
+            document.getElementById('stt').innerText = "⌛...";
             let imgB64 = "";
             if(file) {
                 const reader = new FileReader();
@@ -164,12 +179,8 @@
             }
 
             await push(ref(db, 'posts'), {
-                uid: u.uid,
-                userName: u.displayName || u.email.split('@')[0],
-                text: txt,
-                img: imgB64,
-                likes: 0,
-                time: Date.now()
+                uid: u.uid, userName: u.displayName || u.email.split('@')[0],
+                text: txt, img: imgB64, likes: 0, time: Date.now()
             });
             document.getElementById('post-text').value = "";
             document.getElementById('post-file').value = "";
