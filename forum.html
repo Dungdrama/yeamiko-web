@@ -2,24 +2,42 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Diễn đàn Yeamiko</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Diễn đàn cộng đồng | Yeamiko</title>
     <style>
-        .post-card { background: #222; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
-        .post-user { font-weight: bold; color: #00d4ff; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        :root { --bg-color: #ffffff; --card-color: #f8fafd; --text-color: #333; --main-color: #00d4ff; --border-color: #e6ecf0; --sidebar-color: #111; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; min-height: 100vh; }
+        
+        /* Sidebar Màu Đen */
+        .sidebar { width: 260px; background-color: var(--sidebar-color); padding: 30px; display: flex; flex-direction: column; color: white; position: fixed; height: 100vh; }
+        .logo { font-size: 2em; font-weight: bold; color: var(--main-color); margin-bottom: 40px; text-align: center; }
+        .sidebar a { text-decoration: none; color: #bbb; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; transition: 0.3s; }
+        .sidebar a:hover, .sidebar a.active { background-color: rgba(255,255,255,0.1); color: var(--main-color); }
+        .sidebar a.active { background-color: rgba(0,212,255,0.1); }
+        
+        /* Main Content Màu Trắng */
+        .main-content { margin-left: 260px; flex: 1; padding: 50px; }
+        h1 { margin-bottom: 30px; }
+        .card { background: var(--card-color); border: 1px solid var(--border-color); padding: 25px; border-radius: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.03); margin-bottom: 30px; }
+        textarea { width: 100%; background: white; border: 1px solid var(--border-color); color: var(--text-color); padding: 15px; border-radius: 10px; resize: none; font-size: 1em; }
+        .file-label { cursor: pointer; color: var(--main-color); background: white; padding: 10px 15px; border-radius: 8px; border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 8px; font-weight: bold; }
+        .file-label:hover { border-color: var(--main-color); }
+        #img-preview { max-width: 150px; display: none; margin: 10px 0; border-radius: 5px; border: 1px solid var(--border-color); }
+        .btn-auth { background: var(--main-color); color: white; padding: 12px 25px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        
+        /* Bài viết */
+        .post-card { background: white; border: 1px solid var(--border-color); padding: 20px; border-radius: 15px; margin-bottom: 20px; transition: 0.3s; }
+        .post-card:hover { border-color: #ddd; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
+        .post-user { font-weight: bold; color: #111; display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
         .post-user img { width: 35px; height: 35px; border-radius: 50%; }
-        .post-content { line-height: 1.6; color: #eee; margin-bottom: 15px; white-space: pre-wrap; }
-        .post-img { max-width: 100%; border-radius: 8px; margin-bottom: 15px; display: block; }
-        .like-btn { background: #333; border: none; color: #00d4ff; padding: 8px 18px; border-radius: 20px; cursor: pointer; }
-        textarea { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 15px; border-radius: 10px; resize: none; }
-        .file-label { cursor: pointer; color: #aaa; background: #333; padding: 10px 15px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; }
-        #img-preview { max-width: 150px; display: none; margin: 10px 0; border-radius: 5px; }
+        .post-content { line-height: 1.6; color: #444; margin-bottom: 15px; font-size: 1em; }
+        .post-img { max-width: 100%; border-radius: 8px; margin-bottom: 15px; display: block; border: 1px solid #eaeaea; }
+        .like-btn { background: var(--card-color); border: 1px solid var(--border-color); color: #777; padding: 8px 18px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .like-btn:hover { background: #f0f0f0; border-color: #ccc; color: var(--main-color); }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="navbar"><div id="user-display">Đang kết nối...</div></div>
-    
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
         <a href="/index.html"><i class="fas fa-home"></i> Trang chủ</a>
@@ -28,121 +46,17 @@
     </div>
 
     <div class="main-content">
-        <h1 style="color:#00d4ff">DIỄN ĐÀN</h1>
-        <div class="card" style="background:#1a1a1a">
-            <textarea id="post-text" rows="3" placeholder="Viết gì đó..."></textarea>
+        <h1>DIỄN ĐÀN YEAMIKO</h1>
+        <div class="card">
+            <textarea id="post-text" rows="3" placeholder="Chia sẻ tin tức сервер..."></textarea>
             <img id="img-preview">
-            <div style="margin-top:15px; display:flex; justify-content:space-between;">
-                <label class="file-label"><i class="fas fa-image"></i> Ảnh<input type="file" id="post-file" hidden accept="image/*"></label>
+            <div style="margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
+                <label class="file-label"><i class="fas fa-image"></i> Thêm ảnh<input type="file" id="post-file" hidden accept="image/*"></label>
                 <button id="btn-post" class="btn-auth">ĐĂNG BÀI</button>
             </div>
-            <p id="status-msg" style="text-align:center; margin-top:10px;"></p>
+            <p id="status-msg" style="text-align:center; margin-top:10px; font-weight: 500;"></p>
         </div>
-        <div id="forum-list">Đang tải...</div>
+        <div id="forum-list">Đang tải bản tin server...</div>
     </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, push, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
-            authDomain: "yeamiko-web.firebaseapp.com",
-            databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "yeamiko-web",
-            appId: "1:380442978172:web:52eeb187628ed3518266f9"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-
-        onAuthStateChanged(auth, user => {
-            document.getElementById('user-display').innerText = user ? "Chào, " + (user.displayName || user.email.split('@')[0]) : "Khách";
-        });
-
-        document.getElementById('post-file').onchange = e => {
-            const file = e.target.files[0];
-            if (file) {
-                document.getElementById('img-preview').src = URL.createObjectURL(file);
-                document.getElementById('img-preview').style.display = "block";
-            }
-        };
-
-        onValue(ref(db, 'posts'), snap => {
-            const container = document.getElementById('forum-list');
-            container.innerHTML = "";
-            const data = snap.val();
-            if (data) {
-                Object.keys(data).reverse().forEach(id => {
-                    const post = data[id];
-                    container.innerHTML += `
-                        <div class="post-card">
-                            <div class="post-user"><b>${post.userName}</b></div>
-                            <div class="post-content">${post.text}</div>
-                            ${post.img ? `<img src="${post.img}" class="post-img">` : ""}
-                            <button class="like-btn" onclick="window.handleLike('${id}')">❤️ ${post.likes || 0}</button>
-                        </div>`;
-                });
-            }
-        });
-
-        window.handleLike = id => runTransaction(ref(db, `posts/${id}/likes`), c => (c || 0) + 1);
-
-        // Nén và chuyển ảnh sang Base64
-        const processImage = file => new Promise((res) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (e) => {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600; // Giới hạn chiều rộng để nhẹ database
-                    const scale = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scale;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    res(canvas.toDataURL('image/jpeg', 0.6)); // Nén chất lượng 60%
-                };
-            };
-        });
-
-        document.getElementById('btn-post').onclick = async () => {
-            const user = auth.currentUser;
-            if (!user) return alert("Hãy đăng nhập!");
-            const text = document.getElementById('post-text').value;
-            const file = document.getElementById('post-file').files[0];
-            const status = document.getElementById('status-msg');
-
-            if (!text.trim() && !file) return;
-            status.innerText = "⏳ Đang đăng...";
-
-            try {
-                let imgData = "";
-                if (file) {
-                    imgData = await processImage(file); // Lưu ảnh trực tiếp vào dữ liệu bài viết
-                }
-
-                await push(ref(db, 'posts'), {
-                    userName: user.displayName || user.email.split('@')[0],
-                    text: text,
-                    img: imgData,
-                    likes: 0,
-                    timestamp: Date.now()
-                });
-
-                status.innerText = "✅ Xong!";
-                document.getElementById('post-text').value = "";
-                document.getElementById('post-file').value = "";
-                document.getElementById('img-preview').style.display = "none";
-                setTimeout(() => status.innerText = "", 2000);
-            } catch (err) {
-                status.innerText = "❌ Lỗi: " + err.message;
-            }
-        };
-    </script>
-</body>
+    </body>
 </html>
