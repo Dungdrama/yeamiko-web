@@ -2,18 +2,19 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Tài khoản | Yeamiko</title>
+    <title>Đăng nhập | Yeamiko</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div style="display:flex; justify-content:center; align-items:center; height:100vh;">
         <div class="card" style="width:350px;">
-            <h2 style="text-align:center;">HỆ THỐNG YEAMIKO</h2>
+            <h2 style="text-align:center; margin-bottom:20px;">TÀI KHOẢN YEAMIKO</h2>
             <input type="email" id="email" placeholder="Email của bạn">
             <input type="password" id="password" placeholder="Mật khẩu (>6 ký tự)">
-            <button id="btn-signup" class="btn-auth" style="background:#2ecc71;">Đăng ký</button>
+            <button id="btn-signup" class="btn-auth" style="background:#2ecc71;">Đăng ký mới</button>
             <button id="btn-login" class="btn-auth">Đăng nhập</button>
-            <p id="msg" style="color:red; margin-top:10px; text-align:center;"></p>
+            <p id="msg" style="color:#e74c3c; margin-top:10px; text-align:center; font-size:0.9em;"></p>
+            <a href="/" style="display:block; text-align:center; margin-top:15px; color:#aaa; text-decoration:none;">Quay lại trang chủ</a>
         </div>
     </div>
 
@@ -31,7 +32,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth();
+        const auth = getAuth(app);
 
         document.getElementById('btn-signup').onclick = () => {
             const email = document.getElementById('email').value;
@@ -46,7 +47,7 @@
             const pass = document.getElementById('password').value;
             signInWithEmailAndPassword(auth, email, pass)
                 .then(() => window.location.href = '/')
-                .catch(err => document.getElementById('msg').innerText = "Sai tài khoản!");
+                .catch(err => document.getElementById('msg').innerText = "Sai tài khoản hoặc mật khẩu!");
         };
     </script>
 </body>
