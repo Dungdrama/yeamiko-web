@@ -17,35 +17,27 @@
             display: flex; flex-direction: column;
         }
         .sidebar .logo { font-size: 24px; font-weight: bold; color: var(--main); margin-bottom: 30px; text-align: center; }
-        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 12px; text-decoration: none; border-radius: 10px; margin-bottom: 10px; }
+        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 12px; text-decoration: none; border-radius: 10px; margin-bottom: 10px; transition: 0.3s; }
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar a.active { background: rgba(0,212,255,0.1); color: var(--main); }
-        .logout-item { color: #ff4d4d !important; border: 1px solid rgba(255,77,77,0.2); margin-top: auto; }
+        
+        /* Nút quay về trang chủ (Thay cho nút thoát) */
+        .back-home { color: var(--main) !important; border: 1px solid rgba(0, 212, 255, 0.3); margin-top: auto; }
+        .back-home:hover { background: rgba(0, 212, 255, 0.1); }
 
         /* --- NỘI DUNG CHÍNH --- */
         .main-content { 
-            margin-left: 250px; 
-            flex: 1; 
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            width: 100%;
-            /* Chừa khoảng trống cực lớn ở dưới để không bị ô đăng bài che */
-            padding-bottom: 250px; 
+            margin-left: 250px; flex: 1; padding: 20px; 
+            display: flex; flex-direction: column; align-items: center; width: 100%;
+            padding-bottom: 250px; /* Chừa chỗ cho ô đăng bài cố định */
         }
         .container { width: 100%; max-width: 600px; z-index: 1; }
 
-        /* --- Ô ĐĂNG BÀI CỐ ĐỊNH --- */
+        /* --- Ô ĐĂNG BÀI CỐ ĐỊNH Ở DƯỚI --- */
         .post-box-fixed {
-            position: fixed;
-            bottom: 0;
-            left: 250px;
-            right: 0;
-            background: white;
-            padding: 15px;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
-            z-index: 900; /* Thấp hơn sidebar nhưng cao hơn bài viết */
+            position: fixed; bottom: 0; left: 250px; right: 0;
+            background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); 
+            z-index: 900;
         }
         .post-box-inner { width: 100%; max-width: 600px; margin: 0 auto; }
         
@@ -59,36 +51,27 @@
 
         /* --- STYLE BÀI VIẾT --- */
         .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; }
-        .post-header { display: flex; align-items: center; margin-bottom: 15px; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
-        .post-img { width: 100%; border-radius: 10px; margin-top: 15px; }
-        .like-btn { background: #f9f9f9; border: 1px solid #eee; padding: 5px 15px; border-radius: 15px; cursor: pointer; margin-top: 10px; }
+        .post-header { display: flex; align-items: center; margin-bottom: 12px; }
+        .user-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
+        .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; }
+        .like-btn { background: #f9f9f9; border: 1px solid #eee; padding: 6px 15px; border-radius: 15px; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .like-btn:active { transform: scale(0.9); }
 
-        /* --- FIX LỖI ĐIỆN THOẠI --- */
+        /* --- GIAO DIỆN DI ĐỘNG --- */
         @media (max-width: 768px) {
             .sidebar { 
                 width: 100%; height: 65px; bottom: 0; top: auto; 
                 flex-direction: row; padding: 0 5px; background: #fff; 
-                border-top: 1px solid #eee; z-index: 1001; /* Menu luôn ở trên cùng */
+                border-top: 1px solid #eee; z-index: 1001; 
             }
             .sidebar .logo { display: none; }
             .sidebar a { flex-direction: column; font-size: 10px; padding: 10px 5px; flex: 1; color: #666; margin-bottom: 0; }
             .sidebar a.active { background: #e0faff; }
             .sidebar a i { margin-right: 0; font-size: 18px; margin-bottom: 3px; }
-            .logout-item { border: none; margin-top: 0; }
+            .back-home { border: none; margin-top: 0; }
 
-            .main-content { 
-                margin-left: 0; 
-                padding: 15px 15px 280px 15px; /* Tăng padding bottom cho mobile */
-            }
-            
-            .post-box-fixed { 
-                left: 0; 
-                bottom: 65px; /* Nằm ngay trên thanh menu 65px */
-                padding: 10px;
-                border-top: 1px solid #eee;
-            }
-            .container { width: 100%; }
+            .main-content { margin-left: 0; padding: 15px 15px 280px 15px; }
+            .post-box-fixed { left: 0; bottom: 65px; padding: 10px; border-top: 1px solid #eee; }
         }
     </style>
 </head>
@@ -98,17 +81,18 @@
         <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
         <a href="forum.html" class="active"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
         <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
-        <a href="#" id="btn-logout" class="logout-item"><i class="fas fa-sign-out-alt"></i><span>Thoát</span></a>
+        <a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i><span>Về Home</span></a>
     </div>
 
     <div class="main-content">
         <div class="container" id="forum-list">
-            </div>
+            <p style="text-align: center; color: #888; margin-top: 20px;">Đang tải bài viết...</p>
+        </div>
     </div>
 
     <div class="post-box-fixed">
         <div class="post-box-inner">
-            <textarea id="post-text" placeholder="Dũng ơi, chia sẻ gì đó đi..."></textarea>
+            <textarea id="post-text" placeholder="Dũng ơi, hôm nay có gì vui không?"></textarea>
             <div class="post-controls">
                 <input type="file" id="post-file" accept="image/*" style="font-size: 11px; width: 65%;">
                 <button id="btn-post" class="btn-post">ĐĂNG</button>
@@ -119,7 +103,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
         import { getDatabase, ref, push, onValue, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -133,27 +117,22 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // Đăng xuất
-        document.getElementById('btn-logout').onclick = (e) => {
-            e.preventDefault();
-            if(confirm("Dũng muốn đăng xuất?")) { signOut(auth).then(() => window.location.href='login.html'); }
-        };
-
-        // Like bài viết
+        // Xử lý Like bài viết
         window.handleLike = (postId) => {
-            runTransaction(ref(db, `posts/${postId}/likes`), (curr) => (curr || 0) + 1);
+            const postRef = ref(db, `posts/${postId}/likes`);
+            runTransaction(postRef, (current) => (current || 0) + 1);
         };
 
-        // Lấy bài viết
+        // Lấy và hiển thị dữ liệu từ Firebase
         onValue(ref(db, 'posts'), async snap => {
             const list = document.getElementById('forum-list');
             const userSnap = await get(ref(db, 'users'));
             const allUsers = userSnap.val() || {};
             const data = snap.val();
-            list.innerHTML = "";
             
+            list.innerHTML = "";
             if(!data) {
-                list.innerHTML = "<p style='color:#999; margin-top:20px;'>Chưa có bài viết nào...</p>";
+                list.innerHTML = "<p style='color:#999; text-align:center;'>Chưa có bài viết nào. Hãy là người đầu tiên!</p>";
                 return;
             }
 
@@ -169,36 +148,47 @@
                             <img src="${avatar}" class="user-avatar" onerror="this.src='https://ui-avatars.com/api/?name=User'">
                             <b style="color:#333;">${post.userName}</b>
                         </div>
-                        <div style="color:#444; line-height:1.5;">${post.text}</div>
+                        <div style="color:#444; word-wrap: break-word;">${post.text}</div>
                         ${post.img ? `<img src="${post.img}" class="post-img">` : ""}
                         <button class="like-btn" onclick="handleLike('${id}')">❤️ ${post.likes || 0}</button>
                     </div>`;
             });
         });
 
-        // Đăng bài
+        // Xử lý gửi bài viết
         document.getElementById('btn-post').onclick = async () => {
             const u = auth.currentUser;
             const txt = document.getElementById('post-text').value;
             const file = document.getElementById('post-file').files[0];
-            if(!u || (!txt && !file)) return;
+            
+            if(!u) { alert("Dũng cần đăng nhập để đăng bài nhé!"); return; }
+            if(!txt && !file) return;
 
-            document.getElementById('stt').innerText = "Đang đăng...";
+            document.getElementById('stt').innerText = "Đang tải lên...";
             let imgB64 = "";
+            
             if(file) {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 await new Promise(r => reader.onload = () => { imgB64 = reader.result; r(); });
             }
 
-            await push(ref(db, 'posts'), {
-                uid: u.uid, userName: u.displayName || u.email.split('@')[0],
-                text: txt, img: imgB64, likes: 0, time: Date.now()
-            });
-            document.getElementById('post-text').value = "";
-            document.getElementById('post-file').value = "";
-            document.getElementById('stt').innerText = "Xong!";
-            setTimeout(() => { document.getElementById('stt').innerText = ""; }, 2000);
+            try {
+                await push(ref(db, 'posts'), {
+                    uid: u.uid,
+                    userName: u.displayName || u.email.split('@')[0],
+                    text: txt,
+                    img: imgB64,
+                    likes: 0,
+                    time: Date.now()
+                });
+                document.getElementById('post-text').value = "";
+                document.getElementById('post-file').value = "";
+                document.getElementById('stt').innerText = "Đăng thành công!";
+                setTimeout(() => { document.getElementById('stt').innerText = ""; }, 2000);
+            } catch (error) {
+                document.getElementById('stt').innerText = "Lỗi khi đăng bài.";
+            }
         };
     </script>
 </body>
