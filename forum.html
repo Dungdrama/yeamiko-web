@@ -3,56 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diễn đàn Yeamiko</title>
+    <title>Diễn đàn | Yeamiko Network</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main: #00d4ff; --bg: #f4f7f6; --sidebar: #111; }
+        :root { --main: #00d4ff; --bg: #0a0a0a; --sidebar: #111; --card: #1a1a1a; --text: #eee; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); display: flex; min-height: 100vh; }
+        
+        body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
 
-        /* SIDEBAR */
-        .sidebar { width: 250px; background: var(--sidebar); height: 100vh; position: fixed; padding: 25px; color: white; z-index: 1000; display: flex; flex-direction: column; }
-        .sidebar .logo { font-size: 24px; font-weight: bold; color: var(--main); margin-bottom: 40px; text-align: center; text-transform: uppercase; }
-        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; }
-        .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); }
-        .back-home { color: var(--main) !important; border: 1px solid rgba(0, 212, 255, 0.3); margin-top: auto; }
+        /* --- SIDEBAR ĐỒNG BỘ 100% VỚI TRANG CHỦ --- */
+        .sidebar { 
+            width: 250px; background: var(--sidebar); height: 100vh; 
+            position: fixed; padding: 25px; color: white; z-index: 1000;
+            display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05);
+        }
+        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; letter-spacing: 2px; text-transform: uppercase; }
+        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
+        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
+        .back-home { color: var(--main) !important; border: 1px solid rgba(0, 212, 255, 0.2); margin-top: auto; }
 
-        /* NỘI DUNG */
+        /* --- NỘI DUNG DIỄN ĐÀN --- */
         .main-content { margin-left: 250px; flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%; padding-bottom: 250px; }
-        .container { width: 100%; max-width: 600px; }
+        .container { width: 100%; max-width: 650px; }
 
-        /* CARD BÀI VIẾT */
-        .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; }
+        .post-card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); width: 100%; }
         .post-header { display: flex; align-items: center; margin-bottom: 12px; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
-        .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
+        .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; border: 1px solid #333; }
         
-        /* LIKE & COMMENT STYLE */
-        .post-actions { margin-top: 15px; display: flex; gap: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
-        .action-btn { cursor: pointer; font-size: 14px; color: #555; transition: 0.2s; }
+        .post-actions { margin-top: 15px; display: flex; gap: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .action-btn { cursor: pointer; font-size: 14px; color: #aaa; transition: 0.2s; }
         .action-btn:hover { color: var(--main); }
 
         .comment-section { margin-top: 15px; }
         .comment-item { display: flex; margin-bottom: 10px; align-items: flex-start; }
         .cmt-avatar { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; margin-top: 3px; }
-        .cmt-content { background: #f0f2f5; padding: 8px 12px; border-radius: 18px; font-size: 14px; max-width: 85%; line-height: 1.4; }
+        .cmt-content { background: #252525; padding: 8px 12px; border-radius: 18px; font-size: 14px; max-width: 85%; color: #ddd; }
         
         .cmt-input-box { display: flex; margin-top: 10px; gap: 10px; }
-        .cmt-input { flex: 1; padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; font-size: 13px; }
+        .cmt-input { flex: 1; padding: 8px 15px; border: 1px solid #333; background: #000; color: white; border-radius: 20px; outline: none; }
         .btn-cmt { background: none; border: none; color: var(--main); cursor: pointer; font-weight: bold; }
 
-        /* NÚT XEM THÊM */
-        .btn-load-more { background: white; border: 2px solid var(--main); color: var(--main); padding: 10px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; margin: 20px 0; transition: 0.3s; }
-        .btn-load-more:hover:not(:disabled) { background: var(--main); color: white; }
-        .btn-load-more:disabled { border-color: #ccc; color: #ccc; cursor: default; }
+        .btn-load-more { background: transparent; border: 2px solid var(--main); color: var(--main); padding: 10px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; margin: 20px 0; transition: 0.3s; }
+        .btn-load-more:hover:not(:disabled) { background: var(--main); color: #000; }
 
-        /* Ô ĐĂNG BÀI */
-        .post-box-fixed { position: fixed; bottom: 0; left: 250px; right: 0; background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 900; }
-        
+        /* --- Ô ĐĂNG BÀI FIXED --- */
+        .post-box-fixed { position: fixed; bottom: 0; left: 250px; right: 0; background: #111; padding: 15px; border-top: 1px solid #333; z-index: 900; }
+        .post-box-inner { max-width: 650px; margin: 0 auto; }
+        #post-text { width: 100%; height: 50px; border-radius: 12px; padding: 10px; border: 1px solid #333; background: #000; color: white; resize: none; }
+
         @media (max-width: 768px) {
-            .sidebar { width: 100%; height: 65px; bottom: 0; top: auto; flex-direction: row; padding: 0 5px; background: #fff; border-top: 1px solid #eee; }
+            .sidebar { width: 100%; height: 65px; bottom: 0; top: auto; flex-direction: row; padding: 0 5px; background: #111; border-top: 1px solid #222; }
             .sidebar .logo { display: none; }
-            .sidebar a { flex-direction: column; font-size: 10px; padding: 10px 5px; flex: 1; color: #666; }
+            .sidebar a { flex-direction: column; font-size: 10px; flex: 1; padding: 10px 0; margin-bottom: 0; }
+            .sidebar a i { margin-right: 0; font-size: 18px; margin-bottom: 3px; }
             .main-content { margin-left: 0; padding-bottom: 250px; }
             .post-box-fixed { left: 0; bottom: 65px; }
         }
@@ -73,11 +78,11 @@
     </div>
 
     <div class="post-box-fixed">
-        <div style="max-width:600px; margin:0 auto;">
-            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Bạn ơi, chia sẻ gì đi..."></textarea>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-                <input type="file" id="post-file" accept="image/*" style="font-size:12px;">
-                <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG</button>
+        <div class="post-box-inner">
+            <textarea id="post-text" placeholder="Hôm nay cộng đồng mình có gì vui không Dũng?"></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                <input type="file" id="post-file" accept="image/*" style="font-size:12px; color: #888;">
+                <button id="btn-post" style="background:var(--main); color:#000; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG BÀI</button>
             </div>
             <p id="stt" style="text-align:center; font-size:12px; margin-top:5px; color:var(--main); font-weight: bold;"></p>
         </div>
@@ -103,7 +108,7 @@
         let lastTime = null;
         const pageSize = 5;
 
-        // --- HÀM LIKE ---
+        // Xử lý Like
         window.handleLike = (id) => {
             runTransaction(ref(db, `posts/${id}/likes`), (current) => {
                 return (current || 0) + 1;
@@ -113,7 +118,7 @@
             });
         };
 
-        // --- HÀM BÌNH LUẬN ---
+        // Xử lý Gửi bình luận
         window.sendComment = async (postId) => {
             const user = auth.currentUser;
             const input = document.getElementById(`cmt-input-${postId}`);
@@ -128,7 +133,6 @@
 
             await push(ref(db, `posts/${postId}/comments`), newCmt);
             
-            // Hiển thị nhanh bình luận mới vào danh sách mà không cần load lại
             const cmtList = document.getElementById(`cmt-list-${postId}`);
             const userSnap = await get(ref(db, `users/${user.uid}`));
             const avatar = userSnap.val()?.avatar || `https://ui-avatars.com/api/?name=${newCmt.userName}`;
@@ -141,7 +145,7 @@
             input.value = "";
         };
 
-        // --- TẢI BÀI VIẾT ---
+        // Tải bài viết
         async function loadPosts() {
             const btn = document.getElementById('btn-load-more');
             btn.innerText = "Đang tải...";
@@ -171,7 +175,6 @@
                     const p = posts[k];
                     const avt = (p.uid && allUsers[p.uid]?.avatar) || `https://ui-avatars.com/api/?name=${p.userName}`;
                     
-                    // Render bình luận cũ
                     let cmtHtml = "";
                     if(p.comments) {
                         Object.values(p.comments).forEach(c => {
@@ -218,7 +221,7 @@
         loadPosts();
         document.getElementById('btn-load-more').onclick = loadPosts;
 
-        // --- ĐĂNG BÀI + NÉN ẢNH ---
+        // Đăng bài
         document.getElementById('btn-post').onclick = async () => {
             const txt = document.getElementById('post-text').value;
             const file = document.getElementById('post-file').files[0];
