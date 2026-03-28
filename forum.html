@@ -87,7 +87,7 @@
                 <input type="file" id="post-file" accept="image/*">
                 <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG</button>
             </div>
-            <p id="stt" style="text-align:center; font-size:12px; color:var(--main);"></p>
+            <p id="stt" style="text-align:center; font-size:12px; color:var(--main); margin-top:5px;"></p>
         </div>
     </div>
 
@@ -155,7 +155,6 @@
             const keys = Object.keys(posts).sort((a,b) => posts[b].time - posts[a].time);
             for(let k of keys) {
                 const p = posts[k];
-                // LẤY TÊN VÀ ẢNH MỚI NHẤT TỪ BẢNG USERS ĐỂ ĐỒNG BỘ
                 const latestName = allUsers[p.uid]?.name || p.userName;
                 const latestAvt = allUsers[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${latestName}`;
                 
@@ -205,45 +204,67 @@
 
         document.getElementById('btn-load-more').onclick = loadPosts;
 
+        // --- SỬA LẠI HÀM ĐĂNG BÀI ---
         document.getElementById('btn-post').onclick = async () => {
             const u = auth.currentUser;
-            const txt = document.getElementById('post-text').value;
+            const txt = document.getElementById('post-text').value.trim();
             const file = document.getElementById('post-file').files[0];
-            if(!u || (!txt && !file)) return;
             
-            // Lấy tên hiện tại từ database trước khi đăng để lưu dự phòng
-            const uSnap = await get(ref(db, `users/${u.uid}`));
-            const currentName = uSnap.exists() ? uSnap.val().name : (u.displayName || u.email.split('@')[0]);
+            if(!u) return alert("Vui lòng đăng nhập!");
+            if(!txt && !file) return alert("Vui lòng nhập nội dung hoặc chọn ảnh!");
+            
+            document.getElementById('stt').innerText = "⏳ Đang đăng bài...";
+            document.getElementById('btn-post').disabled = true;
 
-            document.getElementById('stt').innerText = "⏳ Đang đăng...";
-            
-            let img = "";
-            if(file) {
-                img = await new Promise(res => {
-                    const r = new FileReader(); r.readAsDataURL(file);
-                    r.onload = (e) => {
-                        const i = new Image(); i.src = e.target.result;
-                        i.onload = () => {
-                            const c = document.createElement('canvas');
-                            const MAX_W = 800;
-                            let w = i.width; let h = i.height;
-                            if (w > MAX_W) { h *= MAX_W / w; w = MAX_W; }
-                            c.width = w; c.height = h;
-                            c.getContext('2d').drawImage(i,0,0,w,h);
-                            res(c.toDataURL('image/jpeg', 0.6));
-                        }
-                    }
+            try {
+                // Lấy tên hiện tại từ database để lưu vào bài viết (dự phòng)
+                const uSnap = await get(ref(db, `users/${u.uid}`));
+                const currentName = uSnap.exists() ? uSnap.val().name : (u.displayName || u.email.split('@')[0]);
+
+                let imgData = "";
+                if(file) {
+                    imgData = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = (e) => {
+                            const img = new Image();
+                            img.src = e.target.result;
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                const MAX_W = 800;
+                                let w = img.width; let h = img.height;
+                                if (w > MAX_W) { h *= MAX_W / w; w = MAX_W; }
+                                canvas.width = w; canvas.height = h;
+                                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                                resolve(canvas.toDataURL('image/jpeg', 0.6));
+                            };
+                            img.onerror = reject;
+                        };
+                        reader.onerror = reject;
+                    });
+                }
+
+                await push(ref(db, 'posts'), { 
+                    uid: u.uid, 
+                    userName: currentName, 
+                    text: txt, 
+                    img: imgData, 
+                    time: Date.now(), 
+                    likes: 0 
                 });
+
+                // Reset form
+                document.getElementById('post-text').value = "";
+                document.getElementById('post-file').value = "";
+                document.getElementById('stt').innerText = "✅ Đăng thành công!";
+                setTimeout(() => location.reload(), 500);
+
+            } catch (error) {
+                console.error(error);
+                alert("Lỗi khi đăng bài!");
+                document.getElementById('stt').innerText = "";
+                document.getElementById('btn-post').disabled = false;
             }
-            await push(ref(db, 'posts'), { 
-                uid: u.uid, 
-                userName: currentName, 
-                text: txt, 
-                img: img, 
-                time: Date.now(), 
-                likes: 0 
-            });
-            location.reload();
         };
     </script>
 </body>
