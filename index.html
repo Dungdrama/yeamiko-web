@@ -6,26 +6,27 @@
     <title>Trang chủ - Yeamiko</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main: #00d4ff; --sidebar: rgba(17, 17, 17, 0.9); }
+        :root { --main: #00d4ff; --sidebar: rgba(17, 17, 17, 0.95); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
 
         body {
             min-height: 100vh;
             display: flex;
-            /* CÀI ĐẶT ẢNH NỀN CHỐNG LỖI MÁY TÍNH */
-            background-image: url('https://freeimage.host/i/qmYvvC7');
-            background-size: cover;      /* Phủ kín toàn màn hình */
-            background-position: center; /* Luôn lấy tâm ảnh */
-            background-attachment: fixed; /* Ảnh đứng yên khi cuộn trang */
+            /* Dùng link i.ibb.co sẽ ổn định hơn link freeimage */
+            background-image: url('https://i.ibb.co/6R8mH6P/qm-Yvv-C7.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             background-repeat: no-repeat;
             color: white;
+            overflow-x: hidden;
         }
 
-        /* Lớp phủ mờ giúp chữ dễ đọc hơn */
+        /* Lớp phủ để chữ rõ hơn */
         .overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4); 
+            background: rgba(0, 0, 0, 0.5); 
             z-index: 0;
         }
 
@@ -39,38 +40,17 @@
             z-index: 10;
             display: flex;
             flex-direction: column;
-            backdrop-filter: blur(10px); /* Hiệu ứng mờ đục xuyên thấu */
+            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
         }
-        .sidebar .logo { 
-            font-size: 26px; 
-            font-weight: bold; 
-            color: var(--main); 
-            margin-bottom: 40px; 
-            text-align: center;
-            letter-spacing: 2px;
-        }
+        .sidebar .logo { font-size: 26px; font-weight: bold; color: var(--main); margin-bottom: 40px; text-align: center; }
         .sidebar a { 
-            display: flex; 
-            align-items: center; 
-            color: #ddd; 
-            padding: 15px; 
-            text-decoration: none; 
-            border-radius: 12px; 
-            margin-bottom: 10px; 
-            transition: 0.3s; 
+            display: flex; align-items: center; color: #ddd; padding: 15px; 
+            text-decoration: none; border-radius: 12px; margin-bottom: 10px; transition: 0.3s; 
         }
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
-        .sidebar a:hover, .sidebar a.active { 
-            background: rgba(0, 212, 255, 0.2); 
-            color: var(--main); 
-        }
+        .sidebar a.active { background: rgba(0, 212, 255, 0.2); color: var(--main); font-weight: bold; }
 
-        /* Nút đăng xuất */
-        .logout-item {
-            margin-top: 10px;
-            color: #ff4d4d !important;
-            border: 1px solid rgba(255, 77, 77, 0.3);
-        }
+        .logout-item { color: #ff4d4d !important; border: 1px solid rgba(255, 77, 77, 0.3); margin-top: 10px; }
 
         /* Nội dung chính */
         .main-content { 
@@ -83,16 +63,24 @@
             align-items: center; 
             text-align: center;
             padding: 20px;
+            width: 100%;
         }
-        h1 { font-size: 50px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        p { font-size: 20px; margin-top: 10px; opacity: 0.9; }
+        h1 { font-size: clamp(30px, 8vw, 60px); text-shadow: 0 4px 10px rgba(0,0,0,0.8); margin-bottom: 15px; }
+        p { font-size: clamp(16px, 4vw, 22px); opacity: 0.9; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
 
-        /* Responsive cho điện thoại */
+        /* Mobile Fix - Quan trọng cho điện thoại */
         @media (max-width: 768px) {
-            .sidebar { width: 100%; height: auto; position: relative; }
-            .main-content { margin-left: 0; height: 70vh; }
             body { flex-direction: column; }
-            h1 { font-size: 35px; }
+            .sidebar { 
+                width: 100%; height: auto; position: relative; 
+                padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            .sidebar .logo { margin-bottom: 15px; font-size: 22px; }
+            .sidebar a { padding: 10px; font-size: 14px; }
+            .main-content { 
+                margin-left: 0; padding: 60px 20px;
+                min-height: calc(100vh - 200px);
+            }
         }
     </style>
 </head>
@@ -126,12 +114,10 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Kiểm tra đăng nhập
         onAuthStateChanged(auth, user => {
             if (!user) { window.location.href = 'login.html'; }
         });
 
-        // Xử lý Đăng xuất
         document.getElementById('btn-logout').onclick = (e) => {
             e.preventDefault();
             if(confirm("Dũng muốn đăng xuất à?")) {
