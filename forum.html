@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diễn đàn | Yeamiko Network</title>
+    <title>Diễn đàn Yeamiko | Community</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
@@ -14,7 +14,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); display: flex; min-height: 100vh; overflow-x: hidden; }
 
-        /* --- MENU 3 GẠCH --- */
+        /* --- MENU SIDEBAR --- */
         .menu-toggle {
             position: fixed; top: 20px; left: 20px; z-index: 1500;
             background: var(--main); color: #000; width: 45px; height: 45px;
@@ -31,7 +31,6 @@
         .sidebar.open { left: 0; }
         .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; text-transform: uppercase; }
         .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
-        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar a.active, .sidebar a:hover { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -39,18 +38,25 @@
         }
         .sidebar-overlay.show { display: block; }
 
-        /* --- GIAO DIỆN NỘI DUNG --- */
-        .main-content { flex: 1; padding: 80px 20px 250px 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
+        /* --- NỘI DUNG DIỄN ĐÀN --- */
+        .main-content { flex: 1; padding: 80px 20px 180px 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
         .container { width: 100%; max-width: 600px; }
-        .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        
+        .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #eee; }
         .post-header { display: flex; align-items: center; margin-bottom: 12px; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
-        .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
+        .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; background: #eee; }
         
-        /* Box đăng bài cố định ở dưới */
+        /* Box đăng bài cố định bên dưới */
         .post-box-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 900; }
+        .post-input-area { max-width: 600px; margin: 0 auto; }
+        textarea { width: 100%; height: 50px; border-radius: 12px; padding: 12px; border: 1px solid #ddd; resize: none; outline: none; transition: 0.3s; }
+        textarea:focus { border-color: var(--main); }
+        
+        .btn-post { background: var(--main); color: #000; border: none; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-post:disabled { background: #ccc; cursor: not-allowed; }
 
-        @media (max-width: 768px) { .main-content { padding-top: 80px; } }
+        #stt { text-align: center; font-size: 12px; margin-top: 5px; font-weight: bold; height: 15px; }
     </style>
 </head>
 <body>
@@ -61,31 +67,37 @@
     <div class="sidebar" id="sidebar">
         <div class="logo">YEAMIKO</div>
         <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
+        <a href="announcements.html"><i class="fas fa-bullhorn"></i><span>Thông báo</span></a>
         <a href="forum.html" class="active"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
         <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
     </div>
 
     <div class="main-content">
-        <div id="forum-list" class="container"></div>
-        <div id="pagination" style="display:flex; gap:8px; margin:20px 0; justify-content:center;"></div>
+        <div id="forum-list" class="container">
+            <p style="text-align:center;">Đang khởi tạo hệ thống...</p>
+        </div>
     </div>
 
     <div class="post-box-fixed">
-        <div style="max-width:600px; margin:0 auto;">
-            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Chia sẻ điều gì đó..."></textarea>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-                <input type="file" id="post-file" accept="image/*">
-                <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG</button>
+        <div class="post-input-area">
+            <textarea id="post-text" placeholder="Bạn đang nghĩ gì?"></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                <label style="cursor:pointer; color: var(--main); font-size: 20px;">
+                    <i class="fas fa-image"></i>
+                    <input type="file" id="post-file" hidden accept="image/*">
+                </label>
+                <button id="btn-post" class="btn-post">ĐĂNG BÀI</button>
             </div>
-            <p id="stt" style="text-align:center; font-size:12px; color:var(--main); margin-top:5px; font-weight:bold;"></p>
+            <p id="stt"></p>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, push, get, set, query, orderByChild, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, push, get, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
+        // Cấu hình Firebase của bạn
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -98,103 +110,143 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // --- KHỞI TẠO AI ---
         let nsfwModel;
-        nsfwjs.load().then(m => { nsfwModel = m; console.log("AI Mod Ready!"); });
+        
+        // Tải AI ngay khi vào trang
+        nsfwjs.load().then(m => { 
+            nsfwModel = m; 
+            console.log("AI Mod Ready!"); 
+            if(auth.currentUser) renderPosts(); 
+        });
 
         window.toggleMenu = function() {
             document.getElementById('sidebar').classList.toggle('open');
             document.querySelector('.sidebar-overlay').classList.toggle('show');
         };
 
-        const POSTS_PER_PAGE = 5;
-        let currentPage = 1;
-
-        // Logic hiển thị bài viết giữ nguyên
-        async function renderPosts(page) {
+        // Hàm tải bài viết an toàn (Chống lỗi 403)
+        async function renderPosts() {
             const list = document.getElementById('forum-list');
-            list.innerHTML = "<p style='text-align:center;'>Đang tải...</p>";
-            const [pSnap, uSnap] = await Promise.all([get(query(ref(db, 'posts'), orderByChild('time'))), get(ref(db, 'users'))]);
-            const allPosts = pSnap.val() || {};
-            const allUsers = uSnap.val() || {};
-            const keys = Object.keys(allPosts).sort((a,b) => allPosts[b].time - allPosts[a].time);
-            const start = (page-1)*POSTS_PER_PAGE;
-            const paged = keys.slice(start, start+POSTS_PER_PAGE);
-            list.innerHTML = "";
-            for(let k of paged) {
-                const p = allPosts[k];
-                const uName = allUsers[p.uid]?.name || p.userName;
-                const uAvt = allUsers[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${uName}`;
-                list.insertAdjacentHTML('beforeend', `
-                    <div class="post-card">
-                        <div class="post-header"><img src="${uAvt}" class="user-avatar"><b>${uName}</b></div>
-                        <div>${p.text}</div>
-                        ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
-                    </div>`);
+            const u = auth.currentUser;
+            if(!u) {
+                list.innerHTML = "<p style='text-align:center;'>Vui lòng <a href='login.html'>Đăng nhập</a> để xem diễn đàn.</p>";
+                return;
+            }
+
+            try {
+                const [pSnap, uSnap] = await Promise.all([
+                    get(query(ref(db, 'posts'), orderByChild('time'))),
+                    get(ref(db, 'users'))
+                ]);
+
+                const allPosts = pSnap.val() || {};
+                const allUsers = uSnap.val() || {};
+                const keys = Object.keys(allPosts).sort((a,b) => (allPosts[b].time || 0) - (allPosts[a].time || 0));
+
+                list.innerHTML = "";
+                if(keys.length === 0) {
+                    list.innerHTML = "<p style='text-align:center; color:#888;'>Chưa có bài viết nào.</p>";
+                    return;
+                }
+
+                keys.forEach(k => {
+                    const p = allPosts[k];
+                    const uName = allUsers[p.uid]?.name || p.userName || "Thành viên";
+                    const uAvt = allUsers[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(uName)}&background=random`;
+                    
+                    list.insertAdjacentHTML('beforeend', `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <img src="${uAvt}" class="user-avatar">
+                                <b>${uName}</b>
+                            </div>
+                            <div style="white-space: pre-wrap;">${p.text || ""}</div>
+                            ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
+                        </div>`);
+                });
+            } catch (e) {
+                list.innerHTML = "<p style='text-align:center; color:red;'>Lỗi tải dữ liệu hoặc chưa có quyền truy cập!</p>";
+                console.error(e);
             }
         }
 
-        // --- LOGIC ĐĂNG BÀI CÓ QUÉT AI ---
+        // Xử lý đăng bài có quét AI
         document.getElementById('btn-post').onclick = async () => {
             const u = auth.currentUser;
             const txt = document.getElementById('post-text').value.trim();
             const file = document.getElementById('post-file').files[0];
             const stt = document.getElementById('stt');
 
-            if(!u || (!txt && !file)) return alert("Trống!");
+            if(!u) return alert("Bạn cần đăng nhập!");
+            if(!txt && !file) return alert("Nội dung trống!");
 
-            stt.innerText = "⏳ Đang kiểm tra an toàn AI...";
+            stt.style.color = "var(--main)";
+            stt.innerText = "⏳ Đang kiểm tra nội dung...";
             document.getElementById('btn-post').disabled = true;
 
             let imgB64 = "";
             if(file) {
-                imgB64 = await new Promise(res => {
-                    const r = new FileReader();
-                    r.onload = (e) => {
-                        const img = new Image();
-                        img.onload = async () => {
-                            const canvas = document.createElement('canvas');
-                            canvas.width = img.width > 800 ? 800 : img.width;
-                            canvas.height = img.width > 800 ? (img.height * (800 / img.width)) : img.height;
-                            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                            
-                            // QUÉT AI
-                            if(nsfwModel) {
-                                const predictions = await nsfwModel.classify(canvas);
-                                const isUnsafe = predictions.find(p => (p.className === 'Porn' || p.className === 'Hentai') && p.probability > 0.5);
-                                if(isUnsafe) {
-                                    alert("⚠️ AI phát hiện hình ảnh không phù hợp và đã chặn bài đăng này!");
-                                    res(null); return;
+                try {
+                    imgB64 = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const img = new Image();
+                            img.onload = async () => {
+                                const canvas = document.createElement('canvas');
+                                const MAX_W = 800;
+                                let w = img.width, h = img.height;
+                                if (w > MAX_W) { h *= MAX_W / w; w = MAX_W; }
+                                canvas.width = w; canvas.height = h;
+                                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                                
+                                // QUÉT AI
+                                if(nsfwModel) {
+                                    const predictions = await nsfwModel.classify(canvas);
+                                    const unsafe = predictions.find(p => (p.className === 'Porn' || p.className === 'Hentai') && p.probability > 0.5);
+                                    if(unsafe) {
+                                        alert("⚠️ AI phát hiện ảnh không phù hợp!");
+                                        resolve(null); return;
+                                    }
                                 }
-                            }
-                            res(canvas.toDataURL('image/jpeg', 0.6));
+                                resolve(canvas.toDataURL('image/jpeg', 0.6));
+                            };
+                            img.src = e.target.result;
                         };
-                        img.src = e.target.result;
-                    };
-                    r.readAsDataURL(file);
-                });
+                        reader.readAsDataURL(file);
+                    });
+                } catch (err) { console.error(err); }
             }
 
-            if(file && !imgB64) { 
-                stt.innerText = "❌ Ảnh vi phạm!"; 
-                document.getElementById('btn-post').disabled = false; 
-                return; 
+            if(file && !imgB64) {
+                stt.style.color = "red";
+                stt.innerText = "❌ Ảnh bị từ chối!";
+                document.getElementById('btn-post').disabled = false;
+                return;
             }
 
-            const uData = (await get(ref(db, `users/${u.uid}`))).val() || {};
+            const uSnap = await get(ref(db, `users/${u.uid}`));
+            const name = uSnap.exists() ? uSnap.val().name : (u.displayName || u.email.split('@')[0]);
+
             await push(ref(db, 'posts'), {
-                uid: u.uid, userName: uData.name || u.email.split('@')[0],
-                text: txt, img: imgB64, time: Date.now(), likes: 0
+                uid: u.uid,
+                userName: name,
+                text: txt,
+                img: imgB64,
+                time: Date.now()
             });
 
             document.getElementById('post-text').value = "";
             document.getElementById('post-file').value = "";
+            stt.style.color = "green";
             stt.innerText = "✅ Đã đăng!";
             document.getElementById('btn-post').disabled = false;
-            renderPosts(1);
+            renderPosts();
         };
 
-        onAuthStateChanged(auth, () => renderPosts(1));
+        onAuthStateChanged(auth, (user) => {
+            if(user) renderPosts();
+            else window.location.href = 'login.html';
+        });
     </script>
 </body>
 </html>
