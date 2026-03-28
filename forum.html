@@ -10,22 +10,43 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); display: flex; min-height: 100vh; }
 
+        /* SIDEBAR */
         .sidebar { width: 250px; background: var(--sidebar); height: 100vh; position: fixed; padding: 25px; color: white; z-index: 1000; display: flex; flex-direction: column; }
         .sidebar .logo { font-size: 24px; font-weight: bold; color: var(--main); margin-bottom: 40px; text-align: center; text-transform: uppercase; }
         .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; }
         .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); }
+        .back-home { color: var(--main) !important; border: 1px solid rgba(0, 212, 255, 0.3); margin-top: auto; }
 
+        /* NỘI DUNG */
         .main-content { margin-left: 250px; flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%; padding-bottom: 250px; }
         .container { width: 100%; max-width: 600px; }
 
+        /* CARD BÀI VIẾT */
         .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; }
         .post-header { display: flex; align-items: center; margin-bottom: 12px; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
         .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
         
-        .btn-load-more { background: white; border: 2px solid var(--main); color: var(--main); padding: 10px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; margin: 20px 0; }
-        .btn-load-more:disabled { border-color: #ccc; color: #ccc; }
+        /* LIKE & COMMENT STYLE */
+        .post-actions { margin-top: 15px; display: flex; gap: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
+        .action-btn { cursor: pointer; font-size: 14px; color: #555; transition: 0.2s; }
+        .action-btn:hover { color: var(--main); }
 
+        .comment-section { margin-top: 15px; }
+        .comment-item { display: flex; margin-bottom: 10px; align-items: flex-start; }
+        .cmt-avatar { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; margin-top: 3px; }
+        .cmt-content { background: #f0f2f5; padding: 8px 12px; border-radius: 18px; font-size: 14px; max-width: 85%; line-height: 1.4; }
+        
+        .cmt-input-box { display: flex; margin-top: 10px; gap: 10px; }
+        .cmt-input { flex: 1; padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; font-size: 13px; }
+        .btn-cmt { background: none; border: none; color: var(--main); cursor: pointer; font-weight: bold; }
+
+        /* NÚT XEM THÊM */
+        .btn-load-more { background: white; border: 2px solid var(--main); color: var(--main); padding: 10px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; margin: 20px 0; transition: 0.3s; }
+        .btn-load-more:hover:not(:disabled) { background: var(--main); color: white; }
+        .btn-load-more:disabled { border-color: #ccc; color: #ccc; cursor: default; }
+
+        /* Ô ĐĂNG BÀI */
         .post-box-fixed { position: fixed; bottom: 0; left: 250px; right: 0; background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 900; }
         
         @media (max-width: 768px) {
@@ -43,6 +64,7 @@
         <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
         <a href="forum.html" class="active"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
         <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
+        <a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i><span>Về Home</span></a>
     </div>
 
     <div class="main-content">
@@ -52,19 +74,19 @@
 
     <div class="post-box-fixed">
         <div style="max-width:600px; margin:0 auto;">
-            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Bạn ơi, chia sẻ gì đi..."></textarea>
+            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Dũng ơi, chia sẻ gì đi..."></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                 <input type="file" id="post-file" accept="image/*" style="font-size:12px;">
                 <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG</button>
             </div>
-            <p id="stt" style="text-align:center; font-size:12px; margin-top:5px; color:var(--main);"></p>
+            <p id="stt" style="text-align:center; font-size:12px; margin-top:5px; color:var(--main); font-weight: bold;"></p>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, push, get, query, limitToLast, orderByChild, endBefore } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, push, get, query, limitToLast, orderByChild, endBefore, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
@@ -81,7 +103,45 @@
         let lastTime = null;
         const pageSize = 5;
 
-        // Tải bài viết
+        // --- HÀM LIKE ---
+        window.handleLike = (id) => {
+            runTransaction(ref(db, `posts/${id}/likes`), (current) => {
+                return (current || 0) + 1;
+            }).then(() => {
+                const countSpan = document.getElementById(`like-count-${id}`);
+                if(countSpan) countSpan.innerText = parseInt(countSpan.innerText) + 1;
+            });
+        };
+
+        // --- HÀM BÌNH LUẬN ---
+        window.sendComment = async (postId) => {
+            const user = auth.currentUser;
+            const input = document.getElementById(`cmt-input-${postId}`);
+            if(!user || !input.value.trim()) return;
+
+            const newCmt = {
+                uid: user.uid,
+                userName: user.displayName || user.email.split('@')[0],
+                text: input.value,
+                time: Date.now()
+            };
+
+            await push(ref(db, `posts/${postId}/comments`), newCmt);
+            
+            // Hiển thị nhanh bình luận mới vào danh sách mà không cần load lại
+            const cmtList = document.getElementById(`cmt-list-${postId}`);
+            const userSnap = await get(ref(db, `users/${user.uid}`));
+            const avatar = userSnap.val()?.avatar || `https://ui-avatars.com/api/?name=${newCmt.userName}`;
+            
+            cmtList.innerHTML += `
+                <div class="comment-item">
+                    <img src="${avatar}" class="cmt-avatar">
+                    <div class="cmt-content"><b>${newCmt.userName}</b> ${newCmt.text}</div>
+                </div>`;
+            input.value = "";
+        };
+
+        // --- TẢI BÀI VIẾT ---
         async function loadPosts() {
             const btn = document.getElementById('btn-load-more');
             btn.innerText = "Đang tải...";
@@ -97,7 +157,7 @@
 
                 const [postSnap, userSnap] = await Promise.all([get(q), get(ref(db, 'users'))]);
                 const posts = postSnap.val();
-                const users = userSnap.val() || {};
+                const allUsers = userSnap.val() || {};
 
                 if (!posts) {
                     btn.innerText = "HẾT BÀI VIẾT";
@@ -109,12 +169,38 @@
 
                 keys.forEach(k => {
                     const p = posts[k];
-                    const avt = (p.uid && users[p.uid]?.avatar) || `https://ui-avatars.com/api/?name=${p.userName}`;
+                    const avt = (p.uid && allUsers[p.uid]?.avatar) || `https://ui-avatars.com/api/?name=${p.userName}`;
+                    
+                    // Render bình luận cũ
+                    let cmtHtml = "";
+                    if(p.comments) {
+                        Object.values(p.comments).forEach(c => {
+                            const cAvt = (c.uid && allUsers[c.uid]?.avatar) || `https://ui-avatars.com/api/?name=${c.userName}`;
+                            cmtHtml += `
+                                <div class="comment-item">
+                                    <img src="${cAvt}" class="cmt-avatar">
+                                    <div class="cmt-content"><b>${c.userName}</b> ${c.text}</div>
+                                </div>`;
+                        });
+                    }
+
                     list.innerHTML += `
                         <div class="post-card">
                             <div class="post-header"><img src="${avt}" class="user-avatar"><b>${p.userName}</b></div>
-                            <div>${p.text}</div>
+                            <div style="margin-bottom:10px;">${p.text}</div>
                             ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
+                            
+                            <div class="post-actions">
+                                <span class="action-btn" onclick="handleLike('${k}')">❤️ <span id="like-count-${k}">${p.likes || 0}</span> Thích</span>
+                            </div>
+
+                            <div class="comment-section">
+                                <div id="cmt-list-${k}">${cmtHtml}</div>
+                                <div class="cmt-input-box">
+                                    <input type="text" id="cmt-input-${k}" class="cmt-input" placeholder="Viết bình luận...">
+                                    <button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button>
+                                </div>
+                            </div>
                         </div>`;
                 });
 
@@ -132,14 +218,14 @@
         loadPosts();
         document.getElementById('btn-load-more').onclick = loadPosts;
 
-        // Đăng bài + Nén ảnh
+        // --- ĐĂNG BÀI + NÉN ẢNH ---
         document.getElementById('btn-post').onclick = async () => {
             const txt = document.getElementById('post-text').value;
             const file = document.getElementById('post-file').files[0];
             const u = auth.currentUser;
             if(!u || (!txt && !file)) return;
 
-            document.getElementById('stt').innerText = "⏳ Đang xử lý...";
+            document.getElementById('stt').innerText = "⏳ Đang đăng bài...";
             let b64 = "";
 
             if(file) {
@@ -149,8 +235,11 @@
                         const i = new Image(); i.src = e.target.result;
                         i.onload = () => {
                             const c = document.createElement('canvas');
-                            c.width = 800; c.height = (i.height * 800) / i.width;
-                            c.getContext('2d').drawImage(i, 0, 0, c.width, c.height);
+                            const MAX_W = 800;
+                            let w = i.width; let h = i.height;
+                            if (w > MAX_W) { h *= MAX_W / w; w = MAX_W; }
+                            c.width = w; c.height = h;
+                            c.getContext('2d').drawImage(i, 0, 0, w, h);
                             res(c.toDataURL('image/jpeg', 0.6));
                         }
                     }
