@@ -10,7 +10,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); display: flex; min-height: 100vh; }
 
-        /* --- SIDEBAR MÁY TÍNH (Đồng bộ Profile) --- */
+        /* --- SIDEBAR ĐỒNG BỘ 100% --- */
         .sidebar { 
             width: 250px; background: var(--sidebar); height: 100vh; 
             position: fixed; padding: 25px; color: white; z-index: 1000;
@@ -20,10 +20,7 @@
         .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); }
-        
-        /* Nút Về Home thay thế Đăng xuất */
         .back-home { color: var(--main) !important; border: 1px solid rgba(0, 212, 255, 0.3); margin-top: auto; }
-        .back-home:hover { background: rgba(0, 212, 255, 0.1); }
 
         /* --- NỘI DUNG CHÍNH --- */
         .main-content { margin-left: 250px; flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%; padding-bottom: 250px; }
@@ -33,7 +30,7 @@
         .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; }
         .post-header { display: flex; align-items: center; margin-bottom: 12px; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
-        .post-img { width: 100%; border-radius: 10px; margin-top: 12px; }
+        .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; }
         
         .comment-section { margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; }
         .comment-item { display: flex; margin-bottom: 10px; align-items: flex-start; }
@@ -47,7 +44,7 @@
         /* --- Ô ĐĂNG BÀI CỐ ĐỊNH --- */
         .post-box-fixed { position: fixed; bottom: 0; left: 250px; right: 0; background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 900; }
         
-        /* --- MOBILE ĐỒNG BỘ 100% --- */
+        /* --- MOBILE ĐỒNG BỘ --- */
         @media (max-width: 768px) {
             .sidebar { width: 100%; height: 65px; bottom: 0; top: auto; flex-direction: row; padding: 0 5px; background: #fff; border-top: 1px solid #eee; }
             .sidebar .logo { display: none; }
@@ -80,7 +77,7 @@
                 <input type="file" id="post-file" accept="image/*" style="font-size:12px; width:60%;">
                 <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; cursor:pointer; font-weight:bold;">ĐĂNG</button>
             </div>
-            <p id="stt" style="font-size:11px; color:var(--main); text-align:center; margin-top:3px;"></p>
+            <p id="stt" style="font-size:11px; color:var(--main); text-align:center; margin-top:3px; font-weight: bold;"></p>
         </div>
     </div>
 
@@ -100,15 +97,40 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // Hàm Like
+        // --- HÀM NÉN ẢNH TỐI ƯU CHO ĐIỆN THOẠI ---
+        const compressImage = (file) => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800; 
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.7)); // Nén 70% chất lượng
+                    };
+                };
+            });
+        };
+
         window.handleLike = (id) => runTransaction(ref(db, `posts/${id}/likes`), c => (c || 0) + 1);
 
-        // Hàm Gửi Bình Luận
         window.sendComment = async (postId) => {
             const user = auth.currentUser;
             const input = document.getElementById(`cmt-input-${postId}`);
             if(!user || !input.value.trim()) return;
-
             await push(ref(db, `posts/${postId}/comments`), {
                 uid: user.uid,
                 userName: user.displayName || "Thành viên",
@@ -118,7 +140,6 @@
             input.value = "";
         };
 
-        // Load Dữ liệu bài viết & Bình luận
         onValue(ref(db, 'posts'), async snap => {
             const list = document.getElementById('forum-list');
             const userSnap = await get(ref(db, 'users'));
@@ -130,7 +151,6 @@
             Object.keys(data).reverse().forEach(id => {
                 const post = data[id];
                 const avatar = (post.uid && allUsers[post.uid]?.avatar) || `https://ui-avatars.com/api/?name=${post.userName}`;
-                
                 let cmtHtml = "";
                 if(post.comments) {
                     Object.values(post.comments).forEach(c => {
@@ -165,32 +185,39 @@
             });
         });
 
-        // Xử lý Đăng bài
         document.getElementById('btn-post').onclick = async () => {
             const u = auth.currentUser;
             const txt = document.getElementById('post-text').value;
             const file = document.getElementById('post-file').files[0];
-            if(!u || (!txt && !file)) return;
-            
-            document.getElementById('stt').innerText = "⏳ Đang đăng bài...";
-            let imgB64 = "";
-            if(file) {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                await new Promise(r => reader.onload = () => { imgB64 = reader.result; r(); });
-            }
+            const stt = document.getElementById('stt');
 
-            await push(ref(db, 'posts'), {
-                uid: u.uid,
-                userName: u.displayName || u.email.split('@')[0],
-                text: txt,
-                img: imgB64,
-                likes: 0,
-                time: Date.now()
-            });
-            document.getElementById('post-text').value = "";
-            document.getElementById('post-file').value = "";
-            document.getElementById('stt').innerText = "";
+            if(!u) { alert("Dũng đăng nhập đã nhé!"); return; }
+            if(!txt && !file) return;
+            
+            stt.innerText = "⏳ Đang nén ảnh và tải lên...";
+            let imgB64 = "";
+
+            try {
+                if(file) {
+                    imgB64 = await compressImage(file);
+                }
+
+                await push(ref(db, 'posts'), {
+                    uid: u.uid,
+                    userName: u.displayName || u.email.split('@')[0],
+                    text: txt,
+                    img: imgB64,
+                    likes: 0,
+                    time: Date.now()
+                });
+                
+                document.getElementById('post-text').value = "";
+                document.getElementById('post-file').value = "";
+                stt.innerText = "✅ Đã đăng!";
+                setTimeout(() => { stt.innerText = ""; }, 2000);
+            } catch (err) {
+                stt.innerText = "❌ Lỗi: " + err.message;
+            }
         };
     </script>
 </body>
