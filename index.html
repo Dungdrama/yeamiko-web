@@ -12,7 +12,6 @@
         body {
             min-height: 100vh;
             display: flex;
-            /* Dùng link i.ibb.co sẽ ổn định hơn link freeimage */
             background-image: url('https://i.ibb.co/6R8mH6P/qm-Yvv-C7.jpg'); 
             background-size: cover;
             background-position: center;
@@ -22,7 +21,6 @@
             overflow-x: hidden;
         }
 
-        /* Lớp phủ để chữ rõ hơn */
         .overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -30,7 +28,7 @@
             z-index: 0;
         }
 
-        /* Sidebar */
+        /* Sidebar mặc định cho máy tính */
         .sidebar { 
             width: 250px; 
             background: var(--sidebar); 
@@ -40,7 +38,7 @@
             z-index: 10;
             display: flex;
             flex-direction: column;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+            transition: 0.3s;
         }
         .sidebar .logo { font-size: 26px; font-weight: bold; color: var(--main); margin-bottom: 40px; text-align: center; }
         .sidebar a { 
@@ -49,8 +47,7 @@
         }
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar a.active { background: rgba(0, 212, 255, 0.2); color: var(--main); font-weight: bold; }
-
-        .logout-item { color: #ff4d4d !important; border: 1px solid rgba(255, 77, 77, 0.3); margin-top: 10px; }
+        .logout-item { color: #ff4d4d !important; border: 1px solid rgba(255, 77, 77, 0.3); }
 
         /* Nội dung chính */
         .main-content { 
@@ -63,23 +60,44 @@
             align-items: center; 
             text-align: center;
             padding: 20px;
-            width: 100%;
         }
-        h1 { font-size: clamp(30px, 8vw, 60px); text-shadow: 0 4px 10px rgba(0,0,0,0.8); margin-bottom: 15px; }
-        p { font-size: clamp(16px, 4vw, 22px); opacity: 0.9; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+        h1 { font-size: clamp(28px, 8vw, 60px); text-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+        p { font-size: clamp(14px, 4vw, 20px); opacity: 0.8; margin-top: 10px; }
 
-        /* Mobile Fix - Quan trọng cho điện thoại */
+        /* --- SỬA LỖI MOBILE Ở ĐÂY --- */
         @media (max-width: 768px) {
             body { flex-direction: column; }
+            
+            /* Biến sidebar thành thanh ngang ở trên */
             .sidebar { 
-                width: 100%; height: auto; position: relative; 
-                padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);
+                width: 100%; 
+                height: auto; 
+                position: fixed; /* Cố định trên đầu */
+                top: 0;
+                padding: 10px; 
+                flex-direction: row; 
+                justify-content: space-around; 
+                align-items: center;
+                backdrop-filter: blur(10px);
             }
-            .sidebar .logo { margin-bottom: 15px; font-size: 22px; }
-            .sidebar a { padding: 10px; font-size: 14px; }
+            
+            .sidebar .logo { display: none; } /* Ẩn logo trên mobile để đỡ chật */
+            
+            .sidebar a { 
+                margin-bottom: 0; 
+                padding: 10px; 
+                font-size: 13px; 
+                flex-direction: column; /* Icon trên chữ dưới cho gọn */
+                gap: 5px;
+            }
+            .sidebar a i { margin-right: 0; font-size: 18px; }
+            .logout-item { border: none; color: #ff4d4d !important; }
+
+            /* Đẩy nội dung xuống để không bị menu che */
             .main-content { 
-                margin-left: 0; padding: 60px 20px;
-                min-height: calc(100vh - 200px);
+                margin-left: 0; 
+                margin-top: 80px; 
+                height: calc(100vh - 80px); 
             }
         }
     </style>
@@ -89,10 +107,10 @@
 
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
-        <a href="index.html" class="active"><i class="fas fa-home"></i> Trang chủ</a>
-        <a href="forum.html"><i class="fas fa-comments"></i> Diễn đàn</a>
-        <a href="profile.html"><i class="fas fa-user"></i> Hồ sơ</a>
-        <a href="#" id="btn-logout" class="logout-item"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+        <a href="index.html" class="active"><i class="fas fa-home"></i><span>Trang chủ</span></a>
+        <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
+        <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
+        <a href="#" id="btn-logout" class="logout-item"><i class="fas fa-sign-out-alt"></i><span>Thoát</span></a>
     </div>
 
     <div class="main-content">
@@ -120,7 +138,7 @@
 
         document.getElementById('btn-logout').onclick = (e) => {
             e.preventDefault();
-            if(confirm("Dũng muốn đăng xuất à?")) {
+            if(confirm("Dũng muốn đăng xuất?")) {
                 signOut(auth).then(() => { window.location.href = 'login.html'; });
             }
         };
