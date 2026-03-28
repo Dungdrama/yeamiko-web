@@ -2,28 +2,49 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Profile | Yeamiko</title>
+    <title>Chỉnh sửa hồ sơ | Yeamiko</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .profile-container { text-align: center; }
+        .avatar-img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); margin-bottom: 15px; }
+        .info-group { text-align: left; margin-top: 20px; }
+        label { display: block; margin-bottom: 5px; color: #aaa; font-size: 0.9em; }
+    </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
-        <a href="/">Trang chủ</a>
-        <a href="/profile.html" class="active">Profile cá nhân</a>
+        <a href="/"><i class="fas fa-home"></i> Trang chủ</a>
+        <a href="/profile.html" class="active"><i class="fas fa-user-edit"></i> Chỉnh sửa hồ sơ</a>
     </div>
+
     <div class="main-content">
-        <div class="card">
-            <h2>THÔNG TIN CỦA BẠN</h2>
-            <div id="user-info" style="margin-top:20px;">Đang tải...</div>
+        <div class="card profile-container">
+            <h2>HỒ SƠ CỦA BẠN</h2>
+            <hr style="margin: 20px 0; opacity: 0.1;">
+            
+            <img id="user-avatar" src="https://ui-avatars.com/api/?name=User" class="avatar-img" alt="Avatar">
+            
+            <div class="info-group">
+                <label>Tên hiển thị</label>
+                <input type="text" id="display-name" placeholder="Nhập tên mới...">
+                
+                <label>Link ảnh đại diện (URL)</label>
+                <input type="text" id="avatar-url" placeholder="Dán link ảnh tại đây...">
+                
+                <button id="btn-update" class="btn-auth">CẬP NHẬT THÔNG TIN</button>
+                <p id="update-msg" style="margin-top: 10px; font-size: 0.9em;"></p>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
+            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0", //
             authDomain: "yeamiko-web.firebaseapp.com",
             projectId: "yeamiko-web",
             storageBucket: "yeamiko-web.firebasestorage.app",
@@ -32,18 +53,41 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth();
+        const auth = getAuth(app);
 
+        // Hiển thị thông tin hiện tại
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                document.getElementById('user-info').innerHTML = `
-                    <p><strong>Email:</strong> ${user.email}</p>
-                    <p><strong>ID:</strong> ${user.uid}</p>
-                `;
+                document.getElementById('display-name').value = user.displayName || "";
+                document.getElementById('avatar-url').value = user.photoURL || "";
+                if (user.photoURL) {
+                    document.getElementById('user-avatar').src = user.photoURL;
+                }
             } else {
                 window.location.href = '/login.html';
             }
         });
+
+        // Xử lý nút cập nhật
+        document.getElementById('btn-update').onclick = async () => {
+            const user = auth.currentUser;
+            const newName = document.getElementById('display-name').value;
+            const newAvatar = document.getElementById('avatar-url').value;
+            const msg = document.getElementById('update-msg');
+
+            try {
+                await updateProfile(user, {
+                    displayName: newName,
+                    photoURL: newAvatar
+                });
+                msg.style.color = "#2ecc71";
+                msg.innerText = "Cập nhật thành công! Đang tải lại...";
+                setTimeout(() => location.reload(), 1500);
+            } catch (error) {
+                msg.style.color = "#e74c3c";
+                msg.innerText = "Lỗi: " + error.message;
+            }
+        };
     </script>
 </body>
 </html>
