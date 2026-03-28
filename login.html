@@ -14,19 +14,25 @@
         .btn-auth { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
         .btn-login { background: var(--main); color: #000; }
         .btn-google { background: white; color: #444; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-google:hover { background: #eee; }
-        .btn-auth:hover { transform: translateY(-2px); opacity: 0.9; }
+        
+        /* Link quên mật khẩu */
+        .forgot-link { display: block; text-align: right; font-size: 13px; color: #888; margin-top: -5px; margin-bottom: 15px; text-decoration: none; transition: 0.3s; }
+        .forgot-link:hover { color: var(--main); }
+
         p { text-align: center; font-size: 14px; color: #888; margin-top: 15px; }
         a { color: var(--main); text-decoration: none; font-weight: bold; }
-        #msg { color: #ff4d4d; font-size: 12px; margin-bottom: 10px; text-align: center; min-height: 18px; }
+        #msg { font-size: 12px; margin-bottom: 10px; text-align: center; min-height: 18px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>ĐĂNG NHẬP</h2>
         <div id="msg"></div>
-        <input type="email" id="email" placeholder="Email">
+        <input type="email" id="email" placeholder="Email của Dũng">
         <input type="password" id="password" placeholder="Mật khẩu">
+        
+        <a href="#" id="btn-forgot" class="forgot-link">Quên mật khẩu?</a>
+
         <button id="btn-login" class="btn-auth btn-login">ĐĂNG NHẬP</button>
         
         <div style="text-align: center; margin: 15px 0; color: #555;">——— HOẶC ———</div>
@@ -42,7 +48,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
@@ -54,20 +60,50 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // Đăng nhập Email/Pass
+        const msg = document.getElementById('msg');
+
+        // Logic Đăng nhập Email
         document.getElementById('btn-login').onclick = () => {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
             signInWithEmailAndPassword(auth, email, pass)
                 .then(() => window.location.href = 'index.html')
-                .catch(() => document.getElementById('msg').innerText = "Sai email hoặc mật khẩu!");
+                .catch(() => {
+                    msg.style.color = "#ff4d4d";
+                    msg.innerText = "Sai email hoặc mật khẩu!";
+                });
         };
 
-        // Đăng nhập Google
+        // Logic Quên mật khẩu
+        document.getElementById('btn-forgot').onclick = (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            
+            if(!email) {
+                msg.style.color = "#ff4d4d";
+                msg.innerText = "Dũng hãy nhập Email vào ô trên trước nhé!";
+                return;
+            }
+
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    msg.style.color = "#2ecc71";
+                    msg.innerText = "✅ Đã gửi link đổi MK vào Email của Dũng!";
+                })
+                .catch((err) => {
+                    msg.style.color = "#ff4d4d";
+                    msg.innerText = "Lỗi: Email không tồn tại hoặc sai định dạng.";
+                });
+        };
+
+        // Logic Đăng nhập Google
         document.getElementById('btn-google').onclick = () => {
             signInWithPopup(auth, provider)
                 .then(() => window.location.href = 'index.html')
-                .catch((err) => document.getElementById('msg').innerText = "Lỗi Google: " + err.message);
+                .catch((err) => {
+                    msg.style.color = "#ff4d4d";
+                    msg.innerText = "Lỗi Google: " + err.message;
+                });
         };
     </script>
 </body>
