@@ -6,62 +6,28 @@
     <title>Hồ sơ Yeamiko</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main: #00d4ff; --bg: #f8f9fa; --sidebar: #111; }
+        :root { --main: #00d4ff; --bg: #f4f7f6; --sidebar: #111; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); display: flex; min-height: 100vh; }
         
-        /* Sidebar giống ảnh của Dũng */
+        /* --- SIDEBAR MÁY TÍNH --- */
         .sidebar { 
-            width: 250px; 
-            background: var(--sidebar); 
-            height: 100vh; 
-            position: fixed; 
-            padding: 25px; 
-            color: white; 
-            display: flex; 
-            flex-direction: column; 
+            width: 250px; background: var(--sidebar); height: 100vh; 
+            position: fixed; padding: 25px; color: white; z-index: 1000;
+            display: flex; flex-direction: column;
         }
-        .sidebar .logo { 
-            font-size: 24px; 
-            font-weight: bold; 
-            color: var(--main); 
-            margin-bottom: 40px; 
-            text-align: center; 
-            text-transform: uppercase;
-        }
-        .sidebar a { 
-            display: flex; 
-            align-items: center; 
-            color: #bbb; 
-            padding: 15px; 
-            text-decoration: none; 
-            border-radius: 12px; 
-            margin-bottom: 8px; 
-            transition: 0.3s; 
-        }
+        .sidebar .logo { font-size: 24px; font-weight: bold; color: var(--main); margin-bottom: 40px; text-align: center; }
+        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); }
         
-        /* Mục đang chọn */
-        .sidebar a.active { 
-            background: rgba(0, 212, 255, 0.1); 
-            color: var(--main); 
-        }
-        .sidebar a:hover:not(.logout-item) { background: rgba(255, 255, 255, 0.05); }
+        /* Nút Đăng xuất giữ nguyên màu đỏ */
+        .logout-item { color: #ff4d4d !important; border: 1px solid rgba(255, 77, 77, 0.2); margin-top: auto; }
+        .logout-item:hover { background: rgba(255, 77, 77, 0.1); }
 
-        /* Nút Đăng xuất nằm ngay dưới Hồ sơ */
-        .logout-item { 
-            margin-top: 10px; 
-            color: #ff4d4d !important; 
-            border: 1px solid rgba(255, 77, 77, 0.2); 
-        }
-        .logout-item:hover { 
-            background: rgba(255, 77, 77, 0.15) !important; 
-            border-color: #ff4d4d; 
-        }
-
-        /* Nội dung chính */
-        .main-content { margin-left: 250px; flex: 1; padding: 40px; display: flex; justify-content: center; }
-        .profile-card { background: #fff; padding: 30px; border-radius: 20px; width: 100%; max-width: 500px; box-shadow: 0 5px 25px rgba(0,0,0,0.05); height: fit-content; }
+        /* --- NỘI DUNG CHÍNH --- */
+        .main-content { margin-left: 250px; flex: 1; padding: 40px; display: flex; justify-content: center; align-items: flex-start; }
+        .profile-card { background: #fff; padding: 30px; border-radius: 20px; width: 100%; max-width: 500px; box-shadow: 0 5px 25px rgba(0,0,0,0.05); }
         
         .avatar-box { text-align: center; margin-bottom: 30px; }
         #user-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--main); margin-bottom: 10px; background: #eee; }
@@ -70,35 +36,38 @@
         .form-group { margin-bottom: 20px; position: relative; }
         label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; color: #555; }
         input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: 0.3s; padding-right: 45px; }
-        input:focus { border-color: var(--main); box-shadow: 0 0 5px rgba(0, 212, 255, 0.1); }
+        input:focus { border-color: var(--main); }
 
-        .toggle-password { position: absolute; right: 15px; top: 40px; cursor: pointer; color: #999; transition: 0.3s; font-size: 18px; }
-        .toggle-password:hover { color: var(--main); }
-
-        .btn-save { width: 100%; background: var(--main); color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 15px; font-size: 16px; transition: 0.3s; }
-        .btn-save:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3); }
+        .toggle-password { position: absolute; right: 15px; top: 40px; cursor: pointer; color: #999; font-size: 18px; }
+        .btn-save { width: 100%; background: var(--main); color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 15px; font-size: 16px; }
         
-        #status { text-align: center; margin-top: 15px; font-weight: bold; font-size: 14px; }
-        .section-title { border-bottom: 2px solid #f8f9fa; padding-bottom: 10px; margin-bottom: 20px; color: #333; font-size: 18px; }
+        #status { text-align: center; margin-top: 15px; font-weight: bold; font-size: 13px; }
+        .section-title { border-bottom: 2px solid #f8f9fa; padding-bottom: 10px; margin-bottom: 20px; color: #333; font-size: 18px; font-weight: bold; }
 
-        /* Responsive cho điện thoại */
+        /* --- GIAO DIỆN DI ĐỘNG --- */
         @media (max-width: 768px) {
-            .sidebar { width: 100%; height: auto; position: relative; padding: 15px; }
-            .main-content { margin-left: 0; padding: 20px; }
-            body { flex-direction: column; }
+            .sidebar { 
+                width: 100%; height: 65px; bottom: 0; top: auto; 
+                flex-direction: row; padding: 0 5px; background: #fff; 
+                border-top: 1px solid #eee; z-index: 1001; 
+            }
+            .sidebar .logo { display: none; }
+            .sidebar a { flex-direction: column; font-size: 10px; padding: 10px 5px; flex: 1; color: #666; margin-bottom: 0; }
+            .sidebar a.active { background: #e0faff; }
+            .sidebar a i { margin-right: 0; font-size: 18px; margin-bottom: 3px; }
+            .logout-item { border: none; margin-top: 0; color: #ff4d4d !important; }
+            .main-content { margin-left: 0; padding: 20px 20px 100px 20px; }
+            .profile-card { padding: 20px; }
         }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="logo">YEAMIKO</div>
-        <a href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
-        <a href="forum.html"><i class="fas fa-comments"></i> Diễn đàn</a>
-        <a href="profile.html" class="active"><i class="fas fa-user"></i> Hồ sơ</a>
-        
-        <a href="#" id="btn-logout" class="logout-item">
-            <i class="fas fa-sign-out-alt"></i> Đăng xuất
-        </a>
+        <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
+        <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
+        <a href="profile.html" class="active"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
+        <a href="#" id="btn-logout" class="logout-item"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></a>
     </div>
 
     <div class="main-content">
@@ -113,14 +82,14 @@
 
             <div class="form-group">
                 <label>Tên hiển thị</label>
-                <input type="text" id="display-name" placeholder="Nhập tên mới">
+                <input type="text" id="display-name" placeholder="Dũng nhập tên mới vào đây...">
             </div>
 
-            <h2 class="section-title" style="margin-top: 40px;">Bảo mật</h2>
+            <h2 class="section-title" style="margin-top: 30px;">Bảo mật</h2>
             
             <div class="form-group">
                 <label>Mật khẩu mới</label>
-                <input type="password" id="new-password" placeholder="Để trống nếu không đổi">
+                <input type="password" id="new-password" placeholder="Để trống nếu không muốn đổi">
                 <i class="fas fa-eye toggle-password" onclick="togglePass('new-password', this)"></i>
             </div>
 
@@ -138,8 +107,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, updatePassword, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.app/firebase-database.js";
 
+        // Firebase Config của Dũng
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -165,7 +135,7 @@
             }
         };
 
-        // Theo dõi trạng thái đăng nhập
+        // Kiểm tra đăng nhập
         onAuthStateChanged(auth, user => {
             if (user) {
                 document.getElementById('display-name').value = user.displayName || "";
@@ -178,7 +148,7 @@
             } else { window.location.href = 'login.html'; }
         });
 
-        // Xử lý nén ảnh Base64
+        // Nén ảnh đại diện
         document.getElementById('f-input').onchange = e => {
             const file = e.target.files[0];
             if (file) {
@@ -198,7 +168,7 @@
             }
         };
 
-        // Xử lý Đăng xuất
+        // Xử lý Đăng xuất (Đúng như Dũng yêu cầu)
         document.getElementById('btn-logout').onclick = (e) => {
             e.preventDefault();
             if(confirm("Bạn muốn đăng xuất khỏi Yeamiko?")) {
@@ -214,30 +184,22 @@
             const confirmPass = document.getElementById('confirm-password').value;
             const stt = document.getElementById('status');
 
-            stt.style.color = "#00d4ff";
-            stt.innerText = "⏳ Đang cập nhật hồ sơ...";
+            stt.style.color = "var(--main)";
+            stt.innerText = "⏳ Đang cập nhật...";
 
             try {
-                // 1. Lưu DB
                 await set(ref(db, 'users/' + user.uid), {
                     name: newName,
                     avatar: currentAvatarB64
                 });
-
-                // 2. Cập nhật Display Name
                 await updateProfile(user, { displayName: newName });
-
-                // 3. Đổi mật khẩu
                 if (newPass) {
                     if (newPass.length < 6) throw new Error("Mật khẩu ít nhất 6 ký tự!");
                     if (newPass !== confirmPass) throw new Error("Xác nhận mật khẩu sai!");
                     await updatePassword(user, newPass);
                 }
-
                 stt.style.color = "#2ecc71";
                 stt.innerText = "✅ Cập nhật thành công!";
-                document.getElementById('new-password').value = "";
-                document.getElementById('confirm-password').value = "";
             } catch (err) {
                 stt.style.color = "#e74c3c";
                 stt.innerText = "❌ Lỗi: " + err.message;
