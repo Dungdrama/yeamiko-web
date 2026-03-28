@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile | Yeamiko</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="navbar">
+        <i class="fas fa-bars"></i>
+        <div>Hồ sơ cá nhân</div>
+    </div>
+
+    <div class="sidebar">
+        <div class="logo">YEAMIKO</div>
+        <a href="/"><i class="fas fa-home"></i> Trang chủ</a>
+        <a href="/profile.html" class="active"><i class="fas fa-user"></i> Profile của tôi</a>
+    </div>
+
+    <div class="main-content">
+        <div class="card">
+            <h2>THÔNG TIN TÀI KHOẢN</h2>
+            <hr style="margin:20px 0; opacity:0.1;">
+            <div id="profile-data">Đang tải...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQLbJBM4b9c0",
+            authDomain: "yeamiko-web.firebaseapp.com",
+            projectId: "yeamiko-web",
+            storageBucket: "yeamiko-web.firebasestorage.app",
+            messagingSenderId: "380442978172",
+            appId: "1:380442978172:web:d28cf59982da86278266f9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('profile-data').innerHTML = `
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>ID người dùng:</strong> ${user.uid}</p>
+                    <p><strong>Ngày tạo:</strong> ${user.metadata.creationTime}</p>
+                `;
+            } else {
+                window.location.href = '/login.html';
+            }
+        });
+    </script>
+</body>
+</html>
