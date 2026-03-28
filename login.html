@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | Yeamiko</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div style="display:flex; justify-content:center; align-items:center; height:100vh;">
+        <div class="card" style="width:100%; max-width:400px;">
+            <h2 style="text-align:center; margin-bottom:20px;">TÀI KHOẢN YEAMIKO</h2>
+            <input type="email" id="email" placeholder="Email của bạn">
+            <input type="password" id="password" placeholder="Mật khẩu (trên 6 ký tự)">
+            <button id="btn-signup" class="btn-auth" style="background:#2ecc71;">Đăng ký</button>
+            <button id="btn-login" class="btn-auth">Đăng nhập</button>
+            <p id="msg" style="color:red; margin-top:10px; text-align:center;"></p>
+            <a href="/" style="display:block; text-align:center; color:#aaa; margin-top:15px; text-decoration:none;">Quay lại trang chủ</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQLbJBM4b9c0",
+            authDomain: "yeamiko-web.firebaseapp.com",
+            projectId: "yeamiko-web",
+            storageBucket: "yeamiko-web.firebasestorage.app",
+            messagingSenderId: "380442978172",
+            appId: "1:380442978172:web:d28cf59982da86278266f9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+
+        document.getElementById('btn-signup').onclick = () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            createUserWithEmailAndPassword(auth, email, pass)
+                .then(() => window.location.href = '/')
+                .catch(err => document.getElementById('msg').innerText = "Lỗi: " + err.message);
+        };
+
+        document.getElementById('btn-login').onclick = () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            signInWithEmailAndPassword(auth, email, pass)
+                .then(() => window.location.href = '/')
+                .catch(err => document.getElementById('msg').innerText = "Sai thông tin tài khoản!");
+        };
+    </script>
+</body>
+</html>
