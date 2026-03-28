@@ -92,7 +92,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, push, get, set, query, orderByChild, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, push, get, set, query, orderByChild, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
@@ -119,7 +119,6 @@
             if(snap.exists()) return alert("Bạn đã like rồi!");
             await set(likeRef, true);
             await runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 0) + 1);
-            renderPosts();
         };
 
         window.sendComment = async (pid) => {
@@ -132,47 +131,49 @@
             const name = userData.name || u.displayName || u.email.split('@')[0];
             await push(ref(db, `posts/${pid}/comments`), { uid: u.uid, userName: name, text: val, time: Date.now() });
             input.value = "";
-            renderPosts();
         };
 
-        async function renderPosts() {
+        // HÀM LẮNG NGHE DỮ LIỆU REALTIME
+        function startListeningPosts() {
             const list = document.getElementById('forum-list');
-            const [pSnap, uSnap] = await Promise.all([
-                get(query(ref(db, 'posts'), orderByChild('time'))),
-                get(ref(db, 'users'))
-            ]);
-            const allPosts = pSnap.val() || {};
-            const allUsers = uSnap.val() || {};
-            const keys = Object.keys(allPosts).sort((a,b) => allPosts[b].time - allPosts[a].time);
-            list.innerHTML = keys.length ? "" : "<p style='text-align:center;'>Chưa có bài viết nào.</p>";
-            
-            for (let k of keys) {
-                const p = allPosts[k];
-                const name = allUsers[p.uid]?.name || p.userName;
-                const avt = allUsers[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${name}`;
+            const postsRef = query(ref(db, 'posts'), orderByChild('time'));
+
+            onValue(postsRef, async (snapshot) => {
+                const allPosts = snapshot.val() || {};
+                const userSnap = await get(ref(db, 'users'));
+                const allUsers = userSnap.val() || {};
                 
-                let isLiked = false;
-                if(auth.currentUser) {
-                    const lSnap = await get(ref(db, `likes/${k}/${auth.currentUser.uid}`));
-                    if(lSnap.exists()) isLiked = true;
+                const keys = Object.keys(allPosts).sort((a,b) => allPosts[b].time - allPosts[a].time);
+                list.innerHTML = keys.length ? "" : "<p style='text-align:center;'>Chưa có bài viết nào.</p>";
+                
+                for (let k of keys) {
+                    const p = allPosts[k];
+                    const name = allUsers[p.uid]?.name || p.userName;
+                    const avt = allUsers[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${name}`;
+                    
+                    let isLiked = false;
+                    if(auth.currentUser) {
+                        const lSnap = await get(ref(db, `likes/${k}/${auth.currentUser.uid}`));
+                        if(lSnap.exists()) isLiked = true;
+                    }
+
+                    let cmts = "";
+                    if(p.comments) Object.values(p.comments).forEach(c => {
+                        const cName = allUsers[c.uid]?.name || c.userName;
+                        const cavt = allUsers[c.uid]?.avatar || `https://ui-avatars.com/api/?name=${cName}`;
+                        cmts += `<div class="comment-item"><img src="${cavt}" class="cmt-avatar"><div class="cmt-content"><b>${cName}</b> ${c.text}</div></div>`;
+                    });
+
+                    list.insertAdjacentHTML('beforeend', `
+                        <div class="post-card">
+                            <div class="post-header"><img src="${avt}" class="user-avatar"><b>${name}</b></div>
+                            <div style="margin:10px 0;">${p.text}</div>
+                            ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
+                            <div class="post-actions"><span class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ ${p.likes||0} Thích</span></div>
+                            <div class="comment-section"><div id="clist-${k}">${cmts}</div><div class="cmt-input-box"><input id="in-${k}" class="cmt-input" placeholder="Bình luận..."><button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button></div></div>
+                        </div>`);
                 }
-
-                let cmts = "";
-                if(p.comments) Object.values(p.comments).forEach(c => {
-                    const cName = allUsers[c.uid]?.name || c.userName;
-                    const cavt = allUsers[c.uid]?.avatar || `https://ui-avatars.com/api/?name=${cName}`;
-                    cmts += `<div class="comment-item"><img src="${cavt}" class="cmt-avatar"><div class="cmt-content"><b>${cName}</b> ${c.text}</div></div>`;
-                });
-
-                list.insertAdjacentHTML('beforeend', `
-                    <div class="post-card">
-                        <div class="post-header"><img src="${avt}" class="user-avatar"><b>${name}</b></div>
-                        <div style="margin:10px 0;">${p.text}</div>
-                        ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
-                        <div class="post-actions"><span class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ ${p.likes||0} Thích</span></div>
-                        <div class="comment-section"><div id="clist-${k}">${cmts}</div><div class="cmt-input-box"><input id="in-${k}" class="cmt-input" placeholder="Bình luận..."><button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button></div></div>
-                    </div>`);
-            }
+            });
         }
 
         document.getElementById('btn-post').onclick = async () => {
@@ -211,7 +212,7 @@
                 if(user.uid === "kRvctZ12xsfyugkQVCaInAVzt3d2") { 
                     document.getElementById('admin-menu-item').style.display = 'flex';
                 }
-                renderPosts();
+                startListeningPosts(); // Bắt đầu lắng nghe tự động
             } else {
                 window.location.href = 'login.html';
             }
