@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ người dùng | Yeamiko</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --discord-blue: #5865f2; --bg-gray: #f2f3f5; --text-dark: #060607; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg-gray); }
+
+        .profile-container { width: 100%; max-width: 500px; margin: 0 auto; background: white; min-height: 100vh; position: relative; }
+        .banner { width: 100%; height: 120px; background: #a59d60; }
+        .banner img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .avatar-section { position: relative; padding: 0 16px; margin-top: -45px; }
+        .avatar-wrapper { position: relative; width: 90px; height: 90px; }
+        .kitsune-frame { position: absolute; top: -15px; left: -15px; width: 120px; height: 120px; background: url('https://i.imgur.com/your-kitsune-frame.png'); background-size: contain; z-index: 10; pointer-events: none; }
+        .main-avatar { width: 80px; height: 80px; border-radius: 50%; border: 4px solid white; position: relative; z-index: 5; object-fit: cover; }
+
+        .user-info { padding: 16px; }
+        .display-name { font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 5px; }
+        .username { color: #4e5058; font-size: 14px; margin-bottom: 15px; }
+        
+        .info-card { background: #f8f9fa; border-radius: 12px; margin: 16px; padding: 16px; }
+        .card-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: #4e5058; margin-bottom: 8px; }
+        .bio-text { font-size: 14px; line-height: 1.6; color: #313338; }
+        .back-btn { position: fixed; top: 20px; left: 20px; z-index: 100; background: rgba(0,0,0,0.5); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
+
+    <div class="profile-container">
+        <div class="banner"><img src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=500"></div>
+        <div class="avatar-section">
+            <div class="avatar-wrapper">
+                <div class="kitsune-frame"></div>
+                <img id="u-avt" class="main-avatar" src="https://ui-avatars.com/api/?name=Loading">
+            </div>
+        </div>
+
+        <div class="user-info">
+            <div class="display-name" id="u-name">Đang tải...</div>
+            <div class="username" id="u-id">@user</div>
+        </div>
+
+        <div class="info-card">
+            <div class="card-label">Tiểu sử</div>
+            <div class="bio-text" id="u-bio">Không có tiểu sử.</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
+            authDomain: "yeamiko-web.firebaseapp.com",
+            databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "yeamiko-web",
+            appId: "1:380442978172:web:52eeb187628ed3518266f9"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const uid = new URLSearchParams(window.location.search).get('id');
+        if (uid) {
+            get(ref(db, `users/${uid}`)).then(s => {
+                if (s.exists()) {
+                    const d = s.val();
+                    document.getElementById('u-name').innerText = d.name || "User";
+                    document.getElementById('u-avt').src = d.avatar || `https://ui-avatars.com/api/?name=${d.name}`;
+                    document.getElementById('u-bio').innerText = d.bio || "Người dùng chưa cập nhật tiểu sử.";
+                    document.getElementById('u-id').innerText = `@${uid.substring(0,8)}`;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
