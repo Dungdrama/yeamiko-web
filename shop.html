@@ -104,7 +104,6 @@
         .btn { padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; font-size: 13px; text-transform: uppercase; }
         .btn-chill { background: #0ea5e9; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.2); }
         .btn-smp { background: #10b981; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
-        .btn:hover { filter: brightness(1.2); transform: scale(1.02); }
 
         @media (max-width: 768px) {
             .shop-header { flex-direction: column; text-align: center; }
@@ -204,17 +203,13 @@
             if(u) {
                 document.getElementById('display-email').innerText = u.email;
                 loadData(u.uid); 
-            } else { 
-                window.location.href='login.html'; 
-            }
+            } else { window.location.href='login.html'; }
         });
 
         async function loadData(uid) {
             const s = await db.ref('web_users/' + uid).once('value');
             const d = s.val() || {points:0};
-            currentPoints = d.points; 
-            currentMC = d.linked_mc;
-            
+            currentPoints = d.points; currentMC = d.linked_mc;
             document.getElementById('display-pts').innerText = currentPoints;
             
             if(currentMC) {
@@ -227,37 +222,33 @@
             }
         }
 
-        // --- HÀM LIÊN KẾT ĐÃ SỬA ĐỂ QUÉT TRONG WEB_USERS ---
+        // --- ĐOẠN LOGIC ĐÃ SỬA LẠI THEO WEB_USERS ---
         async function linkGame() {
             const mcName = document.getElementById('mc-name').value.trim();
             const code = document.getElementById('link-code').value.trim();
             const user = firebase.auth().currentUser;
 
-            if (!mcName || !code) return alert("Vui lòng nhập đầy đủ thông tin!");
+            if (!mcName || !code) return alert("Vui lòng nhập đủ thông tin!");
 
             try {
-                // Quét trong node 'web_users' theo tên Minecraft để tìm mã
+                // Quét trong node 'web_users' theo tên Minecraft để tìm mã xác thực
                 const snapshot = await db.ref('web_users/' + mcName).once('value');
                 
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    // So sánh mã (hỗ trợ cả link_code object hoặc giá trị trực tiếp)
+                    // So sánh mã (hỗ trợ cả link_code object hoặc giá trị trực tiếp của node)
                     if (String(data.link_code || data) === String(code)) {
-                        // Cập nhật linked_mc cho tài khoản Web đang đăng nhập
-                        await db.ref('web_users/' + user.uid).update({
-                            linked_mc: mcName
-                        });
+                        // Cập nhật liên kết vào tài khoản Web đang đăng nhập
+                        await db.ref('web_users/' + user.uid).update({ linked_mc: mcName });
                         alert("🎉 Liên kết thành công!");
                         location.reload();
                     } else {
-                        alert("❌ Mã xác nhận không chính xác!");
+                        alert("❌ Mã xác nhận không đúng!");
                     }
                 } else {
                     alert("❌ Không tìm thấy thông tin nhân vật này!");
                 }
-            } catch (e) {
-                alert("Lỗi hệ thống!");
-            }
+            } catch (e) { alert("Lỗi hệ thống!"); }
         }
 
         async function buyItem(cost, moc, sv) {
@@ -267,23 +258,16 @@
             if (confirm(`Xác nhận mua gói này cho máy chủ ${sv}?`)) {
                 try {
                     const user = firebase.auth().currentUser;
-                    await db.ref('web_users/' + user.uid).update({
-                        points: currentPoints - cost
-                    });
+                    await db.ref('web_users/' + user.uid).update({ points: currentPoints - cost });
 
                     const queuePath = 'users_data/' + currentMC + '/queue';
                     await db.ref(queuePath).push({
-                        item: moc,
-                        server: sv,
-                        status: "pending",
-                        time: Date.now()
+                        item: moc, server: sv, status: "pending", time: Date.now()
                     });
 
-                    alert("Thanh toán thành công! Hãy vào Game nhận quà.");
+                    alert("Thành công! Vào Game nhận quà.");
                     loadData(user.uid);
-                } catch (e) {
-                    alert("Lỗi thanh toán!");
-                }
+                } catch (e) { alert("Lỗi thanh toán!"); }
             }
         }
     </script>
