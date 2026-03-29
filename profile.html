@@ -3,66 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang cá nhân | Yeamiko</title>
+    <title>Hồ sơ Yeamiko Network</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main: #00d4ff; --bg: #f0f2f5; --sidebar-dark: #111; }
+        :root { --main: #00d4ff; --bg: #f4f7f6; --sidebar-dark: #111; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); display: flex; min-height: 100vh; }
+        body { background: var(--bg); display: flex; min-height: 100vh; overflow-x: hidden; }
 
-        /* Sidebar & Menu */
-        .menu-toggle { position: fixed; top: 20px; left: 20px; z-index: 1500; background: var(--main); color: #000; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 10px; cursor: pointer; }
+        /* --- MENU SIDEBAR (Giữ nguyên) --- */
+        .menu-toggle { position: fixed; top: 20px; left: 20px; z-index: 1500; background: var(--main); color: #000; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 10px; cursor: pointer; font-size: 20px; }
         .sidebar { width: 250px; background: var(--sidebar-dark); height: 100vh; position: fixed; padding: 25px; color: white; z-index: 2000; left: -250px; transition: 0.4s; }
         .sidebar.open { left: 0; }
+        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; }
         .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; }
-        .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
+        .sidebar a.active, .sidebar a:hover { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
+        .logout-item { color: #ff4d4d !important; border: 1px solid rgba(255, 77, 77, 0.2) !important; margin-top: auto; }
         .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1800; display: none; }
         .sidebar-overlay.show { display: block; }
 
-        .main-content { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
-
-        /* Header Profile Style Facebook */
-        .profile-header { width: 100%; max-width: 940px; background: white; border-radius: 0 0 15px 15px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .cover-photo { width: 100%; height: 250px; background: linear-gradient(to bottom, #00d4ff, #005f73); position: relative; cursor: pointer; }
-        .cover-photo img { width: 100%; height: 100%; object-fit: cover; }
+        /* --- GIAO DIỆN HỒ SƠ --- */
+        .main-content { flex: 1; padding: 80px 20px 50px 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .profile-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 20px; }
         
-        .profile-info-bar { padding: 0 30px 20px 30px; display: flex; align-items: flex-end; position: relative; margin-top: -60px; }
-        .avatar-wrapper { position: relative; width: 160px; height: 160px; }
-        .user-avatar { 
-            width: 100%; height: 100%; border-radius: 50%; object-fit: cover; 
-            border: 4px solid white; background: #eee; 
-            /* Khung viền RGB/Neon */
-            box-shadow: 0 0 0 4px var(--main);
+        /* Layout 2 cột cho Desktop */
+        @media (min-width: 769px) {
+            .profile-container { flex-direction: row; align-items: flex-start; }
+            .left-col { flex: 1; }
+            .right-col { width: 300px; position: sticky; top: 80px; }
         }
-        .change-avt-btn { position: absolute; bottom: 10px; right: 10px; background: #e4e6eb; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        
-        .user-details { margin-left: 20px; margin-bottom: 10px; flex: 1; }
-        .user-details h1 { font-size: 32px; font-weight: 800; color: #1c1e21; }
-        .user-details p { color: #65676b; font-weight: 600; }
 
-        /* Layout 2 cột */
-        .profile-body { display: flex; width: 100%; max-width: 940px; gap: 15px; margin-top: 15px; }
-        .left-col { width: 360px; }
-        .right-col { flex: 1; }
+        .card { background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 5px 25px rgba(0,0,0,0.05); width: 100%; }
+        
+        /* Vùng Avatar */
+        .avatar-box { text-align: center; margin-bottom: 25px; position: relative; display: inline-block; width: 100%;}
+        #user-avatar { 
+            width: 120px; height: 120px; border-radius: 50%; 
+            object-fit: cover; border: 4px solid white; 
+            background: #eee; transition: 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn-upload { font-size: 13px; color: var(--main); cursor: pointer; font-weight: bold; display: inline-block; margin-top: 10px; }
 
-        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        .card-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; }
+        /* --- CSS CHO CÁC KHUNG TRANG TRÍ --- */
+        /* 1. Mặc định (Cyan Neon giống Profile Facebook bạn thích) */
+        .deco-cyan { box-shadow: 0 0 0 4px white, 0 0 0 8px var(--main) !important; }
+        /* 2. Hồng Kitsune (Giống ảnh bạn gửi) */
+        .deco-kitsune { box-shadow: 0 0 0 4px white, 0 0 15px 5px #ff69b4 !important; }
+        /* 3. Vàng Nitro */
+        .deco-nitro { box-shadow: 0 0 0 4px white, 0 0 0 8px #f1c40f !important; }
+        /* 4. Đỏ Ruby */
+        .deco-ruby { box-shadow: 0 0 0 4px white, 0 0 20px 2px #e74c3c !important; }
+        /* 5. Vòng tròn lấp lánh (Dùng Gradient) */
+        .deco-sparkle { 
+            border: 4px solid transparent !important;
+            background-image: linear-gradient(white, white), linear-gradient(45deg, #00d4ff, #ff69b4, #f1c40f);
+            background-origin: border-box; background-clip: content-box, border-box;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+        }
+
+        /* --- VÙNG CHỌN TRANG TRÍ (Giống ảnh 2) --- */
+        .decoration-selector { margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
+        .section-title { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .deco-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 15px; }
         
-        /* Bài đăng */
-        .post-card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .post-header { display: flex; align-items: center; margin-bottom: 10px; }
-        .post-header img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; }
-        .post-img { width: 100%; border-radius: 8px; margin-top: 10px; }
+        .deco-option { 
+            width: 70px; height: 70px; border-radius: 50%; 
+            background: #f8f9fa; border: 2px solid #eee; 
+            cursor: pointer; transition: 0.2s; 
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
+        }
+        .deco-option:hover { border-color: var(--main); transform: scale(1.05); }
+        .deco-option.active { border-color: var(--main); background: rgba(0, 212, 255, 0.1); }
+        .deco-option.active::after {
+            content: '\f00c'; family: 'Font Awesome 5 Free'; weight: 900;
+            position: absolute; top: 5px; right: 5px; color: var(--main); font-size: 12px;
+        }
+
+        /* Demo avatar trong ô chọn */
+        .demo-avt { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+
+        /* Form & Button */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #555; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+        input:focus { border-color: var(--main); }
+        .btn-save { width: 100%; background: var(--main); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         
-        /* Input & Button */
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; outline: none; }
-        .btn-main { background: var(--main); color: white; border: none; padding: 10px; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; }
+        #status { text-align: center; margin-top: 15px; font-weight: bold; font-size: 13px; }
 
         @media (max-width: 768px) {
-            .profile-body { flex-direction: column; padding: 0 10px; }
-            .left-col { width: 100%; }
-            .profile-info-bar { flex-direction: column; align-items: center; text-align: center; margin-top: -80px; }
-            .user-details { margin-left: 0; margin-top: 10px; }
+            .main-content { padding-top: 100px; }
         }
     </style>
 </head>
@@ -76,56 +107,75 @@
         <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
         <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
         <a href="profile.html" class="active"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
-        <a href="#" id="btn-logout" style="color:#ff4d4d"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></a>
+        <a href="#" id="btn-logout" class="logout-item"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></a>
     </div>
 
     <div class="main-content">
-        <div class="profile-header">
-            <div class="cover-photo" onclick="document.getElementById('f-cover').click()">
-                <img id="user-cover" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80">
-                <input type="file" id="f-cover" hidden accept="image/*">
-            </div>
-            <div class="profile-info-bar">
-                <div class="avatar-wrapper">
-                    <img id="user-avatar" class="user-avatar" src="https://ui-avatars.com/api/?name=User">
-                    <div class="change-avt-btn" onclick="document.getElementById('f-avt').click()"><i class="fas fa-camera"></i></div>
-                    <input type="file" id="f-avt" hidden accept="image/*">
+        <div class="profile-container">
+            <div class="left-col card">
+                <h2 style="border-bottom: 2px solid #f8f9fa; padding-bottom: 10px; margin-bottom: 20px;">Thông tin hồ sơ</h2>
+                
+                <div class="form-group">
+                    <label>Tên hiển thị trên diễn đàn</label>
+                    <input type="text" id="display-name" placeholder="Nhập tên mới...">
                 </div>
-                <div class="user-details">
-                    <h1 id="txt-name">Đang tải...</h1>
-                    <p id="txt-bio">Thành viên Yeamiko Network</p>
-                </div>
-            </div>
-        </div>
 
-        <div class="profile-body">
-            <div class="left-col">
-                <div class="card">
-                    <div class="card-title">Giới thiệu</div>
-                    <label style="font-size:12px; color:#666">Tên hiển thị</label>
-                    <input type="text" id="edit-name">
-                    <button class="btn-main" id="btn-save">Lưu thay đổi</button>
-                    <p id="stt" style="font-size:12px; text-align:center; margin-top:5px;"></p>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Mật khẩu mới (bỏ trống nếu không đổi)</label>
+                    <input type="password" id="new-password" placeholder="Tối thiểu 6 ký tự">
                 </div>
-                <div class="card">
-                    <div class="card-title">Bảo mật</div>
-                    <input type="password" id="new-pass" placeholder="Mật khẩu mới">
-                    <button class="btn-main" id="btn-pass" style="background:#65676b">Đổi mật khẩu</button>
+
+                <div class="form-group">
+                    <label>Xác nhận lại mật khẩu mới</label>
+                    <input type="password" id="confirm-password" placeholder="Nhập lại mật khẩu">
                 </div>
+
+                <button id="btn-update" class="btn-save">LƯU THÔNG TIN</button>
+                <p id="status"></p>
             </div>
 
-            <div class="right-col">
-                <div class="card-title" style="margin-left: 5px;">Bài viết của bạn</div>
-                <div id="my-posts-list">Đang tải bài viết...</div>
-            </div>
+            <div class="right-col card">
+                <div class="avatar-box">
+                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=User">
+                    <br>
+                    <label class="btn-upload">Đổi ảnh <input type="file" id="f-input" hidden accept="image/*"></label>
+                </div>
+
+                <div class="decoration-selector">
+                    <div class="section-title"><i class="fas fa-magic" style="color:var(--main)"></i> Trang trí ảnh đại diện</div>
+                    
+                    <div class="deco-grid">
+                        <div class="deco-option active" onclick="setDecoration('none')" id="opt-none">
+                            <i class="fas fa-ban" style="color:#aaa; font-size:20px;"></i>
+                        </div>
+                        
+                        <div class="deco-option" onclick="setDecoration('cyan')" id="opt-cyan">
+                            <img src="" class="demo-avt demo-src deco-cyan">
+                        </div>
+
+                        <div class="deco-option" onclick="setDecoration('kitsune')" id="opt-kitsune">
+                            <img src="" class="demo-avt demo-src deco-kitsune">
+                        </div>
+
+                        <div class="deco-option" onclick="setDecoration('nitro')" id="opt-nitro">
+                            <img src="" class="demo-avt demo-src deco-nitro">
+                        </div>
+
+                        <div class="deco-option" onclick="setDecoration('sparkle')" id="opt-sparkle">
+                            <img src="" class="demo-avt demo-src deco-sparkle">
+                        </div>
+                    </div>
+                </div>
+                </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, get, set, onValue, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged, updatePassword, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
+        // Firebase Config (Giữ nguyên của bạn)
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -137,121 +187,159 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        window.toggleMenu = () => {
+        let currentAvatarB64 = "";
+        let currentDeco = "none"; // Lưu tên khung trang trí hiện tại
+
+        // Điều khiển Menu
+        window.toggleMenu = function() {
             document.getElementById('sidebar').classList.toggle('open');
             document.querySelector('.sidebar-overlay').classList.toggle('show');
         };
 
-        // Hàm resize ảnh để tiết kiệm dung lượng Firebase
-        async function compressImg(file, size = 150) {
-            return new Promise(res => {
-                const r = new FileReader();
-                r.readAsDataURL(file);
-                r.onload = (e) => {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = size; canvas.height = size;
-                        if(size > 500) { // Nếu là ảnh bìa
-                            canvas.width = 800; canvas.height = 300;
-                        }
-                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                        res(canvas.toDataURL('image/jpeg', 0.7));
-                    };
-                };
-            });
-        }
-
+        // Lấy thông tin User Realtime
         onAuthStateChanged(auth, user => {
             if (user) {
-                loadProfile(user.uid);
-                listenMyPosts(user.uid);
+                document.getElementById('display-name').value = user.displayName || "";
+                
+                // Lắng nghe dữ liệu bổ sung từ Database (Avatar, Trang trí)
+                onValue(ref(db, 'users/' + user.uid), s => {
+                    if (s.exists()) {
+                        const userData = s.val();
+                        
+                        // Cập nhật Avatar
+                        if (userData.avatar) {
+                            document.getElementById('user-avatar').src = userData.avatar;
+                            currentAvatarB64 = userData.avatar;
+                            
+                            // Cập nhật ảnh demo trong ô chọn trang trí
+                            const demoSrcs = document.querySelectorAll('.demo-src');
+                            demoSrcs.forEach(img => img.src = userData.avatar);
+                        } else {
+                            // Nếu chưa có avatar, dùng tạm avatar mặc định cho demo
+                            const defaultAvt = `https://ui-avatars.com/api/?name=${user.displayName || 'U'}`;
+                            const demoSrcs = document.querySelectorAll('.demo-src');
+                            demoSrcs.forEach(img => img.src = defaultAvt);
+                        }
+
+                        // Cập nhật Khung trang trí (BỔ SUNG MỚI)
+                        if (userData.decoration) {
+                            applyDecoToAvatar(userData.decoration);
+                            markActiveOption(userData.decoration);
+                            currentDeco = userData.decoration;
+                        } else {
+                            applyDecoToAvatar('none');
+                            markActiveOption('none');
+                        }
+                    }
+                });
             } else { window.location.href = 'login.html'; }
         });
 
-        // Tải thông tin cá nhân
-        function loadProfile(uid) {
-            onValue(ref(db, `users/${uid}`), s => {
-                if(s.exists()){
-                    const d = s.val();
-                    document.getElementById('txt-name').innerText = d.name || "Người dùng";
-                    document.getElementById('edit-name').value = d.name || "";
-                    if(d.avatar) document.getElementById('user-avatar').src = d.avatar;
-                    if(d.cover) document.getElementById('user-cover').src = d.cover;
-                }
-            });
+        // --- CÁC HÀM XỬ LÝ TRANG TRÍ (BỔ SUNG MỚI) ---
+        
+        // 1. Hàm áp dụng class CSS lên Avatar chính
+        function applyDecoToAvatar(decoName) {
+            const avatarImg = document.getElementById('user-avatar');
+            // Xóa hết các class trang trí cũ
+            avatarImg.classList.remove('deco-cyan', 'deco-kitsune', 'deco-nitro', 'deco-ruby', 'deco-sparkle');
+            
+            // Thêm class mới nếu có
+            if (decoName !== 'none') {
+                avatarImg.classList.add('deco-' + decoName);
+            }
         }
 
-        // Lắng nghe bài viết của RIÊNG user này
-        function listenMyPosts(uid) {
-            const postsRef = query(ref(db, 'posts'), orderByChild('uid'), equalTo(uid));
-            onValue(postsRef, s => {
-                const list = document.getElementById('my-posts-list');
-                const data = s.val();
-                if(!data) {
-                    list.innerHTML = "<div class='card'>Bạn chưa có bài đăng nào.</div>";
-                    return;
-                }
-                const keys = Object.keys(data).sort((a,b) => data[b].time - data[a].time);
-                list.innerHTML = "";
-                keys.forEach(k => {
-                    const p = data[k];
-                    list.insertAdjacentHTML('beforeend', `
-                        <div class="post-card">
-                            <div class="post-header">
-                                <img src="${document.getElementById('user-avatar').src}">
-                                <b>${document.getElementById('txt-name').innerText}</b>
-                            </div>
-                            <p>${p.text || ""}</p>
-                            ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
-                            <div style="margin-top:10px; color:#65676b; font-size:13px;">
-                                ❤️ ${p.likes || 0} lượt thích
-                            </div>
-                        </div>
-                    `);
-                });
-            });
+        // 2. Hàm đánh dấu ô tùy chọn đang được chọn
+        function markActiveOption(decoName) {
+            // Xóa active cũ
+            document.querySelectorAll('.deco-option').forEach(opt => opt.classList.remove('active'));
+            // Thêm active mới
+            const activeOpt = document.getElementById('opt-' + decoName);
+            if (activeOpt) activeOpt.classList.add('active');
         }
 
-        // Xử lý đổi ảnh đại diện
-        document.getElementById('f-avt').onchange = async e => {
+        // 3. Hàm gọi khi User click chọn khung (Global function)
+        window.setDecoration = function(decoName) {
+            applyDecoToAvatar(decoName);
+            markActiveOption(decoName);
+            currentDeco = decoName; // Cập nhật biến tạm, sẽ lưu khi nhấn nút Lưu
+        }
+
+        // --- HẾT CÁC HÀM TRANG TRÍ ---
+
+        // Xử lý đổi ảnh đại diện (Có resize để tiết kiệm DB)
+        document.getElementById('f-input').onchange = e => {
             const file = e.target.files[0];
-            if(file) {
-                const b64 = await compressImg(file, 200);
-                await set(ref(db, `users/${auth.currentUser.uid}/avatar`), b64);
+            if (file) {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    const img = new Image();
+                    img.src = reader.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        // Resize về 150x150 cho nhẹ DB
+                        canvas.width = 150; canvas.height = 150;
+                        canvas.getContext('2d').drawImage(img, 0, 0, 150, 150);
+                        currentAvatarB64 = canvas.toDataURL('image/jpeg', 0.6);
+                        document.getElementById('user-avatar').src = currentAvatarB64;
+                        
+                        // Cập nhật lại demo
+                        const demoSrcs = document.querySelectorAll('.demo-src');
+                        demoSrcs.forEach(img => img.src = currentAvatarB64);
+                    };
+                };
             }
         };
 
-        // Xử lý đổi ảnh bìa
-        document.getElementById('f-cover').onchange = async e => {
-            const file = e.target.files[0];
-            if(file) {
-                const b64 = await compressImg(file, 800);
-                await set(ref(db, `users/${auth.currentUser.uid}/cover`), b64);
+        document.getElementById('btn-logout').onclick = (e) => {
+            e.preventDefault();
+            if(confirm("Bạn thực sự muốn đăng xuất?")) {
+                signOut(auth).then(() => { window.location.href = 'login.html'; });
             }
         };
 
-        // Lưu tên
-        document.getElementById('btn-save').onclick = async () => {
-            const name = document.getElementById('edit-name').value.trim();
-            if(!name) return;
-            document.getElementById('stt').innerText = "⏳ Đang lưu...";
-            await set(ref(db, `users/${auth.currentUser.uid}/name`), name);
-            document.getElementById('stt').innerText = "✅ Thành công!";
-        };
-
-        // Đổi mật khẩu
-        document.getElementById('btn-pass').onclick = async () => {
-            const p = document.getElementById('new-pass').value;
-            if(p.length < 6) return alert("Mật khẩu tối thiểu 6 ký tự");
+        // Lưu cập nhật tổng thể
+        document.getElementById('btn-update').onclick = async () => {
+            const user = auth.currentUser;
+            const newName = document.getElementById('display-name').value;
+            const newPass = document.getElementById('new-password').value;
+            const confirmPass = document.getElementById('confirm-password').value;
+            const stt = document.getElementById('status');
+            
+            stt.style.color = "var(--main)";
+            stt.innerText = "⏳ Đang lưu cập nhật...";
+            
             try {
-                await updatePassword(auth.currentUser, p);
-                alert("Đã đổi mật khẩu!");
-            } catch(e) { alert("Lỗi: " + e.message); }
+                // 1. Lưu vào Realtime Database (Tên, Avatar, VÀ TRANG TRÍ)
+                await set(ref(db, 'users/' + user.uid), { 
+                    name: newName, 
+                    avatar: currentAvatarB64,
+                    decoration: currentDeco // LƯU THÔNG TIN KHUNG TẠI ĐÂY
+                });
+                
+                // 2. Cập nhật DisplayName trong Firebase Auth
+                await updateProfile(user, { displayName: newName });
+                
+                // 3. Xử lý đổi mật khẩu nếu có
+                if (newPass) {
+                    if (newPass.length < 6) throw new Error("Mật khẩu phải từ 6 ký tự.");
+                    if (newPass !== confirmPass) throw new Error("Mật khẩu xác nhận không khớp.");
+                    await updatePassword(user, newPass);
+                }
+                
+                stt.style.color = "#2ecc71";
+                stt.innerText = "✅ Đã lưu mọi thay đổi!";
+                
+                // Xóa input mật khẩu sau khi đổi thành công
+                document.getElementById('new-password').value = "";
+                document.getElementById('confirm-password').value = "";
+                
+            } catch (err) {
+                stt.style.color = "#e74c3c";
+                stt.innerText = "❌ Lỗi: " + err.message;
+            }
         };
-
-        document.getElementById('btn-logout').onclick = () => signOut(auth);
     </script>
 </body>
 </html>
