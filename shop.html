@@ -3,95 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cửa hàng | Yeamiko Network</title>
+    <title>Yeamiko Premium Shop</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
-        :root { 
-            --main: #00d4ff; 
-            --bg: #0a0a0a; 
-            --sidebar: #111; 
-            --card: rgba(255, 255, 255, 0.05); 
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        :root { --main: #00d4ff; --bg: #0f172a; --card: rgba(255, 255, 255, 0.05); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         
-        body { background: var(--bg); color: white; min-height: 100vh; overflow-x: hidden; }
+        body { 
+            background: radial-gradient(circle at top right, #1e293b, #0f172a); 
+            color: white; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-        /* --- MENU TOGGLE (NÚT 3 GẠCH) --- */
+        /* --- MENU TOGGLE (3 GẠCH) --- */
         .menu-toggle {
             position: fixed; top: 20px; left: 20px; z-index: 1500;
-            background: var(--main); color: #000; width: 50px; height: 50px;
+            background: var(--main); color: #000; width: 45px; height: 45px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 12px; cursor: pointer; font-size: 24px;
-            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4);
+            border-radius: 10px; cursor: pointer; font-size: 20px;
         }
 
         /* --- SIDEBAR TRƯỢT --- */
         .sidebar { 
-            width: 280px; background: var(--sidebar); height: 100vh; position: fixed; 
-            padding: 30px 20px; color: white; z-index: 2000;
-            left: -280px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 260px; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); 
+            height: 100vh; position: fixed; padding: 30px 20px; z-index: 2000;
+            left: -260px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1);
         }
         .sidebar.open { left: 0; }
-        .sidebar .logo { font-size: 28px; font-weight: 900; color: var(--main); margin-bottom: 50px; text-align: center; letter-spacing: 3px; }
+        .sidebar .logo { font-size: 24px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; }
         .sidebar a { 
-            display: flex; align-items: center; color: #bbb; padding: 16px; 
-            text-decoration: none; border-radius: 12px; margin-bottom: 10px; transition: 0.3s; 
+            display: flex; align-items: center; color: #94a3b8; padding: 14px 18px; 
+            text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; 
         }
-        .sidebar a i { margin-right: 15px; width: 20px; text-align: center; }
-        .sidebar a:hover, .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
+        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar a:hover, .sidebar a.active { background: var(--main); color: #000; font-weight: bold; }
 
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 1800; display: none; backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.6); z-index: 1800; display: none;
         }
         .sidebar-overlay.show { display: block; }
 
-        /* --- NỘI DUNG CHÍNH --- */
+        /* --- MAIN CONTENT --- */
         .main-content { 
-            width: 100%; max-width: 1100px; margin: 0 auto; 
-            padding: 90px 20px 40px 20px; 
-            display: flex; flex-direction: column; align-items: center; 
+            width: 100%; max-width: 1200px; margin: 0 auto; 
+            padding: 80px 20px 40px 20px;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        /* User Header */
         .shop-header { 
-            width: 100%; background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 24px; padding: 25px; display: flex; align-items: center; gap: 20px; margin-bottom: 40px; 
+            width: 100%; max-width: 900px; background: var(--card); 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; 
+            padding: 25px; display: flex; align-items: center; gap: 20px; margin-bottom: 40px; 
         }
-        .mc-head { width: 64px; height: 64px; border-radius: 12px; border: 2px solid var(--main); }
+        .mc-head { width: 64px; height: 64px; border-radius: 12px; box-shadow: 0 0 20px var(--main); }
         .points-display { margin-left: auto; text-align: right; }
         .points-display span { font-size: 32px; font-weight: 900; color: #fbbf24; }
 
-        /* Grid Vật Phẩm */
+        /* --- SHOP GRID (SỬA LỖI NGANG TẠI ĐÂY) --- */
         .shop-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-            gap: 25px; width: 100%; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 25px; width: 100%; max-width: 900px;
         }
+
         .item-card { 
             background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
             border-radius: 24px; padding: 30px; text-align: center; transition: 0.4s; 
-            display: flex; flex-direction: column; justify-content: space-between;
         }
-        .item-card:hover { transform: translateY(-10px); border-color: var(--main); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .item-icon { font-size: 45px; margin-bottom: 15px; color: var(--main); }
-        .item-cost { color: #fbbf24; font-weight: 800; font-size: 22px; margin-bottom: 20px; }
+        .item-card:hover { transform: translateY(-10px); border-color: var(--main); }
+        .item-icon { font-size: 40px; margin-bottom: 15px; color: var(--main); display: block; }
+        .item-cost { color: #fbbf24; font-weight: 800; font-size: 20px; margin-bottom: 20px; }
         
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn { padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; font-size: 13px; }
+        .btn { padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 13px; color: white; }
         .btn-chill { background: #0ea5e9; }
         .btn-smp { background: #10b981; }
 
-        /* Responsive Mobile */
+        /* Responsive di động */
         @media (max-width: 768px) {
-            .shop-header { flex-direction: column; text-align: center; gap: 10px; }
-            .points-display { margin: 10px auto 0 auto; text-align: center; }
-            .shop-grid { grid-template-columns: 1fr; } /* Ép 1 cột để không bị ngang */
+            .shop-header { flex-direction: column; text-align: center; }
+            .points-display { margin: 15px auto 0 auto; text-align: center; }
+            .shop-grid { grid-template-columns: 1fr; } /* Ép 1 cột trên điện thoại */
         }
     </style>
 </head>
@@ -113,23 +112,20 @@
         <div class="shop-header">
             <img id="player-head" src="https://mc-heads.net/avatar/steve" class="mc-head">
             <div class="user-meta">
-                <h2 id="display-mc">Đang tải...</h2>
-                <p id="display-email" style="color: #94a3b8; font-size: 13px;"></p>
+                <h2 id="display-mc">Chưa liên kết</h2>
+                <p id="display-email" style="color: #94a3b8; font-size: 12px;"></p>
             </div>
             <div class="points-display">
-                <p style="font-size: 11px; color: #94a3b8; letter-spacing: 1px;">SỐ DƯ POINT</p>
+                <p style="font-size: 12px; color: #94a3b8;">ĐIỂM HIỆN CÓ</p>
                 <span id="display-pts">0</span>
             </div>
         </div>
 
         <div class="shop-grid">
             <div class="item-card">
-                <div>
-                    <i class="fas fa-coins item-icon"></i>
-                    <h3 style="margin-bottom:5px">50,000 Xu</h3>
-                    <p style="color:#888; font-size:13px; margin-bottom:15px">Gói khởi đầu cơ bản</p>
-                </div>
-                <div class="item-cost">20 Point</div>
+                <i class="fas fa-coins item-icon"></i>
+                <div style="font-weight: bold; margin-bottom: 5px;">50,000 Xu</div>
+                <div class="item-cost">20 Điểm</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(20, 'moc1', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(20, 'moc1', 'SMP')">SMP</button>
@@ -137,12 +133,9 @@
             </div>
 
             <div class="item-card">
-                <div>
-                    <i class="fas fa-money-bill-wave item-icon" style="color:#2ecc71"></i>
-                    <h3 style="margin-bottom:5px">150,000 Xu</h3>
-                    <p style="color:#888; font-size:13px; margin-bottom:15px">Gói kinh tế ổn định</p>
-                </div>
-                <div class="item-cost">50 Point</div>
+                <i class="fas fa-money-bill-wave item-icon"></i>
+                <div style="font-weight: bold; margin-bottom: 5px;">150,000 Xu</div>
+                <div class="item-cost">50 Điểm</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(50, 'moc2', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(50, 'moc2', 'SMP')">SMP</button>
@@ -150,12 +143,9 @@
             </div>
 
             <div class="item-card">
-                <div>
-                    <i class="fas fa-vault item-icon" style="color:#f1c40f"></i>
-                    <h3 style="margin-bottom:5px">500,000 Xu</h3>
-                    <p style="color:#888; font-size:13px; margin-bottom:15px">Gói đại gia Yeamiko</p>
-                </div>
-                <div class="item-cost">150 Point</div>
+                <i class="fas fa-vault item-icon"></i>
+                <div style="font-weight: bold; margin-bottom: 5px;">500,000 Xu</div>
+                <div class="item-cost">150 Điểm</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(150, 'moc3', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(150, 'moc3', 'SMP')">SMP</button>
@@ -163,12 +153,9 @@
             </div>
 
             <div class="item-card">
-                <div>
-                    <i class="fas fa-pickaxe item-icon" style="color: #a855f7;"></i>
-                    <h3 style="margin-bottom:5px; color: #a855f7;">Cúp Ametyst</h3>
-                    <p style="color:#888; font-size:13px; margin-bottom:15px">Dụng cụ đào khoáng cực mạnh</p>
-                </div>
-                <div class="item-cost">100 Point</div>
+                <i class="fas fa-pickaxe item-icon" style="color: #a855f7;"></i>
+                <div style="font-weight: bold; margin-bottom: 5px; color: #a855f7;">Cúp Ametyst</div>
+                <div class="item-cost">100 Điểm</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(100, 'vip_cup_ametyst', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(100, 'vip_cup_ametyst', 'SMP')">SMP</button>
@@ -176,12 +163,9 @@
             </div>
 
             <div class="item-card">
-                <div>
-                    <i class="fas fa-shield-alt item-icon" style="color: #e74c3c;"></i>
-                    <h3 style="margin-bottom:5px; color: #e74c3c;">Giáp Yeamiko</h3>
-                    <p style="color:#888; font-size:13px; margin-bottom:15px">Bảo vệ tối đa cho chiến binh</p>
-                </div>
-                <div class="item-cost">200 Point</div>
+                <i class="fas fa-shield-alt item-icon" style="color: #e74c3c;"></i>
+                <div style="font-weight: bold; margin-bottom: 5px; color: #e74c3c;">Giáp Yeamiko</div>
+                <div class="item-cost">200 Điểm</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(200, 'armor_set', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(200, 'armor_set', 'SMP')">SMP</button>
@@ -189,12 +173,9 @@
             </div>
 
             <div class="item-card">
-                <div>
-                    <i class="fas fa-crown item-icon" style="color: #ff9f43;"></i>
-                    <h3 style="margin-bottom:5px; color: #ff9f43;">Hạng VIP (30 Ngày)</h3>
-                    <p style="color:#888; font-size:13px; margin-bottom:15px">Đặc quyền ưu tiên toàn mạng</p>
-                </div>
-                <div class="item-cost">300 Point</div>
+                <i class="fas fa-crown item-icon" style="color: #ff9f43;"></i>
+                <div style="font-weight: bold; margin-bottom: 5px; color: #ff9f43;">Hạng VIP (30 Ngày)</div>
+                <div class="item-cost">300 Điểm</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(300, 'rank_vip', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(300, 'rank_vip', 'SMP')">SMP</button>
@@ -204,7 +185,6 @@
     </div>
 
     <script>
-        // Cấu hình Firebase của bạn
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -236,24 +216,18 @@
             if(currentMC) {
                 document.getElementById('display-mc').innerText = currentMC;
                 document.getElementById('player-head').src = `https://mc-heads.net/avatar/${currentMC}`;
-            } else {
-                document.getElementById('display-mc').innerText = "Chưa liên kết";
             }
         }
 
         async function buyItem(cost, moc, sv) {
-            if(!currentMC) return alert("Bạn phải liên kết Game tại trang Hồ sơ trước!");
-            if(currentPoints < cost) return alert("Bạn không đủ Point!");
-            if(confirm(`Xác nhận mua gói này cho cụm ${sv}?`)) {
-                try {
-                    await db.ref('web_users/'+firebase.auth().currentUser.uid).update({points: currentPoints - cost});
-                    let update = {}; 
-                    update[`pending_${sv}`] = moc; 
-                    update[`claimed_${sv}`] = false;
-                    await db.ref('users_data/'+currentMC).update(update);
-                    alert("Mua thành công! Hãy vào Server gõ /nhanqua để nhận.");
-                    loadData(firebase.auth().currentUser.uid);
-                } catch(e) { alert("Lỗi hệ thống!"); }
+            if(!currentMC) return alert("Bạn chưa liên kết Game!");
+            if(currentPoints < cost) return alert("Không đủ điểm!");
+            if(confirm(`Mua gói này cho cụm ${sv}?`)) {
+                await db.ref('web_users/'+firebase.auth().currentUser.uid).update({points: currentPoints - cost});
+                let update = {}; update[`pending_${sv}`] = moc; update[`claimed_${sv}`] = false;
+                await db.ref('users_data/'+currentMC).update(update);
+                alert("Thành công! Vào game gõ /nhanqua");
+                loadData(firebase.auth().currentUser.uid);
             }
         }
     </script>
