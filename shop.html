@@ -1,40 +1,49 @@
-<div class="main-content">
-    <h2 class="section-title">CỬA HÀNG ĐỔI THƯỞNG</h2>
-    <div class="shop-container">
-        <div class="shop-card">
-            <h3>Mốc 1: 50K Money</h3>
-            <p>Giá: 20 Điểm</p>
-            <button onclick="buy(20, 'moc1')">ĐỔI QUÀ</button>
-        </div>
-        <div class="shop-card">
-            <h3>Mốc 2: 100K Money</h3>
-            <p>Giá: 40 Điểm</p>
-            <button onclick="buy(40, 'moc2')">ĐỔI QUÀ</button>
-        </div>
-        <div class="shop-card">
-            <h3>Mốc 3: 200K Money</h3>
-            <p>Giá: 80 Điểm</p>
-            <button onclick="buy(80, 'moc3')">ĐỔI QUÀ</button>
-        </div>
-        </div>
+<div id="link-section">
+    <input type="text" id="mc-name" placeholder="Tên nhân vật In-game">
+    <input type="text" id="link-code" placeholder="Mã /link">
+    <button onclick="linkGame()">XÁC NHẬN LIÊN KẾT</button>
+</div>
+
+<div class="shop">
+    <button onclick="exchange(20, 'moc1', 'SMP')">Đổi 50K vào SMP</button>
+    <button onclick="exchange(20, 'moc1', 'CHILL')">Đổi 50K vào CHILL</button>
 </div>
 
 <script>
-async function buy(cost, id) {
-    const user = localStorage.getItem('verifiedUser');
-    if(!user) return alert('Hãy xác thực trước!');
+async function linkGame() {
+    const webUserId = firebase.auth().currentUser.uid;
+    const mcName = document.getElementById('mc-name').value;
+    const code = document.getElementById('link-code').value;
+
+    // Kiểm tra mã /link từ Firebase (do Skript gửi lên)
+    const snap = await database.ref('linking/' + mcName).once('value');
+    if (snap.exists() && snap.val().code == code) {
+        // Lưu liên kết vào tài khoản web
+        await database.ref('web_users/' + webUserId).update({ linked_mc: mcName });
+        alert("Đã liên kết với nhân vật: " + mcName);
+    } else {
+        alert("Sai mã hoặc tên nhân vật!");
+    }
+}
+
+async function exchange(cost, moc, server) {
+    const webUserId = firebase.auth().currentUser.uid;
+    const userSnap = await database.ref('web_users/' + webUserId).once('value');
+    const userData = userSnap.val();
+
+    if (!userData.linked_mc) return alert("Bạn phải liên kết tài khoản game trước!");
+    if (userData.points < cost) return alert("Không đủ điểm!");
+
+    // 1. Trừ điểm tài khoản Web
+    await database.ref('web_users/' + webUserId).update({ points: userData.points - cost });
+
+    // 2. Đẩy quà vào nhánh của Server đó cho Skript đọc
+    let giftPath = 'users_data/' + userData.linked_mc;
+    let giftData = {};
+    giftData[`pending_${server}`] = moc;
+    giftData[`claimed_${server}`] = false;
     
-    const ref = database.ref('users/' + user);
-    const snap = await ref.once('value');
-    let d = snap.val();
-    
-    if(d.points < cost) return alert('Không đủ điểm!');
-    
-    await ref.update({
-        points: d.points - cost,
-        pending: id,
-        claimed: false
-    });
-    alert('Đã đổi! Vào game gõ /nhanqua');
+    await database.ref(giftPath).update(giftData);
+    alert(`Đã gửi quà vào cụm ${server}. Hãy vào game gõ /nhanqua`);
 }
 </script>
