@@ -113,7 +113,7 @@
                 <p id="display-email" style="color: #94a3b8; font-size: 12px;"></p>
             </div>
             <div class="points-display">
-                <p style="font-size: 12px; color: #94a3b8;">ĐIỂM HIỆN CÓ</p>
+                <p style="font-size: 12px; color: #94a3b8;">XU HIỆN CÓ</p>
                 <span id="display-pts">0</span>
             </div>
         </div>
@@ -121,8 +121,8 @@
         <div class="shop-grid">
             <div class="item-card">
                 <i class="fas fa-coins item-icon"></i>
-                <div style="font-weight:bold; margin-bottom:5px">50,000 Xu</div>
-                <div class="item-cost">20 Điểm</div>
+                <div style="font-weight:bold; margin-bottom:5px">50,000 money</div>
+                <div class="item-cost">20 Xu</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(20, 'moc1', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(20, 'moc1', 'SMP')">SMP</button>
@@ -131,8 +131,8 @@
 
             <div class="item-card">
                 <i class="fas fa-money-bill-wave item-icon" style="color:#2ecc71"></i>
-                <div style="font-weight:bold; margin-bottom:5px">150,000 Xu</div>
-                <div class="item-cost">50 Điểm</div>
+                <div style="font-weight:bold; margin-bottom:5px">150,000 money</div>
+                <div class="item-cost">50 Xu</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(50, 'moc2', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(50, 'moc2', 'SMP')">SMP</button>
@@ -141,8 +141,8 @@
 
             <div class="item-card">
                 <i class="fas fa-vault item-icon" style="color:#f1c40f"></i>
-                <div style="font-weight:bold; margin-bottom:5px">500,000 Xu</div>
-                <div class="item-cost">150 Điểm</div>
+                <div style="font-weight:bold; margin-bottom:5px">500,000 money</div>
+                <div class="item-cost">150 Xu</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(150, 'moc3', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(150, 'moc3', 'SMP')">SMP</button>
@@ -151,8 +151,8 @@
 
             <div class="item-card">
                 <i class="fas fa-pickaxe item-icon" style="color: #a855f7;"></i>
-                <div style="font-weight:bold; margin-bottom:5px">Cúp Ametyst</div>
-                <div class="item-cost">100 Điểm</div>
+                <div style="font-weight:bold; margin-bottom:5px; color: #a855f7;">Cúp Ametyst</div>
+                <div class="item-cost">100 Xu</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(100, 'vip_cup_ametyst', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(100, 'vip_cup_ametyst', 'SMP')">SMP</button>
@@ -161,8 +161,8 @@
 
             <div class="item-card">
                 <i class="fas fa-axe item-icon" style="color: #a855f7;"></i>
-                <div style="font-weight:bold; margin-bottom:5px">Rìu Ametyst</div>
-                <div class="item-cost">100 Điểm</div>
+                <div style="font-weight:bold; margin-bottom:5px; color: #a855f7;">Rìu Ametyst</div>
+                <div class="item-cost">100 Xu</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(100, 'vip_riu_ametyst', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(100, 'vip_riu_ametyst', 'SMP')">SMP</button>
@@ -171,8 +171,8 @@
 
             <div class="item-card">
                 <i class="fas fa-shovels item-icon" style="color: #a855f7;"></i>
-                <div style="font-weight:bold; margin-bottom:5px">Xẻng Ametyst</div>
-                <div class="item-cost">100 Điểm</div>
+                <div style="font-weight:bold; margin-bottom:5px; color: #a855f7;">Xẻng Ametyst</div>
+                <div class="item-cost">100 Xu</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(100, 'vip_xeng_ametyst', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(100, 'vip_xeng_ametyst', 'SMP')">SMP</button>
@@ -218,7 +218,7 @@
 
         async function buyItem(cost, moc, sv) {
             if(!currentMC) return alert("Bạn chưa liên kết Game!");
-            if(currentPoints < cost) return alert("Không đủ điểm!");
+            if(currentPoints < cost) return alert("Không đủ Xu!");
             if(confirm(`Mua gói này cho cụm ${sv}?`)) {
                 await db.ref('web_users/'+firebase.auth().currentUser.uid).update({points: currentPoints - cost});
                 let update = {}; update[`pending_${sv}`] = moc; update[`claimed_${sv}`] = false;
