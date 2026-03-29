@@ -1,17 +1,44 @@
+<button onclick="doCheckin()">ĐIỂM DANH</button>
+
+<script>
 async function doCheckin() {
-    // webUserId là ID tài khoản web (ví dụ lấy từ Firebase Auth)
-    const webUserId = firebase.auth().currentUser.uid; 
+    // 1. Kiểm tra xem người dùng đã đăng nhập Web chưa
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert("Bạn cần đăng nhập tài khoản Web trước!");
+        return;
+    }
+
+    const webUserId = user.uid; 
     const ref = database.ref('web_users/' + webUserId);
-    const snap = await ref.once('value');
-    let d = snap.val() || { points: 0, count: 0, last: "" };
+    
+    try {
+        const snap = await ref.once('value');
+        let d = snap.val() || { points: 0, count: 0, last: "" };
 
-    const today = new Date().toLocaleDateString();
-    if (d.last === today) return alert("Hôm nay bạn đã điểm danh rồi!");
+        // 2. Kiểm tra ngày (Dùng định dạng chuẩn YYYY-MM-DD để không lỗi)
+        const today = new Date().toISOString().split('T')[0];
+        if (d.last === today) {
+            alert("Hôm nay bạn đã điểm danh rồi!");
+            return;
+        }
 
-    await ref.update({
-        points: d.points + 2,
-        count: (d.count >= 30) ? 1 : d.count + 1,
-        last: today
-    });
-    alert("Điểm danh thành công! +2 điểm.");
+        // 3. Cập nhật điểm và ngày
+        let nextCount = (d.count >= 30) ? 1 : (d.count || 0) + 1;
+        
+        await ref.update({
+            points: (d.points || 0) + 2,
+            count: nextCount,
+            last: today
+        });
+
+        alert("Điểm danh thành công! +2 điểm.");
+        // Sau khi xong thì vẽ lại bảng 30 ngày (nếu bạn có hàm vẽ bảng)
+        if (typeof showCheckin === "function") showCheckin(webUserId);
+
+    } catch (error) {
+        console.error(error);
+        alert("Lỗi kết nối Firebase: " + error.message);
+    }
 }
+</script>
