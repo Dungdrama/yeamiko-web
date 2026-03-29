@@ -2,60 +2,158 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yeamiko | Lucky Wheel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
-        :root { --main: #ff4757; --bg: #0b0f19; }
-        body { background: var(--bg); color: white; text-align: center; font-family: sans-serif; }
-        
-        .wheel-container { position: relative; width: 300px; height: 300px; margin: 50px auto; }
-        
-        /* Hình ảnh vòng quay */
+        :root { --main: #ff4757; --bg: #0b0f19; --gold: #ffd700; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: white; text-align: center; min-height: 100vh; overflow-x: hidden; }
+
+        /* Navbar */
+        .navbar { background: rgba(15, 23, 42, 0.95); height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; border-bottom: 2px solid var(--main); }
+        .nav-brand { font-weight: 900; font-size: 20px; cursor: pointer; }
+        #user-points { color: var(--gold); font-weight: bold; }
+
+        /* Wheel Section */
+        .wheel-box { position: relative; width: 350px; height: 350px; margin: 50px auto; }
         #wheel { 
             width: 100%; height: 100%; 
-            border-radius: 50%; 
-            border: 5px solid white;
-            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); 
+            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
+            filter: drop-shadow(0 0 15px rgba(255, 71, 87, 0.3));
         }
-
-        /* Kim chỉ */
         .pointer { 
-            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
-            width: 30px; z-index: 10; color: white; font-size: 30px;
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            z-index: 10; font-size: 40px; color: #fff; text-shadow: 0 0 10px var(--main);
         }
 
+        .info-card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; display: inline-block; margin-top: 20px; border: 1px solid rgba(255,255,255,0.1); }
         .btn-spin {
-            margin-top: 30px; padding: 15px 40px; 
-            background: var(--main); border: none; color: white;
-            font-weight: bold; border-radius: 50px; cursor: pointer;
+            background: var(--main); color: white; border: none; padding: 15px 50px;
+            font-size: 18px; font-weight: 900; border-radius: 50px; cursor: pointer;
+            margin-top: 30px; transition: 0.3s; box-shadow: 0 10px 20px rgba(255, 71, 87, 0.4);
         }
+        .btn-spin:disabled { background: #334155; box-shadow: none; cursor: not-allowed; }
+        .btn-spin:hover:not(:disabled) { transform: scale(1.05); background: #ff6b81; }
+
+        .back-btn { display: block; margin-top: 25px; color: #94a3b8; text-decoration: none; font-size: 14px; }
     </style>
 </head>
 <body>
-    <h1>VÒNG QUAY MAY MẮN</h1>
-    <div class="wheel-container">
+
+    <nav class="navbar">
+        <div class="nav-brand" onclick="location.href='minigame-hub.html'">YEAMIKO <span style="color:var(--main)">LUCKY</span></div>
+        <div id="user-points"><i class="fas fa-coins"></i> 0 Xu</div>
+    </nav>
+
+    <div class="wheel-box">
         <div class="pointer"><i class="fas fa-caret-down"></i></div>
-        <img id="wheel" src="https://i.imgur.com/8f5X6H5.png" alt="Wheel"> </div>
-    <button class="btn-spin" onclick="spinWheel()">QUAY THƯỞNG</button>
+        <img id="wheel" src="https://i.imgur.com/v8tT9oV.png" alt="Wheel">
+    </div>
 
-    <script>
-        let isSpinning = false;
+    <div class="info-card">
+        <p style="margin-bottom: 10px;">Phí quay: <span style="color:var(--gold); font-weight: bold;">5 Xu</span> / lượt</p>
+        <p style="font-size: 12px; color: #94a3b8;">Tỉ lệ nổ hũ 50 Xu là 1%!</p>
+    </div>
 
-        function spinWheel() {
-            if (isSpinning) return;
-            isSpinning = true;
+    <br>
+    <button class="btn-spin" id="spin-btn" onclick="startSpin()">QUAY NGAY</button>
+    <a href="minigame-hub.html" class="back-btn"><i class="fas fa-arrow-left"></i> Quay lại Game Hub</a>
 
-            const wheel = document.getElementById('wheel');
-            const randomDeg = Math.floor(Math.random() * 360) + 3600; // Quay ít nhất 10 vòng
-            
-            wheel.style.transform = `rotate(${randomDeg}deg)`;
+<script>
+    // Cấu hình Firebase (Giữ nguyên từ các file trước của bạn)
+    const firebaseConfig = {
+        apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
+        authDomain: "yeamiko-web.firebaseapp.com",
+        databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "yeamiko-web",
+        appId: "1:380442978172:web:52eeb187628ed3518266f9"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-            setTimeout(() => {
-                isSpinning = false;
-                alert("Chúc mừng! Bạn đã nhận được quà (Logic cộng Xu sẽ đặt ở đây)");
-                // Tại đây bạn dùng Firebase transaction để cộng điểm cho user
-            }, 4000);
+    let currentPoints = 0;
+    let isSpinning = false;
+    let userUID = null;
+    let currentDeg = 0;
+
+    // 1. Kiểm tra đăng nhập và lấy xu
+    firebase.auth().onAuthStateChanged(user => {
+        if(user) {
+            userUID = user.uid;
+            db.ref('web_users/' + userUID + '/points').on('value', s => {
+                currentPoints = s.val() || 0;
+                document.getElementById('user-points').innerHTML = `<i class="fas fa-coins"></i> ${currentPoints} Xu`;
+            });
+        } else {
+            window.location.href = 'login.html';
         }
-    </script>
+    });
+
+    // 2. Định nghĩa các mốc thưởng và góc xoay (giả sử vòng quay chia 5 ô, mỗi ô 72 độ)
+    // Thứ tự ô trên ảnh: 0: 4xu, 1: 5xu, 2: 10xu, 3: 20xu, 4: 50xu
+    const rewards = [
+        { name: "4 Xu",  value: 4,  chance: 70, deg: 0 },
+        { name: "5 Xu",  value: 5,  chance: 15, deg: 72 },
+        { name: "10 Xu", value: 10, chance: 9,  deg: 144 },
+        { name: "20 Xu", value: 20, chance: 5,  deg: 216 },
+        { name: "50 Xu", value: 50, chance: 1,  deg: 288 }
+    ];
+
+    function getRandomReward() {
+        const rand = Math.random() * 100;
+        let cumulative = 0;
+        for (let r of rewards) {
+            cumulative += r.chance;
+            if (rand <= cumulative) return r;
+        }
+        return rewards[0];
+    }
+
+    async function startSpin() {
+        if (isSpinning) return;
+        if (currentPoints < 5) {
+            alert("Bạn không đủ Xu để quay! Cần ít nhất 5 Xu.");
+            return;
+        }
+
+        isSpinning = true;
+        document.getElementById('spin-btn').disabled = true;
+
+        // Trừ 5 xu phí quay ngay lập tức
+        await db.ref('web_users/' + userUID + '/points').set(currentPoints - 5);
+
+        const result = getRandomReward();
+        
+        // Tính toán góc xoay: số vòng (10) * 360 + góc của ô thưởng
+        // Thêm 3600 độ để quay ít nhất 10 vòng cho đẹp
+        currentDeg += 3600 + (360 - result.deg); 
+        
+        const wheel = document.getElementById('wheel');
+        wheel.style.transform = `rotate(${currentDeg}deg)`;
+
+        // Đợi 5 giây (khớp với transition CSS)
+        setTimeout(async () => {
+            isSpinning = false;
+            document.getElementById('spin-btn').disabled = false;
+
+            // Hiệu ứng pháo giấy nếu trúng lớn
+            if(result.value >= 20) {
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            }
+
+            alert(`🎉 Chúc mừng! Bạn quay vào ô ${result.name}`);
+
+            // Cộng tiền thưởng vào Firebase
+            await db.ref('web_users/' + userUID + '/points').transaction(p => (p || 0) + result.value);
+            
+        }, 5000);
+    }
+</script>
 </body>
 </html>
