@@ -10,7 +10,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); display: flex; min-height: 100vh; overflow-x: hidden; }
 
-        /* Sidebar & Menu */
         .menu-toggle {
             position: fixed; top: 20px; left: 20px; z-index: 1500;
             background: var(--main); color: #000; width: 45px; height: 45px;
@@ -18,6 +17,7 @@
             border-radius: 10px; cursor: pointer; font-size: 20px;
             box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
         }
+
         .sidebar { 
             width: 250px; background: var(--sidebar-dark); height: 100vh; 
             position: fixed; padding: 25px; color: white; z-index: 2000;
@@ -28,13 +28,13 @@
         .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
         .sidebar a.active, .sidebar a:hover { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
+        
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 1800; display: none; backdrop-filter: blur(3px);
         }
         .sidebar-overlay.show { display: block; }
 
-        /* Main Content */
         .main-content { flex: 1; padding: 80px 20px 250px 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
         .container { width: 100%; max-width: 600px; }
         .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; }
@@ -43,23 +43,22 @@
         .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
         
         .post-actions { margin-top: 15px; display: flex; gap: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
-        .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; padding: 5px 10px; border-radius: 8px; }
+        .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; padding: 5px 10px; border-radius: 8px; transition: 0.2s; }
         .action-btn.liked { color: #ff4d4d; }
 
-        /* Phân trang */
+        /* PHÂN TRANG */
         .pagination { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
-        .page-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; font-weight: bold; }
+        .page-btn { padding: 8px 15px; border-radius: 8px; background: white; border: 1px solid #ddd; cursor: pointer; font-weight: bold; }
         .page-btn.active { background: var(--main); color: black; border-color: var(--main); }
 
-        /* Bình luận */
         .comment-section { margin-top: 15px; }
         .comment-item { display: flex; margin-bottom: 10px; cursor: pointer; }
         .cmt-avatar { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; }
-        .cmt-content { background: #f0f2f5; padding: 8px 12px; border-radius: 18px; font-size: 14px; }
+        .cmt-content { background: #f0f2f5; padding: 8px 12px; border-radius: 18px; font-size: 14px; max-width: 85%; }
         .cmt-input-box { display: flex; margin-top: 10px; gap: 10px; }
         .cmt-input { flex: 1; padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
-        
-        /* Post Box Cố định */
+        .btn-cmt { background: none; border: none; color: var(--main); cursor: pointer; font-weight: bold; }
+
         .post-box-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 900; border-top: 1px solid #eee; }
     </style>
 </head>
@@ -85,10 +84,10 @@
 
     <div class="post-box-fixed">
         <div style="max-width:600px; margin:0 auto;">
-            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Dũng ơi, hôm nay có gì mới?"></textarea>
+            <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Chia sẻ gì đó..."></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                 <input type="file" id="post-file" accept="image/*">
-                <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG BÀI</button>
+                <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG</button>
             </div>
             <p id="stt" style="text-align:center; font-size:12px; color:var(--main); margin-top:5px;"></p>
         </div>
@@ -119,7 +118,11 @@
             document.querySelector('.sidebar-overlay').classList.toggle('show');
         };
 
-        window.viewUser = (uid) => window.location.href = `user.html?id=${uid}`;
+        // HÀM CHUYỂN TRANG PROFILE (FIX LỖI ID)
+        window.viewUser = (uid) => {
+            if(!uid) return;
+            window.location.href = `user.html?id=${uid}`;
+        };
 
         window.handleLike = async (pid) => {
             const u = auth.currentUser;
@@ -131,12 +134,12 @@
 
         window.sendComment = async (pid) => {
             const input = document.getElementById(`in-${pid}`);
-            const text = input.value.trim();
-            if(!text) return;
+            const val = input.value.trim();
+            if(!val || !auth.currentUser) return;
             const u = auth.currentUser;
             const uSnap = await get(ref(db, `users/${u.uid}`));
             const name = uSnap.exists() ? uSnap.val().name : u.email.split('@')[0];
-            await push(ref(db, `posts/${pid}/comments`), { uid: u.uid, userName: name, text: text, time: Date.now() });
+            await push(ref(db, `posts/${pid}/comments`), { uid: u.uid, userName: name, text: val, time: Date.now() });
             input.value = "";
         };
 
@@ -158,22 +161,25 @@
                     const p = allPosts[k];
                     const name = allUsers[p.uid]?.name || p.userName;
                     const avt = allUsers[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${name}`;
-                    const likeCount = p.likes ? Object.keys(p.likes).length : 0;
+                    const likes = p.likes ? Object.keys(p.likes).length : 0;
                     
-                    let cmtsHtml = "";
+                    let isLiked = false;
+                    if(auth.currentUser && p.likes && p.likes[auth.currentUser.uid]) isLiked = true;
+
+                    let cmts = "";
                     if(p.comments) Object.values(p.comments).forEach(c => {
                         const cName = allUsers[c.uid]?.name || c.userName;
                         const cavt = allUsers[c.uid]?.avatar || `https://ui-avatars.com/api/?name=${cName}`;
-                        cmtsHtml += `<div class="comment-item" onclick="viewUser('${c.uid}')"><img src="${cavt}" class="cmt-avatar"><div class="cmt-content"><b>${cName}</b> ${c.text}</div></div>`;
+                        cmts += `<div class="comment-item" onclick="viewUser('${c.uid}')"><img src="${cavt}" class="cmt-avatar"><div class="cmt-content"><b>${cName}</b> ${c.text}</div></div>`;
                     });
 
                     list.insertAdjacentHTML('beforeend', `
                         <div class="post-card">
                             <div class="post-header" onclick="viewUser('${p.uid}')"><img src="${avt}" class="user-avatar"><b>${name}</b></div>
-                            <div>${p.text}</div>
+                            <div style="margin:10px 0;">${p.text}</div>
                             ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
-                            <div class="post-actions"><span class="action-btn" onclick="handleLike('${k}')">❤️ ${likeCount} Thích</span></div>
-                            <div class="comment-section"><div id="clist-${k}">${cmtsHtml}</div><div class="cmt-input-box"><input id="in-${k}" class="cmt-input" placeholder="Bình luận..."><button onclick="sendComment('${k}')" style="color:var(--main); background:none; border:none; cursor:pointer; font-weight:bold;">Gửi</button></div></div>
+                            <div class="post-actions"><span class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ ${likes} Thích</span></div>
+                            <div class="comment-section"><div id="clist-${k}">${cmts}</div><div class="cmt-input-box"><input id="in-${k}" class="cmt-input" placeholder="Bình luận..."><button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button></div></div>
                         </div>`);
                 }
 
@@ -203,7 +209,7 @@
             const uSnap = await get(ref(db, `users/${u.uid}`));
             const name = uSnap.exists() ? uSnap.val().name : u.email.split('@')[0];
             await push(ref(db, 'pending_posts'), { uid: u.uid, userName: name, text: txt, img: imgB64, time: Date.now() });
-            document.getElementById('post-text').value = ""; document.getElementById('stt').innerText = "✅ Đã gửi chờ duyệt!";
+            document.getElementById('post-text').value = ""; document.getElementById('stt').innerText = "✅ Đã gửi! Đang chờ duyệt.";
             document.getElementById('btn-post').disabled = false;
         };
 
