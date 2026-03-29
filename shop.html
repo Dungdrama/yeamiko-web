@@ -244,40 +244,34 @@
             }
         }
 
-        async function linkGame() {
-            const name = document.getElementById('mc-name').value.trim();
-            const code = document.getElementById('link-code').value.trim();
-            if(!name || !code) return alert("Vui lòng nhập đủ thông tin!");
-            
-            const s = await db.ref('linking/'+name).once('value');
-            if(s.exists() && s.val().code == code) {
-                await db.ref('web_users/'+firebase.auth().currentUser.uid).update({linked_mc: name});
-                alert("Liên kết thành công!");
-                location.reload();
-            } else { alert("Sai mã hoặc tên nhân vật!"); }
-        }
-
         async function buyItem(cost, moc, sv) {
-            if(!currentMC) return alert("Bạn chưa liên kết Game!");
-            if(currentPoints < cost) return alert("Không đủ Xu!");
+            if (!currentMC) return alert("Bạn chưa liên kết Game!");
+            if (currentPoints < cost) return alert("Không đủ Xu!");
             
-            if(confirm(`Xác nhận mua gói này cho cụm ${sv}? Quà sẽ tự động gửi khi bạn online!`)) {
+            if (confirm(`Xác nhận mua gói này? Quà sẽ tự động gửi khi bạn online!`)) {
                 try {
-                    await db.ref('web_users/'+firebase.auth().currentUser.uid).update({
+                    // 1. Trừ tiền tài khoản web
+                    await db.ref('web_users/' + firebase.auth().currentUser.uid).update({
                         points: currentPoints - cost
                     });
 
-                    let update = {};
-                    update[`pending_${sv}`] = moc;
-                    update[`claimed_${sv}`] = false;
+                    // 2. Tạo ID giao dịch riêng trong hàng đợi (Queue)
+                    const queuePath = 'users_data/' + currentMC + '/queue';
+                    const transactionRef = db.ref(queuePath).push();
+                    
+                    await transactionRef.set({
+                        item: moc,
+                        server: sv,
+                        status: "pending",
+                        time: Date.now()
+                    });
 
-                    await db.ref('users_data/' + currentMC).update(update);
-
-                    alert("Mua thành công! Vật phẩm sẽ phát ngay khi bạn online server.");
+                    alert("Mua thành công! Hệ thống đã thêm vào hàng đợi phát quà.");
                     loadData(firebase.auth().currentUser.uid);
+                    
                 } catch (e) {
-                    alert("Lỗi hệ thống!");
                     console.error(e);
+                    alert("Lỗi hệ thống khi xử lý giao dịch!");
                 }
             }
         }
