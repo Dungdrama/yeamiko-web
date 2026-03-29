@@ -21,7 +21,7 @@
 
         .main-content { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
 
-        /* Header Profile Facebook Style */
+        /* Header Profile */
         .profile-header { width: 100%; max-width: 940px; background: white; border-radius: 0 0 15px 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; }
         .cover-photo { width: 100%; height: 300px; background: #ddd; position: relative; overflow: hidden; }
         .cover-photo img { width: 100%; height: 100%; object-fit: cover; }
@@ -33,7 +33,6 @@
             border: 4px solid white; background: #eee; transition: 0.3s;
         }
         
-        /* Hiệu ứng khung viền */
         .deco-cyan { box-shadow: 0 0 0 4px #fff, 0 0 0 8px var(--main); }
         .deco-pink { box-shadow: 0 0 0 4px #fff, 0 0 15px 5px #ff69b4; }
         .deco-gold { box-shadow: 0 0 0 4px #fff, 0 0 0 8px #f1c40f; }
@@ -41,40 +40,29 @@
         .user-details { margin-left: 20px; margin-bottom: 10px; flex: 1; }
         .user-details h1 { font-size: 32px; font-weight: 800; color: #1c1e21; }
         
-        /* Nút Chỉnh sửa dưới tên */
         .btn-edit-trigger { 
             background: #e4e6eb; color: #050505; border: none; padding: 8px 15px; 
             border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 5px; 
             display: inline-flex; align-items: center; gap: 5px; transition: 0.2s;
         }
-        .btn-edit-trigger:hover { background: #d8dadf; }
 
-        /* Modal Chỉnh sửa (Popup) */
-        .modal { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(255,255,255,0.8); z-index: 3000; 
-            display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
-        }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal.show { display: flex; }
-        .modal-content { 
-            background: white; width: 95%; max-width: 500px; padding: 25px; 
-            border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); 
-            position: relative; max-height: 90vh; overflow-y: auto;
-        }
+        .modal-content { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; max-height: 90vh; overflow-y: auto; }
         .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #666; }
 
-        /* Section bài viết */
         .profile-body { width: 100%; max-width: 940px; margin-top: 15px; display: grid; grid-template-columns: 360px 1fr; gap: 15px; }
         .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        .post-card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .post-img { width: 100%; border-radius: 8px; margin-top: 10px; }
+        
+        /* PHẦN SỬA LẠI: Style cho bài đăng */
+        .post-card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .post-meta { font-size: 12px; color: #65676b; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .post-text { font-size: 15px; color: #1c1e21; line-height: 1.5; margin-bottom: 10px; }
+        .post-img { width: 100%; border-radius: 8px; margin-top: 5px; border: 1px solid #f0f2f5; }
+        .post-stats { border-top: 1px solid #f0f2f5; margin-top: 12px; padding-top: 10px; display: flex; align-items: center; color: #ff4d4d; font-weight: bold; font-size: 14px; }
 
-        /* Decoration Grid */
         .deco-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
-        .deco-item { 
-            height: 50px; border: 2px solid #eee; border-radius: 8px; 
-            cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;
-        }
+        .deco-item { height: 50px; border: 2px solid #eee; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
         .deco-item.active { border-color: var(--main); background: rgba(0, 212, 255, 0.1); }
 
         input, button.btn-save { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-top: 10px; outline: none; }
@@ -122,10 +110,11 @@
             <div class="left-col">
                 <div class="card">
                     <h3 style="margin-bottom:10px;">Giới thiệu</h3>
-                    <p style="color:#65676b; font-size:14px;"><i class="fas fa-clock"></i> Đã tham gia Yeamiko Network</p>
+                    <p style="color:#65676b; font-size:14px;"><i class="fas fa-clock"></i> Thành viên Yeamiko Network</p>
                 </div>
             </div>
             <div class="right-col">
+                <h3 style="margin-bottom:15px; color:#444; font-size:16px;">Bài viết của tôi</h3>
                 <div id="my-posts">Đang tải bài viết...</div>
             </div>
         </div>
@@ -135,20 +124,16 @@
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
             <h2 style="text-align:center; margin-bottom:20px;">Chỉnh sửa hồ sơ</h2>
-            
             <div style="display:flex; gap:10px; margin-bottom:20px; justify-content: center;">
                 <button class="btn-edit-trigger" onclick="document.getElementById('f-avt').click()">Đổi Avatar</button>
                 <button class="btn-edit-trigger" onclick="document.getElementById('f-cover').click()">Đổi Ảnh bìa</button>
                 <input type="file" id="f-avt" hidden accept="image/*">
                 <input type="file" id="f-cover" hidden accept="image/*">
             </div>
-
             <label>Tên hiển thị</label>
             <input type="text" id="edit-name">
-
             <label style="display:block; margin-top:15px;">Mật khẩu mới</label>
             <input type="password" id="edit-pass" placeholder="Bỏ trống nếu không đổi">
-
             <label style="display:block; margin-top:15px;">Khung viền ảnh đại diện</label>
             <div class="deco-grid">
                 <div class="deco-item active" onclick="setDeco('none')" id="d-none">Không</div>
@@ -156,7 +141,6 @@
                 <div class="deco-item" style="color:#ff69b4" onclick="setDeco('pink')" id="d-pink">Pink</div>
                 <div class="deco-item" style="color:#f1c40f" onclick="setDeco('gold')" id="d-gold">Gold</div>
             </div>
-
             <button class="btn-save" id="btn-save-all">LƯU TẤT CẢ</button>
             <p id="stt" style="text-align:center; font-size:12px; margin-top:10px;"></p>
         </div>
@@ -185,7 +169,6 @@
             document.getElementById('sidebar').classList.toggle('open');
             document.querySelector('.sidebar-overlay').classList.toggle('show');
         };
-
         window.openModal = () => document.getElementById('editModal').classList.add('show');
         window.closeModal = () => document.getElementById('editModal').classList.remove('show');
 
@@ -200,20 +183,12 @@
             onValue(ref(db, `users/${uid}`), s => {
                 if(s.exists()){
                     const d = s.val();
-                    document.getElementById('txt-name').innerText = d.name || "User";
-                    document.getElementById('edit-name').value = d.name || "";
-                    if(d.avatar) {
-                        document.getElementById('user-avatar').src = d.avatar;
-                        tempAvt = d.avatar;
-                    }
-                    if(d.cover) {
-                        document.getElementById('user-cover').src = d.cover;
-                        tempCover = d.cover;
-                    }
-                    if(d.decoration) {
-                        selectedDeco = d.decoration;
-                        applyDeco(d.decoration);
-                    }
+                    const name = d.name || "User";
+                    document.getElementById('txt-name').innerText = name;
+                    document.getElementById('edit-name').value = name;
+                    if(d.avatar) { document.getElementById('user-avatar').src = d.avatar; tempAvt = d.avatar; }
+                    if(d.cover) { document.getElementById('user-cover').src = d.cover; tempCover = d.cover; }
+                    if(d.decoration) { selectedDeco = d.decoration; applyDeco(d.decoration); }
                 }
             });
         }
@@ -228,7 +203,6 @@
 
         window.setDeco = (n) => { selectedDeco = n; applyDeco(n); };
 
-        // Xử lý nén ảnh Base64
         async function toBase64(file, w, h) {
             return new Promise(res => {
                 const r = new FileReader(); r.readAsDataURL(file);
@@ -238,7 +212,7 @@
                         const cvs = document.createElement('canvas');
                         cvs.width = w; cvs.height = h;
                         cvs.getContext('2d').drawImage(img, 0, 0, w, h);
-                        res(cvs.toBase64 ? cvs.toBase64() : cvs.toDataURL('image/jpeg', 0.6));
+                        res(cvs.toDataURL('image/jpeg', 0.6));
                     }
                 }
             });
@@ -248,7 +222,6 @@
             tempAvt = await toBase64(e.target.files[0], 150, 150);
             document.getElementById('user-avatar').src = tempAvt;
         };
-
         document.getElementById('f-cover').onchange = async e => {
             tempCover = await toBase64(e.target.files[0], 800, 300);
             document.getElementById('user-cover').src = tempCover;
@@ -272,18 +245,36 @@
             } catch(e) { stt.innerText = "❌ Lỗi: " + e.message; }
         };
 
+        // PHẦN SỬA LẠI: Load bài viết có Ngày tháng và Tim
         function loadMyPosts(uid) {
             const q = query(ref(db, 'posts'), orderByChild('uid'), equalTo(uid));
             onValue(q, s => {
                 const list = document.getElementById('my-posts');
                 const data = s.val();
-                if(!data) { list.innerHTML = "Chưa có bài đăng."; return; }
-                list.innerHTML = Object.keys(data).sort((a,b) => data[b].time - data[a].time).map(k => `
-                    <div class="post-card">
-                        <b>${document.getElementById('txt-name').innerText}</b>
-                        <p>${data[k].text || ""}</p>
-                        ${data[k].img ? `<img src="${data[k].img}" class="post-img">` : ""}
-                    </div>`).join('');
+                if(!data) { list.innerHTML = "Chưa có bài đăng nào."; return; }
+                
+                const currentUserName = document.getElementById('txt-name').innerText;
+                
+                list.innerHTML = Object.keys(data).sort((a,b) => data[b].time - data[a].time).map(k => {
+                    const p = data[k];
+                    // Định dạng ngày tháng: 15/03/2024 lúc 08:30
+                    const postDate = new Date(p.time).toLocaleString('vi-VN', {
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+
+                    return `
+                        <div class="post-card">
+                            <div class="post-meta">
+                                <i class="far fa-clock"></i> ${postDate}
+                            </div>
+                            <div class="post-text">${p.text || ""}</div>
+                            ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
+                            <div class="post-stats">
+                                <i class="fas fa-heart"></i>&nbsp;${p.likes || 0} lượt thích
+                            </div>
+                        </div>`;
+                }).join('');
             });
         }
 
