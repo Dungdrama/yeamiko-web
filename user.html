@@ -23,14 +23,19 @@
             border: 5px solid white; background: #fff; position: relative; z-index: 1;
         }
         
-        /* Khung viền đồng bộ */
+        /* Khung viền trang trí */
         .deco-cyan { box-shadow: 0 0 0 2px #fff, 0 0 0 6px var(--main); }
         .deco-pink { box-shadow: 0 0 0 2px #fff, 0 0 15px 5px #ff69b4; }
         .deco-gold { box-shadow: 0 0 0 2px #fff, 0 0 0 6px #f1c40f; }
 
         .user-details { margin-left: 20px; margin-bottom: 15px; flex: 1; }
-        .user-details h1 { font-size: 30px; font-weight: 800; color: #1c1e21; margin-bottom: 2px; }
-        .uid-tag { font-size: 13px; color: #65676b; font-weight: 700; background: #f0f2f5; padding: 4px 10px; border-radius: 20px; display: inline-block; }
+        .user-details h1 { font-size: 30px; font-weight: 800; color: #1c1e21; margin-bottom: 5px; }
+        
+        /* Nhóm các thẻ thông tin (ID, Game, Xu) */
+        .tag-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 5px; }
+        .uid-tag { font-size: 13px; color: #65676b; font-weight: 700; background: #f0f2f5; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; }
+        .tag-mc { background: #e7f3ff; color: #1877f2; }
+        .tag-points { background: #fff9e6; color: #f1c40f; }
 
         /* --- BODY CHÍNH --- */
         .profile-body { width: 100%; max-width: 940px; margin-top: 20px; display: grid; grid-template-columns: 360px 1fr; gap: 20px; padding: 0 15px; }
@@ -79,7 +84,15 @@
             </div>
             <div class="user-details">
                 <h1 id="u-name">Đang tải tên...</h1>
-                <div class="uid-tag" id="u-id">ID: @unknown</div>
+                <div class="tag-group">
+                    <div class="uid-tag" id="u-id">ID: @unknown</div>
+                    <div class="uid-tag tag-mc" id="u-mc">
+                        <i class="fas fa-gamepad"></i> Game: Chưa liên kết
+                    </div>
+                    <div class="uid-tag tag-points" id="u-points">
+                        <i class="fas fa-coins"></i> 0 Xu
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -88,7 +101,7 @@
         <div class="left-col">
             <div class="card">
                 <h3 style="margin-bottom:15px; font-size: 18px; border-bottom: 2px solid var(--main); display: inline-block;">Thông tin</h3>
-                <p style="color:#4b4f56; font-size:14px; margin-top: 10px;"><i class="fas fa-user-shield" style="color: var(--main); width: 20px;"></i> Thành viên mạng xã hội</p>
+                <p style="color:#4b4f56; font-size:14px; margin-top: 10px;"><i class="fas fa-user-shield" style="color: var(--main); width: 20px;"></i> Thành viên Yeamiko</p>
                 <p style="color:#4b4f56; font-size:14px; margin-top: 8px;"><i class="fas fa-calendar-alt" style="color: var(--main); width: 20px;"></i> Đã xác minh tài khoản</p>
             </div>
         </div>
@@ -113,7 +126,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Lấy ID người dùng từ URL (?id=...)
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('id');
 
@@ -124,7 +136,7 @@
                 return;
             }
 
-            // 1. Tải thông tin cá nhân
+            // 1. Tải thông tin cá nhân (Tên, Avatar, Cover, Decoration) từ nhánh 'users'
             onValue(ref(db, `users/${userId}`), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -135,22 +147,36 @@
                     
                     if (data.cover) document.getElementById('u-cover').src = data.cover;
                     
-                    // Áp dụng khung viền
                     const avtImg = document.getElementById('u-avatar');
-                    avtImg.className = "user-avatar"; // Reset class
+                    avtImg.className = "user-avatar"; 
                     if (data.decoration && data.decoration !== 'none') {
                         avtImg.classList.add('deco-' + data.decoration);
                     }
                 } else {
                     document.getElementById('u-name').innerText = "Không tồn tại";
                 }
-                // Tắt loader sau khi lấy xong dữ liệu profile
+            });
+
+            // 2. Tải thông tin Game và Xu từ nhánh 'web_users'
+            onValue(ref(db, `web_users/${userId}`), (snapshot) => {
+                const webData = snapshot.val();
+                if (webData) {
+                    // Cập nhật tên Minecraft
+                    const mcName = webData.linked_mc || "Chưa liên kết";
+                    document.getElementById('u-mc').innerHTML = `<i class="fas fa-gamepad"></i> Game: ${mcName}`;
+                    
+                    // Cập nhật số dư Xu
+                    const pts = webData.points || 0;
+                    document.getElementById('u-points').innerHTML = `<i class="fas fa-coins"></i> ${pts.toLocaleString()} Xu`;
+                }
+                
+                // Tắt loader sau khi dữ liệu quan trọng đã tải xong
                 setTimeout(() => {
                     document.getElementById('loader').style.display = 'none';
                 }, 500);
             });
 
-            // 2. Tải bài viết
+            // 3. Tải bài viết của người dùng
             const postsRef = query(ref(db, 'posts'), orderByChild('uid'), equalTo(userId));
             onValue(postsRef, (snapshot) => {
                 const posts = snapshot.val();
@@ -161,7 +187,6 @@
                     return;
                 }
 
-                // Sắp xếp bài mới nhất lên đầu
                 const keys = Object.keys(posts).sort((a,b) => posts[b].time - posts[a].time);
                 container.innerHTML = keys.map(k => {
                     const p = posts[k];
