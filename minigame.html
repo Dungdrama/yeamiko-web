@@ -3,107 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeamiko MiniGames | Hub</title>
+    <title>Yeamiko High-Core Quiz</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
-        :root { --main: #00d4ff; --bg: #0f172a; --card: rgba(255, 255, 255, 0.05); --red: #ff4757; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        body { background: #0b0f19; color: white; min-height: 100vh; overflow-x: hidden; }
+        :root { --main: #00d4ff; --bg: #0b0f19; --card: rgba(255, 255, 255, 0.05); --gold: #ffd700; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: white; min-height: 100vh; }
 
-        /* THANH MENU NẰM TRÊN */
+        /* Navbar */
         .navbar { 
-            background: rgba(15, 23, 42, 0.9); 
-            backdrop-filter: blur(10px); 
-            height: 60px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 0 20px; 
-            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
-            position: sticky; top: 0; z-index: 1000;
-        }
-        .nav-links { display: flex; gap: 20px; }
-        .nav-item { 
-            color: #94a3b8; text-decoration: none; font-weight: 600; font-size: 14px; 
-            cursor: pointer; transition: 0.3s; padding: 5px 10px; border-radius: 5px;
-        }
-        .nav-item:hover, .nav-item.active { color: var(--main); background: rgba(0, 212, 255, 0.1); }
-
-        .container { max-width: 900px; margin: 30px auto; padding: 0 15px; }
-
-        /* THÔNG TIN NGƯỜI DÙNG */
-        .status-header { 
-            display: flex; justify-content: space-between; background: var(--card); 
-            padding: 15px 25px; border-radius: 15px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); 
+            height: 60px; display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 20px; border-bottom: 2px solid var(--main); position: sticky; top: 0; z-index: 100;
         }
 
-        /* KHU VỰC GAME */
-        .game-wrapper { 
-            background: var(--card); border-radius: 25px; padding: 40px; 
-            border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            min-height: 400px; position: relative;
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+
+        /* Game Board */
+        .game-card { 
+            background: var(--card); border-radius: 20px; padding: 40px; 
+            border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden;
         }
+
+        /* Timer */
+        .timer-wrap { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 30px; }
+        #timer-bar { width: 100%; height: 100%; background: var(--main); border-radius: 4px; transition: width 1s linear; }
+
+        #question { font-size: 22px; line-height: 1.4; margin-bottom: 30px; font-weight: 700; min-height: 60px; }
         
-        /* THANH THỜI GIAN */
-        .timer-box { width: 100%; height: 5px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 30px; overflow: hidden; }
-        #timer-progress { width: 100%; height: 100%; background: var(--main); transition: width 1s linear; }
-
-        /* CÂU HỎI & ĐÁP ÁN */
-        #question-text { font-size: 22px; font-weight: 600; margin-bottom: 30px; min-height: 80px; }
         .ans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .ans-btn { 
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
-            color: white; padding: 18px; border-radius: 12px; cursor: pointer; 
-            text-align: center; transition: 0.3s; font-size: 16px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); 
+            color: white; padding: 18px; border-radius: 12px; cursor: pointer; transition: 0.2s; font-size: 15px;
         }
-        .ans-btn:hover { background: var(--main); color: black; transform: translateY(-3px); font-weight: bold; }
+        .ans-btn:hover:not(:disabled) { background: var(--main); color: #000; font-weight: bold; transform: scale(1.02); }
+        .ans-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .game-over-screen { display: none; text-align: center; padding: 50px 0; }
-        .btn-retry { background: var(--main); color: black; border: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        /* Pause/Continue Overlay */
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 15, 25, 0.95); display: none;
+            flex-direction: column; align-items: center; justify-content: center; z-index: 10;
+        }
+        .overlay.active { display: flex; }
+        .btn-action { 
+            width: 200px; padding: 15px; margin: 10px; border: none; border-radius: 10px; 
+            font-weight: bold; cursor: pointer; text-transform: uppercase;
+        }
+        .btn-next { background: var(--main); color: #000; }
+        .btn-pause { background: #4b5563; color: white; }
 
-        @media (max-width: 600px) { .ans-grid { grid-template-columns: 1fr; } .navbar { font-size: 12px; } }
+        .streak-info { margin-top: 30px; font-size: 14px; color: #94a3b8; letter-spacing: 1px; }
+        #streak-num { color: var(--gold); font-size: 18px; }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <div style="font-weight: 800; color: var(--main); font-size: 18px;">YEAMIKO GAME</div>
-        <div class="nav-links">
-            <div class="nav-item active" onclick="changeGame('quiz')">ĐỐ VUI NHẬN XU</div>
-            <div class="nav-item" onclick="changeGame('memory')">LẬT HÌNH (SẮP CÓ)</div>
-            <div class="nav-item" onclick="changeGame('rank')">BẢNG XẾP HẠNG</div>
-        </div>
+        <div style="font-weight: 900; letter-spacing: 1px;">YEAMIKO <span style="color:var(--main)">PRO QUIZ</span></div>
+        <div id="user-points" style="color: var(--gold); font-weight: bold;">0 Xu</div>
     </nav>
 
     <div class="container">
-        <div class="status-header">
-            <div><i class="fas fa-coins" style="color: #ffd700;"></i> <span id="points">0</span> Xu</div>
-            <div id="limit-text" style="color: var(--main); font-weight: bold;">Lượt chơi: 0/5</div>
-        </div>
+        <div class="game-card">
+            <div id="pause-overlay" class="overlay">
+                <h2 style="margin-bottom: 20px; color: var(--main);">CÂU TRẢ LỜI CHÍNH XÁC!</h2>
+                <button class="btn-action btn-next" onclick="nextQuestion()">Tiếp tục chơi</button>
+                <button class="btn-action btn-pause" onclick="pauseGame()">Tạm dừng nghỉ</button>
+            </div>
 
-        <div class="game-wrapper" id="game-container">
-            <div id="quiz-section">
-                <div class="timer-box"><div id="timer-progress"></div></div>
-                <div id="question-text">Đang chuẩn bị câu hỏi...</div>
+            <div class="timer-wrap"><div id="timer-bar"></div></div>
+            
+            <div id="quiz-ui">
+                <p id="question">Đang tải bộ câu hỏi khó...</p>
                 <div class="ans-grid" id="ans-options"></div>
-                <div style="margin-top: 30px; font-weight: bold; color: #94a3b8;">CHUỖI THẮNG: <span id="streak" style="color: var(--main);">0</span>/5</div>
-            </div>
-
-            <div id="over-section" class="game-over-screen">
-                <h2 id="over-msg">BẠN ĐÃ HẾT LƯỢT HÔM NAY</h2>
-                <p style="margin-top: 10px; color: #94a3b8;">Vui lòng quay lại sau 24h để tiếp tục kiếm Xu.</p>
-                <button class="btn-retry" onclick="location.reload()">QUAY LẠI TRANG CHỦ</button>
+                <div class="streak-info">TIẾN TRÌNH LƯỢT CHƠI: <span id="streak-num">0</span>/5</div>
             </div>
         </div>
+        <p id="limit-msg" style="text-align: center; margin-top: 20px; color: #ef4444; font-weight: bold;"></p>
     </div>
 
 <script>
-    // --- CẤU HÌNH FIREBASE ---
     const firebaseConfig = {
         apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
         authDomain: "yeamiko-web.firebaseapp.com",
@@ -114,74 +98,69 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- KHO 100 CÂU HỎI (MẪU 30 CÂU, BẠN CỨ THÊM VÀO DƯỚI DẠNG NÀY ĐẾN 100) ---
-    const rawBank = [
-        {q: "Lệnh để dịch chuyển về nhà là gì?", a: ["/home", "/spawn", "/warp", "/tp"], c: "/home"},
-        {q: "Block nào không thể phá vỡ ở Survival?", a: ["Bedrock", "Obsidian", "Sắt", "Kim cương"], c: "Bedrock"},
-        {q: "Cần bao nhiêu kim cương để làm 1 cái Cúp?", a: ["2", "3", "4", "5"], c: "3"},
-        {q: "Tên server bạn đang chơi là gì?", a: ["Yeamiko", "Minevn", "Aiko", "Miko"], c: "Yeamiko"},
-        {q: "Mob nào sợ mèo?", a: ["Creeper", "Zombie", "Spider", "Slime"], c: "Creeper"},
-        {q: "Nether Portal làm từ gì?", a: ["Obsidian", "Gỗ", "Đá", "Sắt"], c: "Obsidian"},
-        {q: "Lệnh xem xu là gì?", a: ["/points", "/money", "/xu", "/me"], c: "/points"},
-        {q: "Con rồng End nằm ở đâu?", a: ["The End", "Nether", "Overworld", "Moon"], c: "The End"},
-        {q: "Mob nào nổ khi lại gần?", a: ["Creeper", "Enderman", "Pig", "Cow"], c: "Creeper"},
-        {q: "Vật phẩm để bay là gì?", a: ["Elytra", "Cánh", "Thảm", "Pháo"], c: "Elytra"},
-        // Bạn hãy copy thêm các câu hỏi khác vào đây...
-        {q: "Để có 100 câu, bạn chỉ cần copy dòng này và đổi nội dung...", a: ["Đúng", "Sai", "Mệt", "Nghỉ"], c: "Đúng"}
+    // --- BỘ CÂU HỎI KHÓ (MẪU 10 CÂU ĐỘ KHÓ CAO) ---
+    const hardBank = [
+        {q: "Trong Minecraft, Redstone Repeater có thể trì hoãn tín hiệu tối đa bao nhiêu tick?", a: ["2 ticks", "4 ticks", "8 ticks", "10 ticks"], c: "4 ticks"},
+        {q: "Công thức để pha thuốc 'Potion of Weakness' (không cần thuốc nền) là gì?", a: ["Mắt nhện muối", "Mắt nhện lên men", "Lệ quỷ", "Bột lửa"], c: "Mắt nhện lên men"},
+        {q: "Block nào sau đây có độ kháng nổ (Blast Resistance) cao nhất trừ Bedrock?", a: ["Khối Sắt", "Hắc diện thạch (Obsidian)", "Mỏ neo hồi sinh", "Khối Cổ vật"], c: "Hắc diện thạch (Obsidian)"},
+        {q: "Tốc độ đào của cúp Vàng so với cúp Kim Cương như thế nào?", a: ["Chậm hơn", "Bằng nhau", "Nhanh hơn", "Tùy thuộc vào tọa độ"], c: "Nhanh hơn"},
+        {q: "Để triệu hồi Wither, bạn cần bao nhiêu cát linh hồn và đầu lâu Wither?", a: ["4 cát, 3 đầu", "3 cát, 3 đầu", "4 cát, 2 đầu", "2 cát, 4 đầu"], c: "4 cát, 3 đầu"},
+        {q: "Tên của thực thể bí ẩn được đồn đại là anh trai của Steve là gì?", a: ["Entity 303", "Null", "Herobrine", "Green Steve"], c: "Herobrine"},
+        {q: "Enchantment nào giúp bạn đi trên nước đóng băng?", a: ["Depth Strider", "Frost Walker", "Aqua Affinity", "Riptide"], c: "Frost Walker"},
+        {q: "Trong chế độ Hardcore, nếu bạn chết thì điều gì xảy ra?", a: ["Mất đồ", "Hồi sinh ở Spawn", "Thế giới bị xóa/chỉ xem", "Mất 10 cấp độ"], c: "Thế giới bị xóa/chỉ xem"},
+        {q: "Mob nào có lượng máu (HP) cao nhất trong các Boss?", a: ["Ender Dragon", "Wither (Bedrock Edition)", "Warden", "Elder Guardian"], c: "Wither (Bedrock Edition)"},
+        {q: "Dân làng nghề 'Librarian' (Thủ thư) làm việc tại block nào?", a: ["Bàn rèn", "Bàn phù phép", "Bục đọc sách (Lectern)", "Bàn vẽ bản đồ"], c: "Bục đọc sách (Lectern)"}
     ];
 
     let userUID = null;
-    let playCount = 0;
     let streak = 0;
     let timeLeft = 15;
     let timer;
-    let currentQuestions = [];
+    let playCount = 0;
+    let currentPool = [];
 
     firebase.auth().onAuthStateChanged(user => {
         if(user) {
             userUID = user.uid;
-            checkDailyLimit();
-            loadPoints();
+            setupGame();
         } else { window.location.href = 'login.html'; }
     });
 
-    async function loadPoints() {
-        db.ref('web_users/' + userUID + '/points').on('value', s => {
-            document.getElementById('points').innerText = s.val() || 0;
-        });
-    }
-
-    async function checkDailyLimit() {
+    async function setupGame() {
+        // Kiểm tra giới hạn 5 lượt/ngày
         const today = new Date().toLocaleDateString('en-GB');
         const snap = await db.ref('web_users/' + userUID).get();
         const data = snap.val() || {};
+        
+        db.ref('web_users/' + userUID + '/points').on('value', s => {
+            document.getElementById('user-points').innerText = (s.val() || 0) + " Xu";
+        });
 
-        if(data.lastDate === today) {
-            playCount = data.playCount || 0;
-        } else {
+        if(data.lastDate === today) playCount = data.playCount || 0;
+        else {
             playCount = 0;
             await db.ref('web_users/' + userUID).update({ lastDate: today, playCount: 0 });
         }
-        
-        document.getElementById('limit-text').innerText = `Lượt chơi: ${playCount}/5`;
-        if(playCount >= 5) showGameOver();
-        else initQuiz();
+
+        if(playCount >= 5) {
+            document.getElementById('quiz-ui').style.opacity = "0.2";
+            document.getElementById('limit-msg').innerText = "BẠN ĐÃ HẾT 5 LƯỢT CHƠI HÔM NAY!";
+        } else {
+            startNewRound();
+        }
     }
 
-    function initQuiz() {
+    function startNewRound() {
         streak = 0;
-        // Xáo trộn 100 câu và lấy 5 câu ngẫu nhiên cho lượt này
-        currentQuestions = rawBank.sort(() => Math.random() - 0.5).slice(0, 5);
+        currentPool = hardBank.sort(() => Math.random() - 0.5).slice(0, 5);
         renderQuestion();
     }
 
     function renderQuestion() {
-        if(streak === 5) return finishGame();
-        
-        resetTimer();
-        const data = currentQuestions[streak];
-        document.getElementById('question-text').innerText = `Câu ${streak + 1}: ${data.q}`;
-        document.getElementById('streak').innerText = streak;
+        document.getElementById('pause-overlay').classList.remove('active');
+        const data = currentPool[streak];
+        document.getElementById('question').innerText = data.q;
+        document.getElementById('streak-num').innerText = streak;
         
         const options = document.getElementById('ans-options');
         options.innerHTML = "";
@@ -193,56 +172,57 @@
             btn.onclick = () => checkAnswer(ans, data.c);
             options.appendChild(btn);
         });
+        
+        startTimer();
+    }
+
+    function startTimer() {
+        clearInterval(timer);
+        timeLeft = 15;
+        updateBar();
+        timer = setInterval(() => {
+            timeLeft--;
+            updateBar();
+            if(timeLeft <= 0) {
+                clearInterval(timer);
+                alert("HẾT GIỜ! Bạn đã thất bại.");
+                startNewRound();
+            }
+        }, 1000);
+    }
+
+    function updateBar() {
+        const bar = document.getElementById('timer-bar');
+        bar.style.width = (timeLeft / 15 * 100) + "%";
+        bar.style.background = timeLeft < 5 ? "#ef4444" : "#00d4ff";
     }
 
     function checkAnswer(ans, correct) {
         clearInterval(timer);
         if(ans === correct) {
             streak++;
-            renderQuestion();
+            if(streak === 5) finishGame();
+            else document.getElementById('pause-overlay').classList.add('active'); // Hiện nút Tạm dừng/Tiếp tục
         } else {
-            alert("Sai rồi! Bạn phải chơi lại từ đầu.");
-            initQuiz();
+            alert("SAI RỒI! Đáp án đúng là: " + correct);
+            startNewRound();
         }
     }
 
-    function resetTimer() {
-        clearInterval(timer);
-        timeLeft = 15;
-        const bar = document.getElementById('timer-progress');
-        bar.style.width = "100%";
-        bar.style.background = "var(--main)";
+    function nextQuestion() {
+        renderQuestion();
+    }
 
-        timer = setInterval(() => {
-            timeLeft--;
-            const percent = (timeLeft / 15) * 100;
-            bar.style.width = percent + "%";
-            if(timeLeft < 5) bar.style.background = "var(--red)";
-
-            if(timeLeft <= 0) {
-                clearInterval(timer);
-                alert("Hết thời gian!");
-                initQuiz();
-            }
-        }, 1000);
+    function pauseGame() {
+        alert("Game đã tạm dừng. Khi nào sẵn sàng hãy nhấn F5 để tiếp tục lượt chơi này!");
     }
 
     async function finishGame() {
         playCount++;
         await db.ref('web_users/' + userUID).update({ playCount: playCount });
         await db.ref('web_users/' + userUID + '/points').transaction(p => (p || 0) + 2);
-        alert("🎉 Chúc mừng! Bạn nhận được 2 Xu.");
+        alert("CHÚC MỪNG! Bạn đã vượt qua thử thách khó và nhận 2 Xu.");
         location.reload();
-    }
-
-    function showGameOver() {
-        document.getElementById('quiz-section').style.display = 'none';
-        document.getElementById('over-section').style.display = 'block';
-    }
-
-    function changeGame(type) {
-        if(type === 'quiz') location.reload();
-        else alert("Tính năng này đang được phát triển!");
     }
 </script>
 </body>
