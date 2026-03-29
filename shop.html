@@ -12,62 +12,61 @@
     <style>
         :root { 
             --main: #00d4ff; 
-            --bg: #0f172a; 
+            --bg: #0a0a0a; 
+            --sidebar: #111; 
             --card: rgba(255, 255, 255, 0.05); 
-            --sidebar-bg: rgba(0, 0, 0, 0.6);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         
         body { 
-            background: radial-gradient(circle at top right, #1e293b, #0f172a); 
+            background: var(--bg); 
             color: white; 
-            min-height: 100vh;
-            display: flex;
-            flex-direction: row; /* Mặc định ngang cho PC */
+            min-height: 100vh; 
+            display: block; /* Tránh xung đột flex trên mobile */
+            overflow-x: hidden;
         }
 
-        /* --- SIDEBAR ĐỒNG BỘ --- */
+        /* --- MENU TOGGLE (3 GẠCH) --- */
+        .menu-toggle {
+            position: fixed; top: 20px; left: 20px; z-index: 1500;
+            background: var(--main); color: #000; width: 50px; height: 50px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; cursor: pointer; font-size: 24px;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        /* --- SIDEBAR (GIỐNG INDEX.HTML) --- */
         .sidebar { 
-            width: 260px; 
-            background: var(--sidebar-bg); 
-            backdrop-filter: blur(15px); 
-            height: 100vh; 
-            position: fixed; 
-            padding: 30px 20px; 
-            border-right: 1px solid rgba(255,255,255,0.1);
-            z-index: 2000;
-            transition: 0.3s;
+            width: 280px; background: var(--sidebar); height: 100vh; position: fixed; 
+            padding: 30px 20px; color: white; z-index: 2000;
+            left: -280px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1);
         }
-        .sidebar .logo { font-size: 28px; font-weight: 900; color: var(--main); margin-bottom: 50px; text-align: center; }
+        .sidebar.open { left: 0; }
+        .sidebar .logo { font-size: 28px; font-weight: 900; color: var(--main); margin-bottom: 50px; text-align: center; letter-spacing: 3px; }
         .sidebar a { 
-            display: flex; align-items: center; color: #94a3b8; 
-            padding: 14px 18px; text-decoration: none; border-radius: 12px; 
-            margin-bottom: 8px; transition: 0.3s; 
+            display: flex; align-items: center; color: #bbb; padding: 16px; 
+            text-decoration: none; border-radius: 12px; margin-bottom: 10px; transition: 0.3s; 
         }
-        .sidebar a.active, .sidebar a:hover { background: var(--main); color: #000; font-weight: bold; }
-        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar a i { margin-right: 15px; width: 20px; text-align: center; }
+        .sidebar a:hover, .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
 
-        /* --- NÚT MENU CHO ĐIỆN THOẠI --- */
-        .mobile-toggle {
-            display: none; /* Ẩn trên PC */
-            position: fixed; top: 15px; left: 15px; 
-            z-index: 2100; background: var(--main); color: #000;
-            width: 45px; height: 45px; border-radius: 10px;
-            align-items: center; justify-content: center; cursor: pointer;
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 1800; display: none; backdrop-filter: blur(5px);
         }
+        .sidebar-overlay.show { display: block; }
 
         /* --- MAIN CONTENT --- */
         .main-content { 
-            flex: 1; 
-            margin-left: 260px; /* Chừa chỗ cho sidebar trên PC */
-            padding: 40px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            transition: 0.3s;
+            width: 100%; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 80px 20px 40px 20px; 
+            display: flex; flex-direction: column; align-items: center; 
         }
 
-        /* --- HEADER & POINTS --- */
+        /* --- USER HEADER --- */
         .shop-header { 
             width: 100%; max-width: 900px; 
             background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
@@ -78,7 +77,7 @@
         .points-display { margin-left: auto; text-align: right; }
         .points-display span { font-size: 32px; font-weight: 900; color: #fbbf24; }
 
-        /* --- GRID VẬT PHẨM --- */
+        /* --- GRID VẬT PHẨM (TỰ CO GIÃN) --- */
         .shop-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
@@ -93,57 +92,37 @@
         .item-cost { color: #fbbf24; font-weight: 800; font-size: 20px; margin-bottom: 20px; }
         
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn { padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 13px; }
-        .btn-chill { background: #0ea5e9; color: white; }
-        .btn-smp { background: #10b981; color: white; }
+        .btn { padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 13px; color: white; }
+        .btn-chill { background: #0ea5e9; }
+        .btn-smp { background: #10b981; }
 
-        /* --- RESPONSIVE (DÀNH CHO ĐIỆN THOẠI) --- */
+        /* --- RESPONSIVE CHO MOBILE --- */
         @media (max-width: 768px) {
-            body { flex-direction: column; }
-            
-            .mobile-toggle { display: flex; } /* Hiện nút menu */
-
-            .sidebar { 
-                left: -260px; /* Ẩn sidebar sang trái */
-            }
-            .sidebar.open { left: 0; } /* Trượt ra khi bấm nút */
-
-            .main-content { 
-                margin-left: 0; /* Xóa khoảng trống sidebar */
-                padding: 20px;
-                padding-top: 80px; 
-            }
-
-            .shop-header { 
-                flex-direction: column; text-align: center; 
-                padding: 20px;
-            }
-            .points-display { margin: 0 auto; text-align: center; margin-top: 15px; }
-            
-            .shop-grid { grid-template-columns: 1fr; } /* Mỗi hàng 1 item */
+            .shop-header { flex-direction: column; text-align: center; }
+            .points-display { margin: 0 auto; text-align: center; }
+            .shop-grid { grid-template-columns: 1fr; } /* Ép 1 cột trên điện thoại */
         }
     </style>
 </head>
 <body>
 
-    <div class="mobile-toggle" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-    </div>
+    <div class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
 
     <div class="sidebar" id="sidebar">
         <div class="logo">YEAMIKO</div>
-        <a href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
-        <a href="forum.html"><i class="fas fa-comments"></i> Diễn đàn</a>
-        <a href="checkin.html"><i class="fas fa-calendar-check"></i> Điểm danh</a>
-        <a href="shop.html" class="active"><i class="fas fa-shopping-cart"></i> Cửa hàng</a>
-        <a href="profile.html"><i class="fas fa-user"></i> Hồ sơ</a>
+        <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
+        <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
+        <a href="checkin.html"><i class="fas fa-calendar-check"></i><span>Điểm danh</span></a>
+        <a href="shop.html" class="active"><i class="fas fa-shopping-cart"></i><span>Cửa hàng</span></a>
+        <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
     </div>
 
     <div class="main-content">
         <div class="shop-header">
             <img id="player-head" src="https://mc-heads.net/avatar/steve" class="mc-head">
             <div class="user-meta">
-                <h2 id="display-mc">Chưa liên kết</h2>
+                <h2 id="display-mc">Chưa liên kết Game</h2>
                 <p id="display-email" style="color: #94a3b8; font-size: 12px;"></p>
             </div>
             <div class="points-display">
@@ -187,9 +166,10 @@
         const db = firebase.database();
         let currentMC = null, currentPoints = 0;
 
-        // Hàm đóng mở sidebar trên điện thoại
-        function toggleSidebar() {
+        // Hàm toggle menu trượt
+        function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('open');
+            document.querySelector('.sidebar-overlay').classList.toggle('show');
         }
 
         firebase.auth().onAuthStateChanged(u => { 
@@ -211,14 +191,14 @@
         }
 
         async function buyItem(cost, moc, sv) {
-            if(!currentMC) return alert("Bạn cần liên kết game trước!");
+            if(!currentMC) return alert("Bạn chưa liên kết game!");
             if(currentPoints < cost) return alert("Bạn không đủ điểm!");
-            if(confirm(`Xác nhận mua cho cụm ${sv}?`)) {
+            if(confirm(`Mua gói này cho cụm ${sv}?`)) {
                 await db.ref('web_users/'+firebase.auth().currentUser.uid).update({points: currentPoints - cost});
                 let update = {}; update[`pending_${sv}`] = moc; update[`claimed_${sv}`] = false;
                 await db.ref('users_data/'+currentMC).update(update);
-                alert("Mua thành công! Hãy vào game gõ /nhanqua");
-                location.reload();
+                alert("Thành công! Vào game gõ /nhanqua");
+                loadData(firebase.auth().currentUser.uid);
             }
         }
     </script>
