@@ -51,7 +51,7 @@
         }
         .sidebar-overlay.show { display: block; }
 
-        /* --- NỘI DUNG --- */
+        /* --- CONTENT --- */
         .main-content { 
             width: 100%; max-width: 1000px; margin: 0 auto; 
             padding: 100px 20px 40px 20px;
@@ -74,7 +74,6 @@
             padding: 12px 25px; background: #fbbf24; border: none; border-radius: 10px;
             font-weight: bold; cursor: pointer; color: #000; transition: 0.2s;
         }
-        .btn-link:hover { transform: scale(1.05); filter: brightness(1.1); }
 
         .shop-header { 
             width: 100%; background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
@@ -104,7 +103,6 @@
         .btn { padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; font-size: 13px; text-transform: uppercase; }
         .btn-chill { background: #0ea5e9; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.2); }
         .btn-smp { background: #10b981; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
-        .btn:hover { filter: brightness(1.2); transform: scale(1.02); }
 
         @media (max-width: 768px) {
             .shop-header { flex-direction: column; text-align: center; }
@@ -172,12 +170,42 @@
             </div>
 
             <div class="item-card">
+                <i class="fas fa-vault item-icon" style="color:#f1c40f"></i>
+                <div style="font-weight:bold; margin-bottom:5px; font-size: 18px;">500,000 MONEY</div>
+                <div class="item-cost">150 XU</div>
+                <div class="btn-group">
+                    <button class="btn btn-chill" onclick="buyItem(150, 'moc3', 'CHILL')">Mua CHILL</button>
+                    <button class="btn btn-smp" onclick="buyItem(150, 'moc3', 'SMP')">Mua SMP</button>
+                </div>
+            </div>
+
+            <div class="item-card">
                 <i class="fas fa-pickaxe item-icon" style="color: #a855f7;"></i>
                 <div style="font-weight:bold; margin-bottom:5px; font-size: 18px; color: #a855f7;">CÚP AMETHYST</div>
                 <div class="item-cost">100 XU</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(100, 'vip_cup', 'CHILL')">Mua CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(100, 'vip_cup', 'SMP')">Mua SMP</button>
+                </div>
+            </div>
+
+            <div class="item-card">
+                <i class="fas fa-axe item-icon" style="color: #a855f7;"></i>
+                <div style="font-weight:bold; margin-bottom:5px; font-size: 18px; color: #a855f7;">RÌU AMETHYST</div>
+                <div class="item-cost">100 XU</div>
+                <div class="btn-group">
+                    <button class="btn btn-chill" onclick="buyItem(100, 'vip_riu', 'CHILL')">Mua CHILL</button>
+                    <button class="btn btn-smp" onclick="buyItem(100, 'vip_riu', 'SMP')">Mua SMP</button>
+                </div>
+            </div>
+
+            <div class="item-card">
+                <i class="fas fa-shovels item-icon" style="color: #a855f7;"></i>
+                <div style="font-weight:bold; margin-bottom:5px; font-size: 18px; color: #a855f7;">XẺNG AMETHYST</div>
+                <div class="item-cost">100 XU</div>
+                <div class="btn-group">
+                    <button class="btn btn-chill" onclick="buyItem(100, 'vip_xeng', 'CHILL')">Mua CHILL</button>
+                    <button class="btn btn-smp" onclick="buyItem(100, 'vip_xeng', 'SMP')">Mua SMP</button>
                 </div>
             </div>
         </div>
@@ -223,7 +251,6 @@
             }
         }
 
-        // --- SỬA ĐÚNG PHẦN LIÊN KẾT: QUÉT TRONG WEB_USERS ---
         async function linkGame() {
             const mcName = document.getElementById('mc-name').value.trim();
             const code = document.getElementById('link-code').value.trim();
@@ -232,22 +259,18 @@
             if (!mcName || !code) return alert("Vui lòng nhập đủ thông tin!");
 
             try {
-                // Quét trong node 'web_users/Tên_Minecraft' để tìm mã
+                // Kiểm tra mã xác thực lưu trong node của chính nhân vật Minecraft đó
                 const snapshot = await db.ref('web_users/' + mcName).once('value');
                 
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    // Kiểm tra mã link_code (hoặc nếu lưu trực tiếp thì dùng data)
+                    // So khớp mã code
                     if (String(data.link_code || data) === String(code)) {
                         await db.ref('web_users/' + user.uid).update({ linked_mc: mcName });
                         alert("🎉 Liên kết thành công!");
                         location.reload();
-                    } else {
-                        alert("❌ Mã xác nhận không đúng!");
-                    }
-                } else {
-                    alert("❌ Không tìm thấy thông tin nhân vật này!");
-                }
+                    } else { alert("❌ Mã xác nhận không đúng!"); }
+                } else { alert("❌ Không tìm thấy thông tin nhân vật này!"); }
             } catch (e) { alert("Lỗi hệ thống!"); }
         }
 
@@ -260,13 +283,12 @@
                     const user = firebase.auth().currentUser;
                     await db.ref('web_users/' + user.uid).update({ points: currentPoints - cost });
 
-                    // Gửi vào hàng đợi queue cho Plugin server đọc
                     const queuePath = 'users_data/' + currentMC + '/queue';
                     await db.ref(queuePath).push({
                         item: moc, server: sv, status: "pending", time: Date.now()
                     });
 
-                    alert("Thành công! Vào Game nhận quà.");
+                    alert("Thành công! Hãy vào Game nhận quà.");
                     loadData(user.uid);
                 } catch (e) { alert("Lỗi thanh toán!"); }
             }
