@@ -25,7 +25,7 @@
         .nav-link:hover { color: var(--main); background: rgba(0, 212, 255, 0.1); }
 
         .container { max-width: 850px; margin: 40px auto; padding: 0 20px; }
-        .game-card { background: var(--card); border-radius: 25px; padding: 45px; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; }
+        .game-card { background: var(--card); border-radius: 25px; padding: 45px; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
         
         .timer-wrap { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 35px; }
         #timer-bar { width: 100%; height: 100%; background: var(--main); border-radius: 10px; transition: width 1s linear; }
@@ -70,7 +70,7 @@
             <div id="game-content">
                 <p id="question">Đang tải...</p>
                 <div class="ans-grid" id="ans-options"></div>
-                <div class="streak-tag">Tiến trình: <span id="streak-val">0</span>/5</div>
+                <div class="streak-tag">Tiến trình lượt: <span id="streak-val">0</span>/5</div>
             </div>
         </div>
         <div id="limit-msg" style="text-align: center; margin-top: 25px; color: var(--red); font-weight: bold;"></div>
@@ -87,7 +87,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // TỔNG HỢP TOÀN BỘ CÂU HỎI (Đã sửa lỗi cú pháp)
+    // TỔNG HỢP CÂU HỎI (ĐÃ SỬA LỖI TRÙNG LẶP VÀ CÚ PHÁP)
     const ultraBank = [
         {q: "Tốc độ truyền tín hiệu của Redstone qua một khối đặc là?", a: ["0.05s", "0.1s", "Tức thì", "0.2s"], c: "Tức thì"},
         {q: "Để chế tạo một khối Netherite, bạn cần bao nhiêu thỏi?", a: ["4", "9", "8", "5"], c: "9"},
@@ -103,77 +103,22 @@
         {q: "Tên con rồng End chính thức là gì?", a: ["Ender", "Jean", "Drake", "Miko"], c: "Jean"},
         {q: "Loại gỗ nào không thể bị cháy?", a: ["Sồi", "Rừng", "Crimson", "Linh hồn"], c: "Crimson"},
         {q: "Để triệu hồi Warden, cần kích hoạt Shrieker mấy lần?", a: ["2", "3", "4", "5"], c: "4"},
-        {q: "Vật phẩm Totem of Undying rơi từ con nào?", a: ["Vindicator", "Evoker", "Pillager", "Witch"], c: "Evoker"}
-        const ultraBank = [
-        // --- CHỦ ĐỀ REDSTONE & CƠ CHẾ ---
-        {q: "Tốc độ truyền tín hiệu của Redstone qua một khối đặc là?", a: ["0.05s", "0.1s", "Tức thì", "0.2s"], c: "Tức thì"},
-        {q: "Redstone Repeater có thể trì hoãn tín hiệu tối đa bao nhiêu tick?", a: ["1", "2", "3", "4"], c: "4"},
-        {q: "Trong Redstone, 'T-Flip Flop' dùng để làm gì?", a: ["Tăng tín hiệu", "Biến nút bấm thành đòn bẩy", "Đảo mạch", "Lặp vô hạn"], c: "Biến nút bấm thành đòn bẩy"},
-        {q: "Một 'Observer' phát ra tín hiệu dài bao nhiêu tick?", a: ["1", "2", "4", "8"], c: "2"},
-        {q: "Khoảng cách tối đa tín hiệu Redstone tự nhiên truyền đi là bao nhiêu block?", a: ["12", "15", "16", "20"], c: "15"},
-        {q: "Block nào KHÔNG dẫn điện Redstone?", a: ["Khối Sắt", "Khối Đá", "Khối Thủy Tinh", "Khối Kim Cương"], c: "Khối Thủy Tinh"},
-
-        // --- CHỦ ĐỀ THÔNG SỐ & VẬT PHẨM ---
-        {q: "Độ bền của một cái Cúp Kim Cương là bao nhiêu?", a: ["1321", "1561", "2031", "2501"], c: "1561"},
-        {q: "Để chế tạo một khối Netherite, bạn cần bao nhiêu thỏi?", a: ["4", "9", "8", "5"], c: "9"},
-        {q: "1 tick trong Minecraft tương ứng với bao nhiêu giây thực tế?", a: ["0.01s", "0.05s", "0.1s", "0.2s"], c: "0.05s"},
-        {q: "Nhiên liệu nào cháy lâu nhất trong lò nung?", a: ["Khối than", "Xô dung nham", "Thanh lửa", "Khối tảo bẹ khô"], c: "Xô dung nham"},
-        {q: "Một xô dung nham có thể nung được bao nhiêu vật phẩm?", a: ["64", "80", "100", "128"], c: "100"},
-        {q: "Cần bao nhiêu kinh nghiệm (XP) để đạt level 30 từ level 0?", a: ["1000", "1395", "1500", "2000"], c: "1395"},
-        {q: "Vật phẩm nào dùng để rèn họa tiết lên giáp (Trim)?", a: ["Smithing Table", "Armor Template", "Upgrade Gear", "Netherite Scrap"], c: "Armor Template"},
-
-        // --- CHỦ ĐỀ MOB & BOSS ---
-        {q: "Lượng máu của Warden là bao nhiêu?", a: ["300", "500", "200", "600"], c: "500"},
-        {q: "Mob nào có tầm nhìn xa nhất (trên 100 block)?", a: ["Enderman", "Warden", "Ghast", "Ender Dragon"], c: "Ghast"},
-        {q: "Khi ném thuốc độc vào Zombie, điều gì xảy ra?", a: ["Mất máu", "Được hồi máu", "Chậm lại", "Hóa dân làng"], c: "Được hồi máu"},
-        {q: "Để triệu hồi Warden, cần kích hoạt Shrieker mấy lần?", a: ["2", "3", "4", "5"], c: "4"},
-        {q: "Vật phẩm Totem of Undying rơi từ con nào?", a: ["Vindicator", "Evoker", "Pillager", "Ravager"], c: "Evoker"},
-        {q: "Con vật nào có thể đổi màu khi đặt tên là 'jeb_'?", a: ["Bò", "Cừu", "Chó", "Mèo"], c: "Cừu"},
-        {q: "Tên con rồng End chính thức là gì?", a: ["Ender", "Jean", "Drake", "Miko"], c: "Jean"},
-        {q: "Mob nào không bao giờ bị trúng tên từ cung?", a: ["Enderman", "Wither", "Ghast", "Blaze"], c: "Enderman"},
-        {q: "Khi dùng kéo lên Mooshroom, nó biến thành gì?", a: ["Bò thường", "Bò nấm nâu", "Thịt bò", "Mất máu"], c: "Bò thường"},
-        {q: "Wither (bản Bedrock) có bao nhiêu máu?", a: ["300", "450", "600", "1000"], c: "600"},
-
-        // --- CHỦ ĐỀ THẾ GIỚI & CẤU TRÚC ---
-        {q: "Loại gỗ nào không thể bị cháy?", a: ["Sồi", "Rừng", "Crimson", "Tre"], c: "Crimson"},
-        {q: "Một ngày Minecraft (cả đêm) dài bao nhiêu phút thực?", a: ["10", "15", "20", "24"], c: "20"},
-        {q: "Tọa độ Y thấp nhất có thể đào đến ở bản 1.19+ là?", a: ["0", "-64", "-16", "-32"], c: "-64"},
-        {q: "Thành phố cổ (Ancient City) thường xuất hiện ở độ cao nào?", a: ["Y -51", "Y -30", "Y 0", "Y -64"], c: "Y -51"},
+        {q: "Vật phẩm Totem of Undying rơi từ con nào?", a: ["Vindicator", "Evoker", "Pillager", "Witch"], c: "Evoker"},
+        {q: "Redstone Repeater trì hoãn tín hiệu tối đa bao nhiêu tick?", a: ["1", "2", "3", "4"], c: "4"},
+        {q: "Khoảng cách tín hiệu Redstone tự nhiên truyền đi là bao nhiêu block?", a: ["12", "15", "16", "20"], c: "15"},
+        {q: "Block nào KHÔNG dẫn điện Redstone?", a: ["Sắt", "Đá", "Thủy Tinh", "Vàng"], c: "Thủy Tinh"},
+        {q: "Nhiên liệu nào cháy lâu nhất trong lò nung?", a: ["Khối than", "Xô dung nham", "Thanh lửa", "Tảo bẹ khô"], c: "Xô dung nham"},
+        {q: "Cần bao nhiêu XP để đạt level 30 từ level 0?", a: ["1000", "1395", "1500", "2000"], c: "1395"},
+        {q: "Tọa độ Y thấp nhất ở bản 1.19+ là?", a: ["0", "-64", "-16", "-32"], c: "-64"},
         {q: "Cổng End được tạo thành từ bao nhiêu khung cổng?", a: ["10", "12", "14", "16"], c: "12"},
-        {q: "Block nào Piston KHÔNG THỂ đẩy được?", a: ["Hòn đá", "Lò nung", "Rương", "Cả B và C"], c: "Cả B và C"},
-
-        // --- CÁC CÂU HỎI MỚI BỔ SUNG (CHO ĐỦ SỐ LƯỢNG) ---
         {q: "Enchant nào giúp đi nhanh dưới nước?", a: ["Depth Strider", "Frost Walker", "Aqua Affinity", "Riptide"], c: "Depth Strider"},
         {q: "Cần bao nhiêu sắt để làm một cái đe (Anvil)?", a: ["27", "31", "35", "40"], c: "31"},
-        {q: "Vật phẩm nào dùng để thuần hóa Mèo rừng (Ocelot)?", a: ["Xương", "Cá sống", "Thịt bò", "Táo vàng"], c: "Cá sống"},
-        {q: "Lệnh nào dùng để hồi phục máu nhanh?", a: ["/heal", "/effect give @p regeneration", "/set health", "/god"], c: "/effect give @p regeneration"},
-        {q: "Hệ mặt trời trong Minecraft quay theo hướng nào?", a: ["Tây sang Đông", "Đông sang Tây", "Nam sang Bắc", "Bắc sang Nam"], c: "Đông sang Tây"},
-        {q: "Block nào có thể tìm thấy trong pháo đài Nether để nấu thuốc?", a: ["Cát linh hồn", "Giàn pha thuốc", "Bướu địa ngục", "Đá dạ quang"], c: "Bướu địa ngục"},
-        {q: "Mắt nhện muối (Fermented Spider Eye) dùng để làm gì?", a: ["Pha thuốc yếu", "Ăn tăng máu", "Pha thuốc độc", "Chế tạo block"], c: "Pha thuốc yếu"},
-        {q: "Bạn có thể tìm thấy 'Elytra' ở đâu?", a: ["Thành phố End", "Pháo đài Nether", "Đền thờ sa mạc", "Stronghold"], c: "Thành phố End"},
-        {q: "Để nhuộm màu cho chó, bạn dùng vật phẩm gì lên vòng cổ?", a: ["Bột màu", "Len màu", "Nước sơn", "Hoa"], c: "Bột màu"},
-        {q: "Mob nào rơi ra 'Phantom Membrane'?", a: ["Dơi", "Phantom", "Rồng End", "Vex"], c: "Phantom"},
-        {q: "Phù phép 'Looting' chỉ áp dụng cho vũ khí nào?", a: ["Cung", "Kiếm", "Cúp", "Rìu"], c: "Kiếm"},
-        {q: "Lớp vỏ ngoài cùng của thế giới Minecraft gọi là?", a: ["Border", "Barrier", "Far Lands", "Void"], c: "Border"},
-        {q: "Trong Minecraft 1.20, mob nào được bình chọn từ Sniffer?", a: ["Rascal", "Tuff Golem", "Sniffer", "Copper Golem"], c: "Sniffer"},
-        {q: "Để lấy nước vô hạn, cần tối thiểu bao nhiêu block nước?", a: ["1", "2", "3", "4"], c: "2"},
+        {q: "Bạn có thể tìm thấy 'Elytra' ở đâu?", a: ["Thành phố End", "Nether", "Sa mạc", "Stronghold"], c: "Thành phố End"},
         {q: "Kích thước tối đa của một cổng Nether là?", a: ["10x10", "23x23", "25x25", "50x50"], c: "23x23"},
-        {q: "Lạc đà (Camel) xuất hiện ở đâu?", a: ["Sa mạc", "Thảo nguyên", "Làng sa mạc", "Rừng rậm"], c: "Làng sa mạc"},
-        {q: "Lõi của đèn hiệu (Beacon) là gì?", a: ["Ngôi sao địa ngục", "Mắt End", "Khối kim cương", "Thủy tinh"], c: "Ngôi sao địa ngục"},
-        {q: "Hiệu ứng 'Haste' giúp bạn làm gì nhanh hơn?", a: ["Chạy", "Đào block", "Hồi máu", "Đánh nhau"], c: "Đào block"},
         {q: "Tên cũ của Minecraft khi mới phát triển là?", a: ["Minegame", "Cave Game", "Block World", "BuildCraft"], c: "Cave Game"},
-        {q: "Mob nào sợ tiếng nổ của chính mình?", a: ["Creeper", "Ghast", "Wither", "Không con nào"], c: "Không con nào"},
-        {q: "Để làm 'Golden Apple', bạn cần táo và gì?", a: ["Thỏi vàng", "Hạt vàng", "Khối vàng", "Bột vàng"], c: "Thỏi vàng"},
-        {q: "Kính viễn vọng (Spyglass) chế tạo từ đồng và gì?", a: ["Thủy tinh", "Mảnh thạch anh", "Amethyst Shard", "Kim cương"], c: "Amethyst Shard"},
-        {q: "Block 'Note Block' thay đổi âm thanh dựa trên cái gì?", a: ["Dụng cụ cầm", "Block bên dưới", "Độ cao", "Thời gian"], c: "Block bên dưới"},
-        {q: "Để thuần hóa ngựa, bạn cần làm gì?", a: ["Cho ăn táo", "Cưỡi lên nó", "Dùng dây thừng", "Dùng yên cưỡi"], c: "Cưỡi lên nó"},
-        {q: "Mob nào có thể nhặt được block?", a: ["Zombie", "Enderman", "Piglin", "Skeletion"], c: "Enderman"},
-        {q: "Vật phẩm 'Nautilus Shell' dùng để chế tạo gì?", a: ["Conduit", "Beacon", "Trident", "Turtle Helmet"], c: "Conduit"},
-        {q: "Để câu cá nhanh hơn, bạn cần Enchant nào?", a: ["Lure", "Luck of the Sea", "Unbreaking", "Mending"], c: "Lure"},
-        {q: "Trứng rồng rơi ra khi nào?", a: ["Rồng chết lần đầu", "Mọi lần rồng chết", "Dùng cúp đào", "Rơi ngẫu nhiên"], c: "Rồng chết lần đầu"},
-        {q: "Lệnh '/seed' dùng để làm gì?", a: ["Trồng cây", "Xem mã thế giới", "Tạo thế giới mới", "Xóa thế giới"], c: "Xem mã thế giới"},
-        {q: "Mob 'Allay' thích vật phẩm nào nhất?", a: ["Bánh quy", "Vàng", "Vật phẩm bạn đưa", "Kim cương"], c: "Vật phẩm bạn đưa"},
-        {q: "Ếch (Frog) trong Minecraft lớn lên từ đâu?", a: ["Trứng ếch", "Nòng nọc", "Ếch con", "Bùn"], c: "Nòng nọc"}
+        {q: "Ếch (Frog) lớn lên từ đâu?", a: ["Trứng ếch", "Nòng nọc", "Ếch con", "Bùn"], c: "Nòng nọc"},
+        {q: "Lõi của đèn hiệu (Beacon) là vật phẩm gì?", a: ["Ngôi sao địa ngục", "Mắt End", "Khối kim cương", "Thủy tinh"], c: "Ngôi sao địa ngục"},
+        {q: "Mob 'Allay' thích vật phẩm nào nhất?", a: ["Bánh quy", "Vàng", "Vật phẩm bạn đưa", "Kim cương"], c: "Vật phẩm bạn đưa"}
     ];
 
     let userUID = null, streak = 0, timeLeft = 15, timer, playCount = 0, sessionQuestions = [];
