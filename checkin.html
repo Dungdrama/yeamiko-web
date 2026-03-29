@@ -1,46 +1,113 @@
-<div class="main-content">
-    <div id="auth-section" class="section">
-        <h2 class="section-title">XÁC THỰC TÀI KHOẢN</h2>
-        <input type="text" id="mc-user" placeholder="Tên Minecraft">
-        <input type="text" id="link-code" placeholder="Mã /link">
-        <button onclick="linkAccount()" class="btn-main">LIÊN KẾT NGAY</button>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Yeamiko - Điểm Danh</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        :root { --main: #00d4ff; --bg: #0a0a0a; --card: #111; }
+        body { background: var(--bg); color: white; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid #333; }
+        .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 20px 0; }
+        .day { background: #222; padding: 10px; border-radius: 8px; text-align: center; font-size: 11px; border: 1px solid #333; }
+        .day.checked { background: var(--main); color: black; font-weight: bold; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box;}
+        button { width: 100%; padding: 12px; background: var(--main); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .info { margin-bottom: 20px; padding: 10px; background: rgba(0,212,255,0.1); border-radius: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="auth-box">
+        <h2>Xác thực Yeamiko</h2>
+        <p>Vào game gõ <b>/link</b> để lấy mã xác thực</p>
+        <input type="text" id="mc-user" placeholder="Tên Minecraft (Ví dụ: DungMC)">
+        <input type="text" id="link-code" placeholder="Mã xác thực (6 số)">
+        <button onclick="linkAccount()">LIÊN KẾT TÀI KHOẢN</button>
     </div>
 
-    <div id="checkin-section" class="section" style="display:none;">
-        <h2 class="section-title">ĐIỂM DANH TÍCH LŨY (30 NGÀY)</h2>
-        <div id="points-display">Điểm của bạn: <span id="user-pts">0</span></div>
-        <div class="checkin-grid" id="grid30"></div>
-        <button onclick="doCheckin()" class="btn-main">ĐIỂM DANH (+2 ĐIỂM)</button>
+    <div id="checkin-box" style="display:none;">
+        <div class="info">
+            Chào <b id="display-name"></b> | Điểm tích lũy: <b id="display-pts" style="color:var(--main)">0</b>
+        </div>
+        <h3>Bảng điểm danh 30 ngày</h3>
+        <div class="grid" id="grid30"></div>
+        <button id="btn-do-checkin" onclick="doCheckin()">ĐIỂM DANH (+2 ĐIỂM)</button>
     </div>
 </div>
 
 <script>
-// --- Cấu hình Firebase giữ nguyên như bạn đã gửi ---
-async function linkAccount() {
-    const user = document.getElementById('mc-user').value;
-    const code = document.getElementById('link-code').value;
-    const snap = await database.ref('linking/' + user).once('value');
-    if(snap.val() && snap.val().code == code) {
-        localStorage.setItem('verifiedUser', user);
-        alert('Liên kết thành công!');
-        showCheckin();
-    } else { alert('Sai mã xác thực!'); }
-}
+    const firebaseConfig = {
+        apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
+        authDomain: "yeamiko-web.firebaseapp.com",
+        databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "yeamiko-web",
+        storageBucket: "yeamiko-web.firebasestorage.app",
+        messagingSenderId: "380442978172",
+        appId: "1:380442978172:web:52eeb187628ed3518266f9"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-async function doCheckin() {
-    const user = localStorage.getItem('verifiedUser');
-    const ref = database.ref('users/' + user);
-    const snap = await ref.once('value');
-    let d = snap.val() || {points:0, count:0, last:""};
-    
-    if(d.last === new Date().toLocaleDateString()) return alert('Hôm nay rồi!');
-    
-    let nextCount = (d.count >= 30) ? 1 : d.count + 1;
-    await ref.update({
-        points: d.points + 2,
-        count: nextCount,
-        last: new Date().toLocaleDateString()
-    });
-    alert('Thành công!');
-}
+    // Kiểm tra nếu đã liên kết từ trước
+    const savedUser = localStorage.getItem('verifiedUser');
+    if(savedUser) showCheckin(savedUser);
+
+    async function linkAccount() {
+        const user = document.getElementById('mc-user').value.trim();
+        const code = document.getElementById('link-code').value.trim();
+        if(!user || !code) return alert("Vui lòng nhập đủ thông tin!");
+
+        const snap = await database.ref('linking/' + user).once('value');
+        if(snap.exists() && snap.val().code == code) {
+            localStorage.setItem('verifiedUser', user);
+            alert("Liên kết thành công!");
+            showCheckin(user);
+        } else {
+            alert("Mã xác thực không đúng hoặc không tồn tại!");
+        }
+    }
+
+    async function showCheckin(user) {
+        document.getElementById('auth-box').style.display = 'none';
+        document.getElementById('checkin-box').style.display = 'block';
+        document.getElementById('display-name').innerText = user;
+        
+        const snap = await database.ref('users/' + user).once('value');
+        const d = snap.val() || {points: 0, count: 0};
+        document.getElementById('display-pts').innerText = d.points;
+
+        // Vẽ bảng 30 ngày
+        const grid = document.getElementById('grid30');
+        grid.innerHTML = "";
+        for(let i=1; i<=30; i++) {
+            const div = document.createElement('div');
+            div.className = i <= d.count ? 'day checked' : 'day';
+            div.innerText = "Ngày " + i;
+            grid.appendChild(div);
+        }
+    }
+
+    async function doCheckin() {
+        const user = localStorage.getItem('verifiedUser');
+        const ref = database.ref('users/' + user);
+        const snap = await ref.once('value');
+        const d = snap.val() || {points: 0, count: 0, last: ""};
+
+        const today = new Date().toLocaleDateString();
+        if(d.last === today) return alert("Hôm nay bạn đã điểm danh rồi!");
+
+        let nextCount = (d.count >= 30) ? 1 : d.count + 1;
+        await ref.update({
+            points: (d.points || 0) + 2,
+            count: nextCount,
+            last: today
+        });
+        alert("Điểm danh thành công! +2 điểm.");
+        showCheckin(user);
+    }
 </script>
+</body>
+</html>
