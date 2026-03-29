@@ -43,19 +43,49 @@
         .streak-tag { margin-top: 35px; font-weight: bold; color: #94a3b8; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
         #streak-val { color: var(--main); font-size: 20px; }
         #limit-msg { text-align: center; margin-top: 25px; color: var(--red); font-weight: bold; line-height: 1.6; }
-
         @media (max-width: 650px) { .ans-grid { grid-template-columns: 1fr; } }
+        .back-to-menu {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: var(--main);
+            color: #000;
+            padding: 12px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+            transition: 0.3s;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-to-menu:hover {
+            transform: scale(1.05);
+            background: white;
+        }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <div class="nav-brand" onclick="location.reload()">YEAMIKO <span style="color:var(--main)">ULTRA</span></div>
+        <div class="nav-brand" onclick="window.location.href='index.html'">
+            YEAMIKO <span style="color:var(--main)">ULTRA</span>
+        </div>
         <div class="nav-menu">
             <div id="display-limit" style="color: #94a3b8; font-size: 14px; font-weight: bold;">Lượt: 0/5</div>
         </div>
         <div id="user-points" style="color: var(--gold); font-weight: bold;">0 Xu</div>
     </nav>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-link"><i class="fas fa-home"></i> TRANG CHỦ</a>
+    
+            <div class="nav-link" onclick="alert('Đúng liên tiếp 5 câu để nhận 2 Xu! Giới hạn 5 lượt thắng/24h.')">HƯỚNG DẪN</div>
+            <div id="display-limit" style="color: #94a3b8; font-size: 14px; font-weight: bold;">Lượt: 0/5</div>
+    </div>
 
     <div class="container">
         <div class="game-card">
@@ -75,7 +105,9 @@
         </div>
         <div id="limit-msg"></div>
     </div>
-
+        <a href="index.html" class="back-to-menu">
+        <i class="fas fa-arrow-left"></i> Quay lại Menu
+    </a>
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
