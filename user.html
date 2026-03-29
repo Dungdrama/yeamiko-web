@@ -4,60 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ sơ người dùng | Yeamiko</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --main: #00d4ff; --bg: #f4f7f6; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        
-        .user-card { 
-            background: white; width: 90%; max-width: 400px; 
-            padding: 40px 20px; border-radius: 25px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            text-align: center; position: relative;
-        }
-        .u-avt { 
-            width: 130px; height: 130px; border-radius: 50%; 
-            border: 5px solid var(--main); object-fit: cover;
-            margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,212,255,0.3);
-        }
-        h2 { color: #333; font-size: 24px; margin-bottom: 5px; }
-        .uid-tag { 
-            display: inline-block; background: #eee; padding: 4px 12px; 
-            border-radius: 15px; font-size: 13px; color: #777; margin-bottom: 20px;
-        }
-        .bio { color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-        .back-btn { 
-            display: block; text-decoration: none; color: var(--main); 
-            font-weight: bold; margin-top: 20px; transition: 0.3s;
-        }
-        .back-btn:hover { opacity: 0.7; }
-        
-        #loader {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; border-radius: 25px; display: flex;
-            justify-content: center; align-items: center; z-index: 10;
-        }
+        .user-card { background: white; width: 90%; max-width: 400px; padding: 40px 20px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; position: relative; }
+        .u-avt { width: 130px; height: 130px; border-radius: 50%; border: 5px solid var(--main); object-fit: cover; margin-bottom: 20px; }
+        h2 { color: #333; margin-bottom: 5px; }
+        .uid-tag { display: inline-block; background: #eee; padding: 4px 12px; border-radius: 15px; font-size: 12px; color: #777; margin-bottom: 20px; }
+        .back-btn { display: block; text-decoration: none; color: var(--main); font-weight: bold; margin-top: 20px; }
+        #loader { position: absolute; top:0; left:0; width:100%; height:100%; background:white; display:flex; justify-content:center; align-items:center; border-radius:25px; z-index:10; }
     </style>
 </head>
 <body>
 
     <div class="user-card">
-        <div id="loader"><p> đang tải hồ sơ...</p></div>
-
+        <div id="loader"><b>Đang kết nối Yeamiko...</b></div>
         <img id="u-avatar" class="u-avt" src="https://ui-avatars.com/api/?name=User">
         <h2 id="u-name">Đang tải...</h2>
-        <div class="uid-tag" id="u-id">@uid</div>
-        
-        <p class="bio">Chào mừng bạn đến với trang cá nhân của tôi trên Yeamiko Network!</p>
-
+        <div class="uid-tag" id="u-id">@loading</div>
+        <p style="color: #666; font-size: 14px;">Thành viên chính thức của hệ thống Yeamiko Network.</p>
         <a href="forum.html" class="back-btn"><i class="fas fa-arrow-left"></i> Quay lại diễn đàn</a>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
+    <script>
         // Cấu hình Firebase của Dũng
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
@@ -67,44 +40,38 @@
             appId: "1:380442978172:web:52eeb187628ed3518266f9"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // Hàm lấy dữ liệu
-        async function fetchUser() {
-            const params = new URLSearchParams(window.location.search);
-            const userId = params.get('id');
-
-            if (!userId) {
-                document.getElementById('u-name').innerText = "Không tìm thấy ID";
-                document.getElementById('loader').style.display = 'none';
-                return;
-            }
-
-            try {
-                const userRef = ref(db, 'users/' + userId);
-                const snapshot = await get(userRef);
-                
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    document.getElementById('u-name').innerText = data.name || "Thành viên Yeamiko";
-                    document.getElementById('u-avatar').src = data.avatar || `https://ui-avatars.com/api/?name=${data.name || 'User'}`;
-                    document.getElementById('u-id').innerText = "@" + userId.substring(0, 8);
-                } else {
-                    // Nếu chưa có trong database nhánh users/ thì lấy tạm tên mặc định
-                    document.getElementById('u-name').innerText = "Thành viên mới";
-                    document.getElementById('u-id').innerText = "@" + userId.substring(0, 8);
-                }
-            } catch (error) {
-                console.error("Lỗi:", error);
-                document.getElementById('u-name').innerText = "Lỗi kết nối database";
-            } finally {
-                // Tải xong thì ẩn loader
-                document.getElementById('loader').style.display = 'none';
-            }
+        // Khởi tạo Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
+        const db = firebase.database();
 
-        fetchUser();
+        // Lấy ID từ URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+
+        if (userId) {
+            db.ref('users/' + userId).once('value')
+                .then((snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        document.getElementById('u-name').innerText = data.name || "Thành viên";
+                        document.getElementById('u-avatar').src = data.avatar || `https://ui-avatars.com/api/?name=${data.name}`;
+                    } else {
+                        document.getElementById('u-name').innerText = "Người dùng mới";
+                    }
+                    document.getElementById('u-id').innerText = "@" + userId.substring(0, 8);
+                })
+                .catch((error) => {
+                    console.error(error);
+                    document.getElementById('u-name').innerText = "Lỗi kết nối Database";
+                })
+                .finally(() => {
+                    document.getElementById('loader').style.display = 'none';
+                });
+        } else {
+            window.location.href = 'forum.html';
+        }
     </script>
 </body>
 </html>
