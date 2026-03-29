@@ -29,7 +29,7 @@
         }
 
         .sidebar { 
-            width: 260px; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); 
+            width: 260px; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px); 
             height: 100vh; position: fixed; padding: 30px 20px; z-index: 2000;
             left: -260px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1);
@@ -49,11 +49,25 @@
         }
         .sidebar-overlay.show { display: block; }
 
-        /* --- NỘI DUNG --- */
+        /* --- NỘI DUNG CHÍNH --- */
         .main-content { 
             width: 100%; max-width: 1200px; margin: 0 auto; 
             padding: 80px 20px 40px 20px;
             display: flex; flex-direction: column; align-items: center;
+        }
+
+        /* PHẦN LIÊN KẾT TÀI KHOẢN (ĐÃ KHÔI PHỤC) */
+        .link-section {
+            width: 100%; max-width: 900px; background: rgba(251, 191, 36, 0.1);
+            border: 1px solid #fbbf24; border-radius: 20px; padding: 20px;
+            margin-bottom: 25px; text-align: center; display: none;
+        }
+        .link-section input {
+            padding: 10px; border-radius: 8px; border: none; margin: 5px; width: 150px;
+        }
+        .btn-link {
+            padding: 10px 20px; background: #fbbf24; border: none; border-radius: 8px;
+            font-weight: bold; cursor: pointer; color: #000;
         }
 
         .shop-header { 
@@ -64,7 +78,7 @@
         .points-display { margin-left: auto; text-align: right; }
         .points-display span { font-size: 32px; font-weight: 900; color: #fbbf24; }
 
-        /* FIX HIỂN THỊ ĐIỆN THOẠI */
+        /* GRID GÓI VẬT PHẨM */
         .shop-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
@@ -88,6 +102,7 @@
             .shop-header { flex-direction: column; text-align: center; }
             .points-display { margin: 15px auto 0 auto; text-align: center; }
             .shop-grid { grid-template-columns: 1fr; }
+            .link-section input { width: 80%; }
         }
     </style>
 </head>
@@ -106,6 +121,13 @@
     </div>
 
     <div class="main-content">
+        <div id="link-section" class="link-section">
+            <h3 style="margin-bottom: 10px;"><i class="fas fa-link"></i> Liên kết tài khoản Game</h3>
+            <input type="text" id="mc-name" placeholder="Tên Minecraft">
+            <input type="text" id="link-code" placeholder="Mã /link">
+            <button class="btn-link" onclick="linkGame()">XÁC NHẬN</button>
+        </div>
+
         <div class="shop-header">
             <img id="player-head" src="https://mc-heads.net/avatar/steve" class="mc-head">
             <div class="user-meta">
@@ -113,7 +135,7 @@
                 <p id="display-email" style="color: #94a3b8; font-size: 12px;"></p>
             </div>
             <div class="points-display">
-                <p style="font-size: 12px; color: #94a3b8;">XU HIỆN CÓ</p>
+                <p style="font-size: 12px; color: #94a3b8;">ĐIỂM HIỆN CÓ</p>
                 <span id="display-pts">0</span>
             </div>
         </div>
@@ -121,61 +143,56 @@
         <div class="shop-grid">
             <div class="item-card">
                 <i class="fas fa-coins item-icon"></i>
-                <div style="font-weight:bold; margin-bottom:5px">50,000 money</div>
-                <div class="item-cost">20 Xu</div>
+                <div style="font-weight:bold; margin-bottom:5px">50,000 Xu</div>
+                <div class="item-cost">20 Điểm</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(20, 'moc1', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(20, 'moc1', 'SMP')">SMP</button>
                 </div>
             </div>
-
             <div class="item-card">
                 <i class="fas fa-money-bill-wave item-icon" style="color:#2ecc71"></i>
-                <div style="font-weight:bold; margin-bottom:5px">150,000 money</div>
-                <div class="item-cost">50 Xu</div>
+                <div style="font-weight:bold; margin-bottom:5px">150,000 Xu</div>
+                <div class="item-cost">50 Điểm</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(50, 'moc2', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(50, 'moc2', 'SMP')">SMP</button>
                 </div>
             </div>
-
             <div class="item-card">
                 <i class="fas fa-vault item-icon" style="color:#f1c40f"></i>
-                <div style="font-weight:bold; margin-bottom:5px">500,000 money</div>
-                <div class="item-cost">150 Xu</div>
+                <div style="font-weight:bold; margin-bottom:5px">500,000 Xu</div>
+                <div class="item-cost">150 Điểm</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(150, 'moc3', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(150, 'moc3', 'SMP')">SMP</button>
                 </div>
             </div>
-
             <div class="item-card">
                 <i class="fas fa-pickaxe item-icon" style="color: #a855f7;"></i>
-                <div style="font-weight:bold; margin-bottom:5px; color: #a855f7;">Cúp Ametyst</div>
-                <div class="item-cost">100 Xu</div>
+                <div style="font-weight:bold; margin-bottom:5px">Cúp Ametyst</div>
+                <div class="item-cost">100 Điểm</div>
                 <div class="btn-group">
-                    <button class="btn btn-chill" onclick="buyItem(100, 'vip_cup', 'CHILL')">CHILL</button>
-                    <button class="btn btn-smp" onclick="buyItem(100, 'vip_cup', 'SMP')">SMP</button>
+                    <button class="btn btn-chill" onclick="buyItem(100, 'vip_cup_ametyst', 'CHILL')">CHILL</button>
+                    <button class="btn btn-smp" onclick="buyItem(100, 'vip_cup_ametyst', 'SMP')">SMP</button>
                 </div>
             </div>
-
             <div class="item-card">
                 <i class="fas fa-axe item-icon" style="color: #a855f7;"></i>
-                <div style="font-weight:bold; margin-bottom:5px; color: #a855f7;">Rìu Ametyst</div>
-                <div class="item-cost">100 Xu</div>
+                <div style="font-weight:bold; margin-bottom:5px">Rìu Ametyst</div>
+                <div class="item-cost">100 Điểm</div>
                 <div class="btn-group">
-                    <button class="btn btn-chill" onclick="buyItem(100, 'vip_riu', 'CHILL')">CHILL</button>
-                    <button class="btn btn-smp" onclick="buyItem(100, 'vip_riu', 'SMP')">SMP</button>
+                    <button class="btn btn-chill" onclick="buyItem(100, 'vip_riu_ametyst', 'CHILL')">CHILL</button>
+                    <button class="btn btn-smp" onclick="buyItem(100, 'vip_riu_ametyst', 'SMP')">SMP</button>
                 </div>
             </div>
-
             <div class="item-card">
                 <i class="fas fa-shovels item-icon" style="color: #a855f7;"></i>
-                <div style="font-weight:bold; margin-bottom:5px; color: #a855f7;">Xẻng Ametyst</div>
-                <div class="item-cost">100 Xu</div>
+                <div style="font-weight:bold; margin-bottom:5px">Xẻng Ametyst</div>
+                <div class="item-cost">100 Điểm</div>
                 <div class="btn-group">
-                    <button class="btn btn-chill" onclick="buyItem(100, 'vip_xeng', 'CHILL')">CHILL</button>
-                    <button class="btn btn-smp" onclick="buyItem(100, 'vip_xeng', 'SMP')">SMP</button>
+                    <button class="btn btn-chill" onclick="buyItem(100, 'vip_xeng_ametyst', 'CHILL')">CHILL</button>
+                    <button class="btn btn-smp" onclick="buyItem(100, 'vip_xeng_ametyst', 'SMP')">SMP</button>
                 </div>
             </div>
         </div>
@@ -213,15 +230,36 @@
             if(currentMC) {
                 document.getElementById('display-mc').innerText = currentMC;
                 document.getElementById('player-head').src = `https://mc-heads.net/avatar/${currentMC}`;
+                document.getElementById('link-section').style.display = 'none';
+            } else {
+                document.getElementById('display-mc').innerText = "Chưa liên kết";
+                document.getElementById('link-section').style.display = 'block';
+            }
+        }
+
+        async function linkGame() {
+            const name = document.getElementById('mc-name').value;
+            const code = document.getElementById('link-code').value;
+            if(!name || !code) return alert("Vui lòng nhập đủ thông tin!");
+            
+            const s = await db.ref('linking/'+name).once('value');
+            if(s.exists() && s.val().code == code) {
+                await db.ref('web_users/'+firebase.auth().currentUser.uid).update({linked_mc: name});
+                alert("Liên kết thành công!");
+                location.reload();
+            } else {
+                alert("Sai mã hoặc tên nhân vật!");
             }
         }
 
         async function buyItem(cost, moc, sv) {
             if(!currentMC) return alert("Bạn chưa liên kết Game!");
-            if(currentPoints < cost) return alert("Không đủ Xu!");
+            if(currentPoints < cost) return alert("Không đủ điểm!");
             if(confirm(`Mua gói này cho cụm ${sv}?`)) {
                 await db.ref('web_users/'+firebase.auth().currentUser.uid).update({points: currentPoints - cost});
-                let update = {}; update[`pending_${sv}`] = moc; update[`claimed_${sv}`] = false;
+                let update = {}; 
+                update[`pending_${sv}`] = moc; 
+                update[`claimed_${sv}`] = false;
                 await db.ref('users_data/'+currentMC).update(update);
                 alert("Thành công! Vào game gõ /nhanqua");
                 loadData(firebase.auth().currentUser.uid);
