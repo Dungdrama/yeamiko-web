@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cửa Hàng | Yeamiko Network</title>
+    <title>Yeamiko Premium Shop</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -11,143 +11,161 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
-        :root { --main: #00d4ff; --bg: #f4f7f6; --sidebar-dark: #111; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); display: flex; min-height: 100vh; overflow-x: hidden; }
+        :root { --main: #00d4ff; --pink: #ff85a1; --bg: #0f172a; --card: rgba(255, 255, 255, 0.05); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        
+        body { 
+            background: radial-gradient(circle at top right, #1e293b, #0f172a); 
+            color: white; display: flex; min-height: 100vh; 
+        }
 
-        /* Sidebar - Đồng bộ 100% với forum/checkin */
-        .menu-toggle { position: fixed; top: 20px; left: 20px; z-index: 1500; background: var(--main); color: #000; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 10px; cursor: pointer; }
-        .sidebar { width: 250px; background: var(--sidebar-dark); height: 100vh; position: fixed; padding: 25px; color: white; z-index: 2000; left: -250px; transition: 0.4s; }
-        .sidebar.open { left: 0; }
-        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; }
-        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
-        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
-        .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
-        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1800; display: none; backdrop-filter: blur(3px); }
-        .sidebar-overlay.show { display: block; }
+        /* Sidebar - Đồng bộ phong cách tối */
+        .sidebar { 
+            width: 260px; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px);
+            height: 100vh; position: fixed; padding: 30px 20px; z-index: 2000;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar .logo { font-size: 28px; font-weight: 900; color: var(--main); margin-bottom: 50px; text-shadow: 0 0 20px rgba(0,212,255,0.5); }
+        .sidebar a { display: flex; align-items: center; color: #94a3b8; padding: 14px 18px; text-decoration: none; border-radius: 12px; margin-bottom: 10px; transition: 0.3s; }
+        .sidebar a i { margin-right: 15px; }
+        .sidebar a:hover, .sidebar a.active { background: var(--main); color: #000; font-weight: bold; transform: translateX(5px); }
 
         /* Main Content */
-        .main-content { flex: 1; padding: 80px 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
-        .shop-container { width: 100%; max-width: 800px; }
-
-        /* User Info Card */
-        .user-status { background: white; padding: 20px; border-radius: 20px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .points-box { font-size: 22px; font-weight: 900; color: var(--main); }
-        .linked-box { font-size: 14px; color: #666; background: #eee; padding: 5px 15px; border-radius: 20px; }
+        .main-content { flex: 1; margin-left: 260px; padding: 40px; display: flex; flex-direction: column; align-items: center; }
+        
+        /* Header Info */
+        .shop-header {
+            width: 100%; max-width: 900px; background: var(--card); 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
+            padding: 25px; display: flex; align-items: center; gap: 20px; margin-bottom: 40px;
+        }
+        .mc-head { width: 64px; height: 64px; border-radius: 12px; box-shadow: 0 0 20px var(--main); }
+        .user-meta h2 { font-size: 24px; color: var(--main); }
+        .points-display { margin-left: auto; text-align: right; }
+        .points-display span { font-size: 32px; font-weight: 900; color: #fbbf24; }
 
         /* Shop Grid */
-        .shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .item-card { background: white; padding: 25px; border-radius: 20px; border: 1px solid #eee; text-align: center; transition: 0.3s; }
-        .item-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
-        .item-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
-        .item-price { font-size: 24px; font-weight: 900; color: #ffaa00; margin-bottom: 20px; }
+        .shop-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 25px; width: 100%; max-width: 900px; 
+        }
+        .item-card {
+            background: var(--card); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px; padding: 30px; text-align: center;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; overflow: hidden;
+        }
+        .item-card:hover { transform: translateY(-10px); border-color: var(--main); background: rgba(255,255,255,0.08); }
         
-        .btn-group { display: flex; gap: 10px; }
-        .btn-buy { flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; color: #000; }
-        .btn-chill { background: #ffaa00; }
-        .btn-smp { background: #00ff88; }
-        .btn-buy:hover { opacity: 0.8; }
+        .item-icon { font-size: 40px; margin-bottom: 15px; display: block; color: var(--main); }
+        .item-name { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: #f1f5f9; }
+        .item-cost { color: #fbbf24; font-weight: 800; font-size: 20px; margin-bottom: 25px; }
+
+        /* Nút mua phong cách Minecraft */
+        .buy-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn {
+            padding: 12px 5px; border: none; border-radius: 12px; font-weight: bold;
+            cursor: pointer; font-size: 13px; transition: 0.2s;
+        }
+        .btn-chill { background: #0ea5e9; color: white; }
+        .btn-smp { background: #10b981; color: white; }
+        .btn:hover { filter: brightness(1.2); transform: scale(1.05); }
 
         /* Link Box */
-        .link-modal { background: #fff; padding: 25px; border-radius: 20px; margin-bottom: 25px; border: 2px dashed var(--main); }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; outline: none; }
+        .link-box {
+            background: linear-gradient(45deg, #1e293b, #334155);
+            padding: 30px; border-radius: 24px; width: 100%; max-width: 450px;
+            text-align: center; border: 2px solid var(--main); margin-bottom: 30px;
+        }
+        input { 
+            width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; 
+            background: rgba(0,0,0,0.3); border: 1px solid #475569; color: white; outline: none;
+        }
     </style>
 </head>
 <body>
 
-    <div class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
-    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
-
-    <div class="sidebar" id="sidebar">
+    <div class="sidebar">
         <div class="logo">YEAMIKO</div>
-        <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
-        <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
-        <a href="checkin.html"><i class="fas fa-calendar-check"></i><span>Điểm danh</span></a>
-        <a href="shop.html" class="active"><i class="fas fa-shopping-cart"></i><span>Cửa hàng</span></a>
-        <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
+        <a href="forum.html"><i class="fas fa-comments"></i> Diễn đàn</a>
+        <a href="checkin.html"><i class="fas fa-calendar-check"></i> Điểm danh</a>
+        <a href="shop.html" class="active"><i class="fas fa-shopping-cart"></i> Cửa hàng</a>
+        <a href="profile.html"><i class="fas fa-user"></i> Hồ sơ</a>
     </div>
 
     <div class="main-content">
-        <div class="shop-container">
-            <div class="user-status">
-                <div class="points-box"><i class="fas fa-coins"></i> <span id="display-pts">0</span></div>
-                <div id="display-mc" class="linked-box">Chưa liên kết Game</div>
+        <div class="shop-header">
+            <img id="player-head" src="https://mc-heads.net/avatar/steve" class="mc-head">
+            <div class="user-meta">
+                <h2 id="display-mc">Chưa liên kết Game</h2>
+                <p style="color: #94a3b8; font-size: 14px;">Tài khoản Yeamiko Network</p>
+            </div>
+            <div class="points-display">
+                <p style="font-size: 12px; color: #94a3b8;">SỐ DƯ ĐIỂM</p>
+                <span id="display-pts">0</span>
+            </div>
+        </div>
+
+        <div id="link-section" class="link-box" style="display: none;">
+            <h3>🔗 LIÊN KẾT MINECRAFT</h3>
+            <p style="font-size: 13px; color: #cbd5e1; margin: 10px 0;">Vào game gõ <b>/link</b> để nhận mã xác thực</p>
+            <input type="text" id="mc-name" placeholder="Tên nhân vật In-game">
+            <input type="text" id="link-code" placeholder="Mã xác thực (6 số)">
+            <button onclick="linkGame()" class="btn btn-smp" style="width: 100%; padding: 15px; font-size: 16px;">XÁC NHẬN LIÊN KẾT</button>
+        </div>
+
+        <div class="shop-grid">
+            <div class="item-card">
+                <i class="fas fa-sack-dollar item-icon"></i>
+                <div class="item-name">Gói 50,000 Money</div>
+                <div class="item-cost">20 Điểm</div>
+                <div class="buy-btns">
+                    <button class="btn btn-chill" onclick="buyItem(20, 'moc1', 'CHILL')">Cụm CHILL</button>
+                    <button class="btn btn-smp" onclick="buyItem(20, 'moc1', 'SMP')">Cụm SMP</button>
+                </div>
             </div>
 
-            <div id="link-section" class="link-modal" style="display: none;">
-                <h3 style="margin-bottom: 10px;">🔓 Liên kết nhân vật Minecraft</h3>
-                <p style="font-size: 13px; color: #777;">Vào game gõ <b>/link</b> để lấy mã 6 số.</p>
-                <input type="text" id="mc-name" placeholder="Tên nhân vật (VD: DungMC)">
-                <input type="text" id="link-code" placeholder="Mã xác thực (6 số)">
-                <button onclick="linkGame()" class="btn-buy" style="background: var(--main); width: 100%;">LIÊN KẾT NGAY</button>
+            <div class="item-card">
+                <i class="fas fa-gem item-icon" style="color: #ff85a1;"></i>
+                <div class="item-name">Gói 150,000 Money</div>
+                <div class="item-cost">50 Điểm</div>
+                <div class="buy-btns">
+                    <button class="btn btn-chill" onclick="buyItem(50, 'moc2', 'CHILL')">Cụm CHILL</button>
+                    <button class="btn btn-smp" onclick="buyItem(50, 'moc2', 'SMP')">Cụm SMP</button>
+                </div>
             </div>
 
-            <div class="shop-grid">
-                <div class="item-card">
-                    <div class="item-title">Mốc 1: 50,000 Money</div>
-                    <div class="item-price">20 Điểm</div>
-                    <div class="btn-group">
-                        <button class="btn-buy btn-chill" onclick="buyItem(20, 'moc1', 'CHILL')">Mua cụm CHILL</button>
-                        <button class="btn-buy btn-smp" onclick="buyItem(20, 'moc1', 'SMP')">Mua cụm SMP</button>
-                    </div>
-                </div>
-
-                <div class="item-card">
-                    <div class="item-title">Mốc 2: 100,000 Money</div>
-                    <div class="item-price">40 Điểm</div>
-                    <div class="btn-group">
-                        <button class="btn-buy btn-chill" onclick="buyItem(40, 'moc2', 'CHILL')">Mua cụm CHILL</button>
-                        <button class="btn-buy btn-smp" onclick="buyItem(40, 'moc2', 'SMP')">Mua cụm SMP</button>
-                    </div>
-                </div>
-
-                <div class="item-card">
-                    <div class="item-title">Mốc 3: 200,000 Money</div>
-                    <div class="item-price">80 Điểm</div>
-                    <div class="btn-group">
-                        <button class="btn-buy btn-chill" onclick="buyItem(80, 'moc3', 'CHILL')">Mua cụm CHILL</button>
-                        <button class="btn-buy btn-smp" onclick="buyItem(80, 'moc3', 'SMP')">Mua cụm SMP</button>
-                    </div>
-                </div>
-
-                <div class="item-card">
-                    <div class="item-title">Mốc 4: 1,000,000 Money</div>
-                    <div class="item-price">300 Điểm</div>
-                    <div class="btn-group">
-                        <button class="btn-buy btn-chill" onclick="buyItem(300, 'moc4', 'CHILL')">Mua cụm CHILL</button>
-                        <button class="btn-buy btn-smp" onclick="buyItem(300, 'moc4', 'SMP')">Mua cụm SMP</button>
-                    </div>
+            <div class="item-card">
+                <i class="fas fa-crown item-icon" style="color: #fbbf24;"></i>
+                <div class="item-name">Gói 500,000 Money</div>
+                <div class="item-cost">150 Điểm</div>
+                <div class="buy-btns">
+                    <button class="btn btn-chill" onclick="buyItem(150, 'moc3', 'CHILL')">Cụm CHILL</button>
+                    <button class="btn btn-smp" onclick="buyItem(150, 'moc3', 'SMP')">Cụm SMP</button>
                 </div>
             </div>
         </div>
     </div>
 
 <script>
+    // Config Firebase (Dũng giữ nguyên của Dũng)
     const firebaseConfig = {
         apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
         authDomain: "yeamiko-web.firebaseapp.com",
         databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
         projectId: "yeamiko-web",
-        databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
-        storageBucket: "yeamiko-web.firebasestorage.app",
-        messagingSenderId: "380442978172",
         appId: "1:380442978172:web:52eeb187628ed3518266f9"
     };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    function toggleMenu() {
-        document.getElementById('sidebar').classList.toggle('open');
-        document.querySelector('.sidebar-overlay').classList.toggle('show');
-    }
+    let currentMC = null;
+    let currentPoints = 0;
 
     firebase.auth().onAuthStateChanged((user) => {
         if (user) { loadUserData(user.uid); } 
         else { window.location.href = 'login.html'; }
     });
-
-    let currentMC = null;
-    let currentPoints = 0;
 
     async function loadUserData(uid) {
         const snap = await database.ref('web_users/' + uid).once('value');
@@ -158,7 +176,8 @@
         document.getElementById('display-pts').innerText = currentPoints;
         
         if (currentMC) {
-            document.getElementById('display-mc').innerHTML = `<i class="fas fa-link"></i> Đã liên kết: <b>${currentMC}</b>`;
+            document.getElementById('display-mc').innerText = currentMC;
+            document.getElementById('player-head').src = `https://mc-heads.net/avatar/${currentMC}`;
             document.getElementById('link-section').style.display = 'none';
         } else {
             document.getElementById('link-section').style.display = 'block';
@@ -168,39 +187,34 @@
     async function linkGame() {
         const mcName = document.getElementById('mc-name').value.trim();
         const code = document.getElementById('link-code').value.trim();
-        const uid = firebase.auth().currentUser.uid;
-
         if(!mcName || !code) return alert("Nhập đủ thông tin!");
 
-        // Kiểm tra mã từ nhánh linking (do Skript tạo)
         const snap = await database.ref('linking/' + mcName).once('value');
         if(snap.exists() && snap.val().code == code) {
-            await database.ref('web_users/' + uid).update({ linked_mc: mcName });
-            alert("Liên kết thành công nhân vật: " + mcName);
-            loadUserData(uid);
+            await database.ref('web_users/' + firebase.auth().currentUser.uid).update({ linked_mc: mcName });
+            alert("Liên kết thành công!");
+            loadUserData(firebase.auth().currentUser.uid);
         } else {
-            alert("Mã xác thực không đúng hoặc tên nhân vật sai!");
+            alert("Mã sai!");
         }
     }
 
     async function buyItem(cost, mocId, server) {
         if(!currentMC) return alert("Bạn phải liên kết Game trước!");
-        if(currentPoints < cost) return alert("Bạn không đủ điểm!");
+        if(currentPoints < cost) return alert("Không đủ điểm!");
 
-        const uid = firebase.auth().currentUser.uid;
-        
-        // 1. Trừ điểm Web
-        await database.ref('web_users/' + uid).update({ points: currentPoints - cost });
+        if(confirm(`Xác nhận dùng ${cost} điểm để đổi quà vào cụm ${server}?`)) {
+            const uid = firebase.auth().currentUser.uid;
+            await database.ref('web_users/' + uid).update({ points: currentPoints - cost });
 
-        // 2. Gửi quà vào cụm tương ứng
-        let updateData = {};
-        updateData[`pending_${server}`] = mocId;
-        updateData[`claimed_${server}`] = false;
-        
-        await database.ref('users_data/' + currentMC).update(updateData);
+            let giftData = {};
+            giftData[`pending_${server}`] = mocId;
+            giftData[`claimed_${server}`] = false;
+            await database.ref('users_data/' + currentMC).update(giftData);
 
-        alert(`Đã đổi thành công! Hãy vào cụm ${server} gõ /nhanqua để nhận tiền.`);
-        loadUserData(uid);
+            alert("Đổi thành công! Vào game gõ /nhanqua");
+            loadUserData(uid);
+        }
     }
 </script>
 </body>
