@@ -3,62 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ sơ | Yeamiko Network</title>
+    <title>Hồ sơ người dùng | Yeamiko</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --pink: #ff8df0; --bg: #fdf4ff; }
+        :root { --main: #00d4ff; --bg: #f0f2f5; --sidebar-dark: #111; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+        body { background: var(--bg); display: flex; flex-direction: column; min-height: 100vh; align-items: center; }
 
-        /* Header Profile */
-        .profile-header { 
-            background: white; width: 100%; max-width: 600px; padding: 40px 20px; 
-            border-radius: 25px; box-shadow: 0 10px 30px rgba(255, 141, 240, 0.15); 
-            text-align: center; margin-bottom: 25px; position: relative;
+        /* Header Profile giống bản Profile.html */
+        .profile-header { width: 100%; max-width: 940px; background: white; border-radius: 0 0 15px 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; }
+        .cover-photo { width: 100%; height: 250px; background: #ddd; position: relative; overflow: hidden; }
+        .cover-photo img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .profile-info-bar { padding: 0 30px 30px 30px; display: flex; align-items: flex-end; position: relative; margin-top: -60px; }
+        .avatar-container { position: relative; width: 168px; height: 168px; }
+        .user-avatar { 
+            width: 160px; height: 160px; border-radius: 50%; object-fit: cover; 
+            border: 4px solid white; background: #eee; position: relative; z-index: 1;
         }
-        .avatar-box { position: relative; width: 150px; height: 150px; margin: 0 auto 15px; }
-        .kitsune-frame { 
-            position: absolute; top: -10px; left: -10px; width: 170px; height: 170px; 
-            z-index: 2; pointer-events: none; filter: drop-shadow(0 0 5px var(--pink));
+        
+        /* Các loại khung viền đồng bộ với profile.html */
+        .deco-cyan { box-shadow: 0 0 0 4px #fff, 0 0 0 8px var(--main); }
+        .deco-pink { box-shadow: 0 0 0 4px #fff, 0 0 15px 5px #ff69b4; }
+        .deco-gold { box-shadow: 0 0 0 4px #fff, 0 0 0 8px #f1c40f; }
+
+        .user-details { margin-left: 20px; margin-bottom: 10px; flex: 1; }
+        .user-details h1 { font-size: 28px; font-weight: 800; color: #1c1e21; }
+        .uid-tag { font-size: 14px; color: #65676b; font-weight: 600; }
+
+        /* Body bài viết */
+        .profile-body { width: 100%; max-width: 940px; margin-top: 15px; display: grid; grid-template-columns: 360px 1fr; gap: 15px; padding: 0 10px; }
+        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        .post-card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .post-img { width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #eee; }
+        
+        .btn-back { position: fixed; top: 20px; left: 20px; background: white; color: #333; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 100; }
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+
+        @media (max-width: 768px) {
+            .profile-body { grid-template-columns: 1fr; }
+            .profile-info-bar { flex-direction: column; align-items: center; text-align: center; margin-top: -80px; }
+            .user-details { margin-left: 0; margin-top: 10px; }
+            .cover-photo { height: 180px; }
         }
-        .u-avt { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; position: relative; z-index: 1; margin-top: 10px; border: 4px solid #fff; }
-        
-        h2 { color: #444; font-size: 26px; }
-        .uid-tag { display: inline-block; background: #ffe6f9; padding: 4px 12px; border-radius: 15px; font-size: 13px; color: #d63384; margin: 10px 0; font-weight: bold; }
-        
-        /* Bài đăng */
-        .section-title { width: 100%; max-width: 600px; color: #666; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .post-list { width: 100%; max-width: 600px; }
-        .post-card { background: white; padding: 20px; border-radius: 18px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .post-img { width: 100%; border-radius: 12px; margin-top: 10px; }
-        
-        .back-nav { position: fixed; top: 20px; left: 20px; text-decoration: none; color: #666; font-weight: bold; background: white; padding: 10px 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 100; }
-        #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; justify-content:center; align-items:center; z-index:1000; }
     </style>
 </head>
 <body>
 
-    <div id="loader"><i class="fas fa-heart fa-beat" style="font-size: 3rem; color: var(--pink);"></i></div>
+    <div id="loader"><i class="fas fa-circle-notch fa-spin" style="font-size: 3rem; color: var(--main);"></i></div>
 
-    <a href="forum.html" class="back-nav"><i class="fas fa-arrow-left"></i> Forum</a>
+    <a href="forum.html" class="btn-back"><i class="fas fa-arrow-left"></i> Quay lại</a>
 
     <div class="profile-header">
-        <div class="avatar-box">
-            <img class="kitsune-frame" src="https://i.imgur.com/8Qp6uRk.png">
-            <img id="u-avatar" class="u-avt" src="">
+        <div class="cover-photo">
+            <img id="u-cover" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=1000">
         </div>
-        <h2 id="u-name">Đang tải...</h2>
-        <div class="uid-tag" id="u-id">@yeamiko</div>
-        <p style="color:#888; font-size:14px;">Thành viên của Yeamiko Network</p>
+        <div class="profile-info-bar">
+            <div class="avatar-container">
+                <img id="u-avatar" class="user-avatar" src="">
+            </div>
+            <div class="user-details">
+                <h1 id="u-name">Đang tải...</h1>
+                <div class="uid-tag" id="u-id">@loading</div>
+            </div>
+        </div>
     </div>
 
-    <div class="section-title"><i class="fas fa-stream"></i> Bài đăng gần đây</div>
-    <div id="user-posts" class="post-list"></div>
+    <div class="profile-body">
+        <div class="left-col">
+            <div class="card">
+                <h3 style="margin-bottom:10px;">Giới thiệu</h3>
+                <p style="color:#65676b; font-size:14px;"><i class="fas fa-info-circle"></i> Thành viên Yeamiko Network</p>
+                <p style="color:#65676b; font-size:14px; margin-top:8px;"><i class="fas fa-check-circle"></i> Tài khoản đã xác minh</p>
+            </div>
+        </div>
+        <div class="right-col">
+            <h3 style="margin-bottom:15px; color:#444;">Bài viết của người dùng</h3>
+            <div id="user-posts">Đang tải bài viết...</div>
+        </div>
+    </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getDatabase, ref, onValue, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -67,51 +95,64 @@
             appId: "1:380442978172:web:52eeb187628ed3518266f9"
         };
 
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('id');
 
-        async function loadProfile() {
+        function loadProfileData() {
             if (!userId) return;
 
-            // 1. Lấy thông tin User
-            db.ref('users/' + userId).once('value', (snap) => {
-                const data = snap.val() || {};
-                document.getElementById('u-name').innerText = data.name || "Thành viên";
-                document.getElementById('u-avatar').src = data.avatar || "https://ui-avatars.com/api/?background=ff8df0&color=fff&name=" + data.name;
-                document.getElementById('u-id').innerText = "@" + userId.substring(0, 8);
+            // 1. Lấy thông tin người dùng (Tên, Avt, Cover, Khung)
+            onValue(ref(db, `users/${userId}`), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const name = data.name || "Thành viên";
+                    document.getElementById('u-name').innerText = name;
+                    document.getElementById('u-avatar').src = data.avatar || `https://ui-avatars.com/api/?background=random&name=${name}`;
+                    document.getElementById('u-id').innerText = "@" + userId.substring(0, 8);
+                    
+                    if (data.cover) document.getElementById('u-cover').src = data.cover;
+                    
+                    // Áp dụng khung viền
+                    const avtImg = document.getElementById('u-avatar');
+                    avtImg.className = "user-avatar"; // Reset
+                    if (data.decoration && data.decoration !== 'none') {
+                        avtImg.classList.add('deco-' + data.decoration);
+                    }
+                }
                 document.getElementById('loader').style.display = 'none';
             });
 
-            // 2. Lấy bài đăng của riêng User này
-            db.ref('posts').orderByChild('uid').equalTo(userId).once('value', (snap) => {
-                const posts = snap.val() || {};
-                const list = document.getElementById('user-posts');
-                const keys = Object.keys(posts).reverse(); // Bài mới nhất lên đầu
-
-                if (keys.length === 0) {
-                    list.innerHTML = "<p style='text-align:center; color:#999;'>Chưa có bài đăng nào.</p>";
+            // 2. Lấy danh sách bài viết của người này
+            const postsRef = query(ref(db, 'posts'), orderByChild('uid'), equalTo(userId));
+            onValue(postsRef, (snapshot) => {
+                const posts = snapshot.val();
+                const container = document.getElementById('user-posts');
+                
+                if (!posts) {
+                    container.innerHTML = "<div class='card'>Người dùng chưa có bài viết nào.</div>";
                     return;
                 }
 
-                keys.forEach(k => {
+                const keys = Object.keys(posts).sort((a,b) => posts[b].time - posts[a].time);
+                container.innerHTML = keys.map(k => {
                     const p = posts[k];
-                    list.insertAdjacentHTML('beforeend', `
+                    return `
                         <div class="post-card">
-                            <div style="font-size:12px; color:#aaa; margin-bottom:8px;">${new Date(p.time).toLocaleString('vi-VN')}</div>
-                            <div style="color:#333; line-height:1.5;">${p.text}</div>
-                            ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
-                            <div style="margin-top:12px; color:var(--pink); font-weight:bold; font-size:14px;">
-                                <i class="fas fa-heart"></i> ${p.likes || 0} lượt thích
+                            <div style="font-size:12px; color:#999; margin-bottom:10px;">
+                                <i class="far fa-clock"></i> ${new Date(p.time).toLocaleString('vi-VN')}
                             </div>
+                            <div style="color:#1c1e21; font-size:15px; line-height:1.5;">${p.text || ""}</div>
+                            ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
                         </div>
-                    `);
-                });
+                    `;
+                }).join('');
             });
         }
 
-        loadProfile();
+        loadProfileData();
     </script>
 </body>
 </html>
