@@ -10,6 +10,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); display: flex; min-height: 100vh; overflow-x: hidden; }
 
+        /* --- MENU TOGGLE --- */
         .menu-toggle {
             position: fixed; top: 20px; left: 20px; z-index: 1500;
             background: var(--main); color: #000; width: 45px; height: 45px;
@@ -18,15 +19,17 @@
             box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
         }
 
+        /* --- SIDEBAR ĐÃ ĐỒNG BỘ MÀU SẮC --- */
         .sidebar { 
             width: 250px; background: var(--sidebar-dark); height: 100vh; 
             position: fixed; padding: 25px; color: white; z-index: 2000;
             left: -250px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 1px solid rgba(255,255,255,0.05);
         }
         .sidebar.open { left: 0; }
-        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; }
-        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
-        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; letter-spacing: 2px; }
+        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; font-size: 15px; }
+        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; font-size: 1.1rem; }
         .sidebar a.active, .sidebar a:hover { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
         
         .sidebar-overlay {
@@ -35,9 +38,10 @@
         }
         .sidebar-overlay.show { display: block; }
 
+        /* --- MAIN CONTENT --- */
         .main-content { flex: 1; padding: 80px 20px 250px 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
         .container { width: 100%; max-width: 600px; }
-        .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; }
+        .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; border: 1px solid #eee; }
         .post-header { display: flex; align-items: center; margin-bottom: 12px; cursor: pointer; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
         .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
@@ -59,6 +63,7 @@
         .cmt-input { flex: 1; padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
         .btn-cmt { background: none; border: none; color: var(--main); cursor: pointer; font-weight: bold; }
 
+        /* THANH ĐĂNG BÀI CỐ ĐỊNH */
         .post-box-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 900; border-top: 1px solid #eee; }
     </style>
 </head>
@@ -71,12 +76,14 @@
         <div class="logo">YEAMIKO</div>
         <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
         <a href="forum.html" class="active"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
-        
         <a href="checkin.html"><i class="fas fa-calendar-check"></i><span>Điểm danh</span></a>
-        <a href="shop.html"><i class="fas fa-shopping-cart"></i><span>Cửa hàng SMP/CHILL</span></a>
+        <a href="shop.html"><i class="fas fa-shopping-cart"></i><span>Cửa hàng</span></a>
+        
+        <a href="minigame-hub.html"><i class="fas fa-gamepad"></i><span>Giải trí</span></a>
         
         <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
-        <a href="admin-verify.html" id="admin-menu-item" style="display: none; color: #00d4ff;">
+        
+        <a href="admin-verify.html" id="admin-menu-item" style="display: none; color: var(--main);">
             <i class="fas fa-user-shield"></i><span>Phê duyệt bài</span>
         </a>
     </div>
@@ -91,7 +98,7 @@
             <textarea id="post-text" style="width:100%; height:45px; border-radius:12px; padding:10px; border:1px solid #ddd; resize:none;" placeholder="Chia sẻ gì đó..."></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
                 <input type="file" id="post-file" accept="image/*">
-                <button id="btn-post" style="background:var(--main); color:white; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG</button>
+                <button id="btn-post" style="background:var(--main); color:black; border:none; padding:8px 25px; border-radius:20px; font-weight:bold; cursor:pointer;">ĐĂNG BÀI</button>
             </div>
             <p id="stt" style="text-align:center; font-size:12px; color:var(--main); margin-top:5px;"></p>
         </div>
@@ -102,6 +109,7 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
         import { getDatabase, ref, push, get, set, query, orderByChild, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
+        // Firebase của Dũng
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -122,7 +130,6 @@
             document.querySelector('.sidebar-overlay').classList.toggle('show');
         };
 
-        // HÀM CHUYỂN TRANG PROFILE (FIX LỖI ID)
         window.viewUser = (uid) => {
             if(!uid) return;
             window.location.href = `user.html?id=${uid}`;
@@ -141,7 +148,7 @@
             const val = input.value.trim();
             if(!val || !auth.currentUser) return;
             const u = auth.currentUser;
-            const uSnap = await get(ref(db, `users/${u.uid}`));
+            const uSnap = await get(ref(db, `web_users/${u.uid}`)); // Lưu ý web_users theo cấu hình casino trước đó
             const name = uSnap.exists() ? uSnap.val().name : u.email.split('@')[0];
             await push(ref(db, `posts/${pid}/comments`), { uid: u.uid, userName: name, text: val, time: Date.now() });
             input.value = "";
@@ -153,7 +160,7 @@
 
             onValue(query(ref(db, 'posts'), orderByChild('time')), async (snapshot) => {
                 const allPosts = snapshot.val() || {};
-                const userSnap = await get(ref(db, 'users'));
+                const userSnap = await get(ref(db, 'web_users'));
                 const allUsers = userSnap.val() || {};
                 const allKeys = Object.keys(allPosts).sort((a,b) => allPosts[b].time - allPosts[a].time);
 
@@ -180,7 +187,7 @@
                     list.insertAdjacentHTML('beforeend', `
                         <div class="post-card">
                             <div class="post-header" onclick="viewUser('${p.uid}')"><img src="${avt}" class="user-avatar"><b>${name}</b></div>
-                            <div style="margin:10px 0;">${p.text}</div>
+                            <div style="margin:10px 0; word-wrap: break-word;">${p.text}</div>
                             ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
                             <div class="post-actions"><span class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ ${likes} Thích</span></div>
                             <div class="comment-section"><div id="clist-${k}">${cmts}</div><div class="cmt-input-box"><input id="in-${k}" class="cmt-input" placeholder="Bình luận..."><button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button></div></div>
@@ -202,24 +209,34 @@
             const file = document.getElementById('post-file').files[0];
             const u = auth.currentUser;
             if(!u || (!txt && !file)) return;
+            
             document.getElementById('btn-post').disabled = true;
             document.getElementById('stt').innerText = "⏳ Đang gửi duyệt...";
+            
             let imgB64 = "";
             if(file) {
                 imgB64 = await new Promise(res => {
                     const r = new FileReader(); r.onload = (e) => res(e.target.result); r.readAsDataURL(file);
                 });
             }
-            const uSnap = await get(ref(db, `users/${u.uid}`));
+            
+            const uSnap = await get(ref(db, `web_users/${u.uid}`));
             const name = uSnap.exists() ? uSnap.val().name : u.email.split('@')[0];
+            
             await push(ref(db, 'pending_posts'), { uid: u.uid, userName: name, text: txt, img: imgB64, time: Date.now() });
-            document.getElementById('post-text').value = ""; document.getElementById('stt').innerText = "✅ Đã gửi! Đang chờ duyệt.";
+            
+            document.getElementById('post-text').value = ""; 
+            document.getElementById('post-file').value = "";
+            document.getElementById('stt').innerText = "✅ Đã gửi! Đang chờ duyệt.";
             document.getElementById('btn-post').disabled = false;
         };
 
         onAuthStateChanged(auth, (user) => {
             if(user) {
-                if(user.uid === "kRvctZ12xsfyugkQVCaInAVzt3d2") document.getElementById('admin-menu-item').style.display = 'flex';
+                // Kiểm tra Admin bằng UID của Dũng
+                if(user.uid === "kRvctZ12xsfyugkQVCaInAVzt3d2") {
+                    document.getElementById('admin-menu-item').style.display = 'flex';
+                }
                 startListeningPosts();
             } else { window.location.href = 'login.html'; }
         });
