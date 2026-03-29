@@ -1,147 +1,5 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeamiko Ultra Quiz | Hardcore Edition</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
-    <style>
-        :root { --main: #00d4ff; --bg: #0b0f19; --card: rgba(255, 255, 255, 0.05); --gold: #ffd700; --red: #ff4757; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: white; min-height: 100vh; overflow-x: hidden; }
-
-        .navbar { 
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); 
-            height: 70px; display: flex; align-items: center; justify-content: space-between; 
-            padding: 0 30px; border-bottom: 2px solid var(--main); position: sticky; top: 0; z-index: 1000;
-        }
-        .nav-brand { font-weight: 900; font-size: 22px; letter-spacing: 2px; cursor: pointer; }
-        .nav-menu { display: flex; gap: 20px; }
-        .nav-link { color: #94a3b8; text-decoration: none; font-size: 14px; font-weight: 600; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: 0.3s; }
-        .nav-link:hover { color: var(--main); background: rgba(0, 212, 255, 0.1); }
-
-        .container { max-width: 850px; margin: 40px auto; padding: 0 20px; }
-        .game-card { background: var(--card); border-radius: 25px; padding: 45px; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        
-        .timer-wrap { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 35px; }
-        #timer-bar { width: 100%; height: 100%; background: var(--main); border-radius: 10px; transition: width 1s linear; }
-
-        #question { font-size: 24px; font-weight: 700; margin-bottom: 35px; min-height: 70px; line-height: 1.4; }
-        .ans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .ans-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 20px; border-radius: 15px; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        .ans-btn:hover { background: var(--main); color: #000; font-weight: bold; transform: translateY(-3px); }
-
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 15, 25, 0.98); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
-        .overlay.active { display: flex; }
-        .btn-action { width: 220px; padding: 16px; margin: 12px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
-        .btn-next { background: var(--main); color: #000; box-shadow: 0 0 20px rgba(0, 212, 255, 0.4); }
-
-        .streak-tag { margin-top: 35px; font-weight: bold; color: #94a3b8; text-transform: uppercase; font-size: 13px; }
-        #streak-val { color: var(--main); font-size: 20px; }
-        @media (max-width: 650px) { .ans-grid { grid-template-columns: 1fr; } }
-    </style>
-</head>
-<body>
-
-    <nav class="navbar">
-        <div class="nav-brand" onclick="location.reload()">YEAMIKO <span style="color:var(--main)">ULTRA</span></div>
-        <div class="nav-menu">
-            <div class="nav-link" onclick="alert('Đúng 5 câu để nhận 2 Xu!')">HD</div>
-            <div id="display-limit" style="color: #94a3b8; font-size: 14px; font-weight: bold;">Lượt: 0/5</div>
-        </div>
-        <div id="user-points" style="color: var(--gold); font-weight: bold;">0 Xu</div>
-    </nav>
-
-    <div class="container">
-        <div class="game-card">
-            <div id="correct-overlay" class="overlay">
-                <i class="fas fa-check-circle" style="color: var(--main); font-size: 60px; margin-bottom: 20px;"></i>
-                <h2 style="margin-bottom: 25px;">CHÍNH XÁC!</h2>
-                <button class="btn-action btn-next" onclick="nextQuestion()">Tiếp tục</button>
-            </div>
-
-            <div class="timer-wrap"><div id="timer-bar"></div></div>
-            
-            <div id="game-content">
-                <p id="question">Đang chuẩn bị câu hỏi...</p>
-                <div class="ans-grid" id="ans-options"></div>
-                <div class="streak-tag">Tiến trình: <span id="streak-val">0</span>/5</div>
-            </div>
-        </div>
-        <div id="limit-msg" style="text-align: center; margin-top: 25px; color: var(--red); font-weight: bold;"></div>
-    </div>
-
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
-        authDomain: "yeamiko-web.firebaseapp.com",
-        databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "yeamiko-web",
-        appId: "1:380442978172:web:52eeb187628ed3518266f9"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    // KHO 100 CÂU HỎI (Đã kiểm tra kỹ cú pháp)
-    const ultraBank = [
-        {q: "Redstone Repeater tối đa bao nhiêu tick delay?", a: ["1", "2", "3", "4"], c: "4"},
-        {q: "Cần bao nhiêu thỏi Netherite để làm 1 khối Netherite?", a: ["4", "9", "8", "5"], c: "9"},
-        {q: "Lượng máu của Warden là bao nhiêu?", a: ["300", "500", "200", "600"], c: "500"},
-        {q: "Trong Minecraft, 1 tick tương ứng với bao nhiêu giây?", a: ["0.01s", "0.05s", "0.1s", "0.2s"], c: "0.05s"},
-        {q: "Piston KHÔNG THỂ đẩy block nào?", a: ["Khối Sắt", "Lò nung", "Kính", "Khối Đá"], c: "Lò nung"},
-        {q: "Mob nào có tầm nhìn xa nhất (trên 100 block)?", a: ["Enderman", "Warden", "Ghast", "Ender Dragon"], c: "Ghast"},
-        {q: "Tên con rồng End chính thức là gì?", a: ["Ender", "Jean", "Drake", "Miko"], c: "Jean"},
-        {q: "Loại gỗ nào không thể bị cháy?", a: ["Sồi", "Rừng", "Crimson", "Tre"], c: "Crimson"},
-        {q: "Cổng End được tạo thành từ bao nhiêu khung cổng?", a: ["10", "12", "14", "16"], c: "12"},
-        {q: "Vật phẩm nào rơi ra từ Evoker?", a: ["Ngọc End", "Totem", "Sách", "Vàng"], c: "Totem"},
-        {q: "Cần bao nhiêu sắt để làm một cái đe (Anvil)?", a: ["27", "31", "35", "40"], c: "31"},
-        {q: "Ếch (Frog) lớn lên từ đâu?", a: ["Trứng ếch", "Nòng nọc", "Ếch con", "Bùn"], c: "Nòng nọc"},
-        {q: "1 xô dung nham nung được bao nhiêu vật phẩm?", a: ["64", "80", "100", "128"], c: "100"},
-        {q: "Mob 'Allay' thích vật phẩm nào nhất?", a: ["Bánh quy", "Vàng", "Cái bạn đưa", "Kim cương"], c: "Cái bạn đưa"},
-        {q: "Y thấp nhất ở bản 1.19+ là?", a: ["0", "-64", "-16", "-32"], c: "-64"},
-        {q: "Lõi của đèn hiệu (Beacon) là vật phẩm gì?", a: ["Ngôi sao địa ngục", "Mắt End", "Khối vàng", "Thủy tinh"], c: "Ngôi sao địa ngục"},
-        {q: "Để làm 'Golden Apple', bạn cần táo và thỏi gì?", a: ["Vàng", "Sắt", "Đồng", "Than"], c: "Vàng"},
-        {q: "Hopper có bao nhiêu khe chứa đồ?", a: ["3", "5", "9", "16"], c: "5"},
-        {q: "Khi lợn bị sét đánh, nó biến thành gì?", a: ["Zombie Pigman", "Wither", "Piglin", "Hoglin"], c: "Zombie Pigman"},
-        {q: "Tên cũ của Minecraft là gì?", a: ["Minegame", "Cave Game", "Block World", "BuildCraft"], c: "Cave Game"},
-        {q: "Kích thước tối đa cổng Nether là?", a: ["10x10", "23x23", "25x25", "50x50"], c: "23x23"},
-        {q: "Mob nào sợ tiếng nổ của chính mình?", a: ["Creeper", "Ghast", "Wither", "Không con nào"], c: "Không con nào"},
-        {q: "Thành phố cổ Ancient City ở độ cao?", a: ["Y -51", "Y -64", "Y 0", "Y 64"], c: "Y -51"},
-        {q: "Để nhuộm màu vòng cổ chó, dùng vật phẩm gì?", a: ["Bột màu", "Len màu", "Nước sơn", "Hoa"], c: "Bột màu"},
-        {q: "Enchant nào giúp đi nhanh dưới nước?", a: ["Depth Strider", "Frost Walker", "Aqua Affinity", "Riptide"], c: "Depth Strider"},
-        {q: "Vật phẩm 'Nautilus Shell' dùng làm gì?", a: ["Conduit", "Beacon", "Trident", "Yên cưỡi"], c: "Conduit"},
-        {q: "Lệnh xem tọa độ ở bản Java là?", a: ["F1", "F2", "F3", "F5"], c: "F3"},
-        {q: "Khi ném thuốc độc vào Zombie, điều gì xảy ra?", a: ["Mất máu", "Được hồi máu", "Chậm lại", "Hóa dân làng"], c: "Được hồi máu"},
-        {q: "T-Flip Flop dùng để làm gì trong Redstone?", a: ["Nút thành đòn bẩy", "Tăng tín hiệu", "Lặp", "Đảo"], c: "Nút thành đòn bẩy"},
-        {q: "Độ bền cúp Kim Cương là bao nhiêu?", a: ["1321", "1561", "2031", "2501"], c: "1561"},
-        {q: "Mob nào nhặt được block?", a: ["Zombie", "Enderman", "Piglin", "Skeleton"], c: "Enderman"},
-        {q: "Cần bao nhiêu XP để đạt level 30 từ level 0?", a: ["1000", "1395", "1500", "2000"], c: "1395"},
-        {q: "Observer phát tín hiệu dài mấy tick?", a: ["1", "2", "4", "8"], c: "2"},
-        {q: "Loại cát nào dùng triệu hồi Wither?", a: ["Cát đỏ", "Cát linh hồn", "Cát vàng", "Bột bê tông"], c: "Cát linh hồn"},
-        {q: "Khi dùng kéo lên Mooshroom, nó biến thành?", a: ["Bò thường", "Bò nấm", "Thịt bò", "Mất máu"], c: "Bò thường"},
-        {q: "Khoảng cách Redstone truyền xa nhất là?", a: ["12", "15", "16", "20"], c: "15"},
-        {q: "Enchant 'Mending' sửa đồ bằng gì?", a: ["Vàng", "Sắt", "Kinh nghiệm", "Kim cương"], c: "Kinh nghiệm"},
-        {q: "Wither bản Bedrock có bao nhiêu máu?", a: ["300", "450", "600", "1000"], c: "600"},
-        {q: "Block nào Piston KHÔNG ĐẨY ĐƯỢC?", a: ["Obsidian", "Khối Sắt", "Khối Đất", "Gỗ"], c: "Obsidian"},
-        {q: "Con rồng End có mấy chân?", a: ["2", "4", "6", "Không có chân"], c: "2"},
-        {q: "Để thuần hóa mèo rừng, cần dùng cá gì?", a: ["Cá hồi", "Cá sống", "Cá chín", "Cá nóc"], c: "Cá sống"},
-        {q: "Minecraft chính thức ra mắt năm nào?", a: ["2009", "2010", "2011", "2012"], c: "2011"},
-        {q: "Block nào làm chậm người chơi nhất?", a: ["Cát linh hồn", "Bùn", "Mạng nhện", "Khối mật ong"], c: "Mạng nhện"},
-        {q: "Mob nào rơi ra Phantom Membrane?", a: ["Dơi", "Phantom", "Rồng", "Vex"], c: "Phantom"},
-        {q: "Để lấy nước vô hạn, cần tối thiểu mấy block?", a: ["1", "2", "3", "4"], c: "2"},
-        {q: "Nhiên liệu nào cháy lâu nhất?", a: ["Than", "Xô dung nham", "Thanh lửa", "Tảo bẹ"], c: "Xô dung nham"},
-        {q: "Gỗ Mangrove xuất hiện ở đâu?", a: ["Rừng sồi", "Đầm lầy mặn", "Sa mạc", "Đồng cỏ"], c: "Đầm lầy mặn"},
-        {q: "Mob nào sợ Mèo nhất?", a: ["Creeper", "Zombie", "Skeleton", "Spider"], c: "Creeper"},
-        {q: "Cái gì dùng để rèn Trim lên giáp?", a: ["Bàn rèn", "Mẫu rèn", "Đe", "Lò nung"], c: "Mẫu rèn"},
-        {q: "Trong 1.20, Sniffer được tìm thấy từ đâu?", a: ["Trứng trong rương", "Đào trong cát", "Spawn tự nhiên", "Câu cá"], c: "Trứng trong rương"}
-    ];
+    // ... (Giữ nguyên phần firebaseConfig và ultraBank bên trên) ...
 
     let userUID = null, streak = 0, timeLeft = 15, timer, playCount = 0, sessionQuestions = [];
 
@@ -151,26 +9,47 @@
     });
 
     async function checkStats() {
-        const today = new Date().toLocaleDateString('en-GB');
         const snap = await db.ref('web_users/' + userUID).get();
         const data = snap.val() || {};
+        const now = Date.now();
+        const waitTime = 24 * 60 * 60 * 1000; // 24 giờ tính bằng miligiây
+
+        // Lấy dữ liệu từ Firebase
+        let lastReset = data.lastResetTime || 0;
+        playCount = data.playCount || 0;
+
+        // Kiểm tra xem đã qua 24h chưa
+        if (now - lastReset >= waitTime) {
+            // Đã qua 24h: Reset lượt chơi và đặt mốc thời gian mới
+            playCount = 0;
+            lastReset = now;
+            await db.ref('web_users/' + userUID).update({
+                playCount: 0,
+                lastResetTime: now
+            });
+        }
+
+        // Cập nhật giao diện
+        document.getElementById('display-limit').innerText = `Lượt: ${playCount}/5`;
         
+        // Hiển thị điểm (Xu) real-time
         db.ref('web_users/' + userUID + '/points').on('value', s => {
             document.getElementById('user-points').innerText = (s.val() || 0) + " Xu";
         });
 
-        if(data.lastDate === today) playCount = data.playCount || 0;
-        else {
-            playCount = 0;
-            await db.ref('web_users/' + userUID).update({ lastDate: today, playCount: 0 });
-        }
-
-        document.getElementById('display-limit').innerText = `Lượt: ${playCount}/5`;
-
-        if(playCount >= 5) {
+        if (playCount >= 5) {
             document.getElementById('game-content').style.display = "none";
-            document.getElementById('limit-msg').innerText = "HẾT LƯỢT CHƠI HÔM NAY!";
-        } else { startRound(); }
+            
+            // Tính thời gian còn lại để hiển thị cho người chơi
+            const remaining = waitTime - (now - lastReset);
+            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            
+            document.getElementById('limit-msg').innerHTML = 
+                `HẾT LƯỢT CHƠI!<br><span style="font-size:12px; color:#94a3b8">Quay lại sau: ${hours} giờ ${mins} phút</span>`;
+        } else {
+            startRound();
+        }
     }
 
     function startRound() {
@@ -235,7 +114,9 @@
         playCount++;
         confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
 
+        // Cập nhật lượt chơi vào database
         await db.ref('web_users/' + userUID).update({ playCount: playCount });
+        // Tặng 2 Xu
         await db.ref('web_users/' + userUID + '/points').transaction(p => (p || 0) + 2);
         
         setTimeout(() => {
@@ -244,5 +125,3 @@
         }, 1500);
     }
 </script>
-</body>
-</html>
