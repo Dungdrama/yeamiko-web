@@ -49,25 +49,25 @@
         }
         .sidebar-overlay.show { display: block; }
 
-        /* --- NỘI DUNG CHÍNH --- */
-        .main-content { 
-            width: 100%; max-width: 1200px; margin: 0 auto; 
-            padding: 80px 20px 40px 20px;
-            display: flex; flex-direction: column; align-items: center;
-        }
-
-        /* PHẦN LIÊN KẾT TÀI KHOẢN (ĐÃ KHÔI PHỤC) */
+        /* --- KHUNG LIÊN KẾT TÀI KHOẢN --- */
         .link-section {
             width: 100%; max-width: 900px; background: rgba(251, 191, 36, 0.1);
             border: 1px solid #fbbf24; border-radius: 20px; padding: 20px;
             margin-bottom: 25px; text-align: center; display: none;
         }
         .link-section input {
-            padding: 10px; border-radius: 8px; border: none; margin: 5px; width: 150px;
+            padding: 10px; border-radius: 8px; border: none; margin: 5px; width: 150px; outline: none;
         }
         .btn-link {
             padding: 10px 20px; background: #fbbf24; border: none; border-radius: 8px;
             font-weight: bold; cursor: pointer; color: #000;
+        }
+
+        /* --- NỘI DUNG CHÍNH --- */
+        .main-content { 
+            width: 100%; max-width: 1200px; margin: 0 auto; 
+            padding: 80px 20px 40px 20px;
+            display: flex; flex-direction: column; align-items: center;
         }
 
         .shop-header { 
@@ -78,7 +78,6 @@
         .points-display { margin-left: auto; text-align: right; }
         .points-display span { font-size: 32px; font-weight: 900; color: #fbbf24; }
 
-        /* GRID GÓI VẬT PHẨM */
         .shop-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
@@ -150,6 +149,7 @@
                     <button class="btn btn-smp" onclick="buyItem(20, 'moc1', 'SMP')">SMP</button>
                 </div>
             </div>
+
             <div class="item-card">
                 <i class="fas fa-money-bill-wave item-icon" style="color:#2ecc71"></i>
                 <div style="font-weight:bold; margin-bottom:5px">150,000 Xu</div>
@@ -159,6 +159,7 @@
                     <button class="btn btn-smp" onclick="buyItem(50, 'moc2', 'SMP')">SMP</button>
                 </div>
             </div>
+
             <div class="item-card">
                 <i class="fas fa-vault item-icon" style="color:#f1c40f"></i>
                 <div style="font-weight:bold; margin-bottom:5px">500,000 Xu</div>
@@ -168,6 +169,7 @@
                     <button class="btn btn-smp" onclick="buyItem(150, 'moc3', 'SMP')">SMP</button>
                 </div>
             </div>
+
             <div class="item-card">
                 <i class="fas fa-pickaxe item-icon" style="color: #a855f7;"></i>
                 <div style="font-weight:bold; margin-bottom:5px">Cúp Ametyst</div>
@@ -177,6 +179,7 @@
                     <button class="btn btn-smp" onclick="buyItem(100, 'vip_cup_ametyst', 'SMP')">SMP</button>
                 </div>
             </div>
+
             <div class="item-card">
                 <i class="fas fa-axe item-icon" style="color: #a855f7;"></i>
                 <div style="font-weight:bold; margin-bottom:5px">Rìu Ametyst</div>
@@ -186,6 +189,7 @@
                     <button class="btn btn-smp" onclick="buyItem(100, 'vip_riu_ametyst', 'SMP')">SMP</button>
                 </div>
             </div>
+
             <div class="item-card">
                 <i class="fas fa-shovels item-icon" style="color: #a855f7;"></i>
                 <div style="font-weight:bold; margin-bottom:5px">Xẻng Ametyst</div>
@@ -227,6 +231,7 @@
             const d = s.val() || {points:0};
             currentPoints = d.points; currentMC = d.linked_mc;
             document.getElementById('display-pts').innerText = currentPoints;
+            
             if(currentMC) {
                 document.getElementById('display-mc').innerText = currentMC;
                 document.getElementById('player-head').src = `https://mc-heads.net/avatar/${currentMC}`;
@@ -238,8 +243,8 @@
         }
 
         async function linkGame() {
-            const name = document.getElementById('mc-name').value;
-            const code = document.getElementById('link-code').value;
+            const name = document.getElementById('mc-name').value.trim();
+            const code = document.getElementById('link-code').value.trim();
             if(!name || !code) return alert("Vui lòng nhập đủ thông tin!");
             
             const s = await db.ref('linking/'+name).once('value');
