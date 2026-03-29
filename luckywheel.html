@@ -26,16 +26,12 @@
         .badge-xu { background: rgba(0, 212, 255, 0.1); color: var(--blue); }
         .badge-diem { background: rgba(255, 215, 0, 0.1); color: var(--gold); }
 
-        /* Box đổi điểm */
         .exchange-box {
             background: rgba(255,255,255,0.03); margin: 20px auto; padding: 15px;
             border-radius: 15px; max-width: 420px; border: 1px solid var(--blue);
             display: flex; align-items: center; justify-content: space-around;
         }
-        .btn-exchange {
-            background: var(--blue); color: #000; border: none; padding: 10px 15px;
-            border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.3s;
-        }
+        .btn-exchange { background: var(--blue); color: #000; border: none; padding: 10px 15px; border-radius: 10px; font-weight: 800; cursor: pointer; }
 
         /* Vòng quay */
         .wheel-container { position: relative; width: 320px; height: 320px; margin: 30px auto; }
@@ -43,7 +39,10 @@
             width: 100%; height: 100%; border-radius: 50%; border: 8px solid #fff;
             position: relative; overflow: hidden; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
             background: #fff; box-shadow: 0 0 30px rgba(255, 71, 87, 0.3);
+            transform: rotate(0deg);
         }
+        
+        /* Chia 5 ô: mỗi ô 72 độ */
         .segment {
             position: absolute; width: 50%; height: 50%; transform-origin: bottom right;
             transform: rotate(calc(72deg * var(--i))) skewY(-18deg); background: var(--clr);
@@ -53,7 +52,12 @@
             position: absolute; margin: 45px 0 0 45px; transform: rotate(45deg) skewY(18deg);
             font-weight: 900; color: white; font-size: 14px; text-shadow: 1px 1px 2px #000;
         }
-        .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); z-index: 100; font-size: 40px; color: #fff; }
+
+        /* Kim chỉ: Cố định ở đỉnh */
+        .pointer { 
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%); 
+            z-index: 100; font-size: 40px; color: #fff; filter: drop-shadow(0 0 5px #000);
+        }
 
         .btn-spin {
             background: var(--main); color: white; border: none; padding: 18px 70px;
@@ -94,10 +98,6 @@
 
     <button class="btn-spin" id="spin-btn" onclick="startSpin()">QUAY (Tốn 5 Điểm)</button>
 
-    <div style="margin-top: 25px; font-size: 13px; color: #94a3b8;">
-        Dùng Điểm để quay và nhận lại <b>Xu</b>!
-    </div>
-
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
@@ -109,8 +109,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let xuHienTai = 0;   // points
-    let diemHienTai = 0; // spin_points
+    let xuHienTai = 0;   
+    let diemHienTai = 0; 
     let userUID = null;
     let isSpinning = false;
     let rotation = 0;
@@ -128,7 +128,6 @@
         } else { window.location.href = 'login.html'; }
     });
 
-    // Hàm đổi 10 Xu lấy 5 Điểm
     async function exchange() {
         if (xuHienTai < 10) return alert("Bạn không đủ Xu để đổi!");
         if (confirm("Đổi 10 Xu lấy 5 Điểm Quay?")) {
@@ -139,32 +138,39 @@
         }
     }
 
+    // Danh sách phần thưởng tương ứng với các ô (mỗi ô 72 độ)
     const rewards = [
-        { name: "4 Xu", val: 4,  chance: 70, deg: 0 },
-        { name: "5 Xu", val: 5,  chance: 15, deg: 72 },
-        { name: "10 Xu", val: 10, chance: 9,  deg: 144 },
-        { name: "20 Xu", val: 20, chance: 5,  deg: 216 },
-        { name: "50 Xu", val: 50, chance: 1,  deg: 288 }
+        { val: 4,  deg: 0 },   // Ô 0: 0 - 72 độ
+        { val: 5,  deg: 72 },  // Ô 1: 72 - 144 độ
+        { val: 10, deg: 144 }, // Ô 2: 144 - 216 độ
+        { val: 20, deg: 216 }, // Ô 3: 216 - 288 độ
+        { val: 50, deg: 288 }  // Ô 4: 288 - 360 độ
     ];
 
     async function startSpin() {
         if (isSpinning) return;
-        if (diemHienTai < 5) return alert("Bạn không đủ Điểm quay! Hãy đổi thêm từ Xu.");
+        if (diemHienTai < 5) return alert("Bạn không đủ Điểm quay!");
 
         isSpinning = true;
         document.getElementById('spin-btn').disabled = true;
 
-        // Trừ 5 điểm (vé quay)
         await db.ref('web_users/' + userUID + '/spin_points').set(diemHienTai - 5);
 
+        // --- LOGIC TỈ LỆ ---
         const rand = Math.random() * 100;
-        let acc = 0, result = rewards[0];
-        for (let r of rewards) {
-            acc += r.chance;
-            if (rand <= acc) { result = r; break; }
-        }
+        let result;
+        if (rand < 70) result = rewards[0];      // 70% ra 4 Xu
+        else if (rand < 85) result = rewards[1]; // 15% ra 5 Xu
+        else if (rand < 94) result = rewards[2]; // 9% ra 10 Xu
+        else if (rand < 99) result = rewards[3]; // 5% ra 20 Xu
+        else result = rewards[4];                // 1% ra 50 Xu
 
+        // --- CÔNG THỨC XOAY CHUẨN ---
+        // 1. rotation += 3600: Quay ít nhất 10 vòng
+        // 2. (360 - result.deg): Xoay ngược lại đúng vị trí ô trúng
+        // 3. - 36: Dịch thêm nửa ô (72/2) để kim chỉ vào CHÍNH GIỮA ô
         rotation += 3600 + (360 - result.deg) - 36;
+        
         document.getElementById('wheel').style.transform = `rotate(${rotation}deg)`;
 
         setTimeout(async () => {
@@ -172,9 +178,8 @@
             document.getElementById('spin-btn').disabled = false;
             
             if(result.val >= 20) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            alert(`🎉 Chúc mừng! Bạn quay trúng ${result.name}`);
+            alert(`🎉 Chúc mừng! Bạn nhận được ${result.val} Xu`);
 
-            // CỘNG THƯỞNG VÀO XU (biến points)
             await db.ref('web_users/' + userUID + '/points').transaction(p => (p || 0) + result.val);
         }, 5000);
     }
