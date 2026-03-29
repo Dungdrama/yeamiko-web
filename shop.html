@@ -104,6 +104,7 @@
         .btn { padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; font-size: 13px; text-transform: uppercase; }
         .btn-chill { background: #0ea5e9; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.2); }
         .btn-smp { background: #10b981; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
+        .btn:hover { filter: brightness(1.2); transform: scale(1.02); }
 
         @media (max-width: 768px) {
             .shop-header { flex-direction: column; text-align: center; }
@@ -222,7 +223,7 @@
             }
         }
 
-        // --- ĐOẠN LOGIC ĐÃ SỬA LẠI THEO WEB_USERS ---
+        // --- SỬA ĐÚNG PHẦN LIÊN KẾT: QUÉT TRONG WEB_USERS ---
         async function linkGame() {
             const mcName = document.getElementById('mc-name').value.trim();
             const code = document.getElementById('link-code').value.trim();
@@ -231,14 +232,13 @@
             if (!mcName || !code) return alert("Vui lòng nhập đủ thông tin!");
 
             try {
-                // Quét trong node 'web_users' theo tên Minecraft để tìm mã xác thực
+                // Quét trong node 'web_users/Tên_Minecraft' để tìm mã
                 const snapshot = await db.ref('web_users/' + mcName).once('value');
                 
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    // So sánh mã (hỗ trợ cả link_code object hoặc giá trị trực tiếp của node)
+                    // Kiểm tra mã link_code (hoặc nếu lưu trực tiếp thì dùng data)
                     if (String(data.link_code || data) === String(code)) {
-                        // Cập nhật liên kết vào tài khoản Web đang đăng nhập
                         await db.ref('web_users/' + user.uid).update({ linked_mc: mcName });
                         alert("🎉 Liên kết thành công!");
                         location.reload();
@@ -260,6 +260,7 @@
                     const user = firebase.auth().currentUser;
                     await db.ref('web_users/' + user.uid).update({ points: currentPoints - cost });
 
+                    // Gửi vào hàng đợi queue cho Plugin server đọc
                     const queuePath = 'users_data/' + currentMC + '/queue';
                     await db.ref(queuePath).push({
                         item: moc, server: sv, status: "pending", time: Date.now()
