@@ -20,7 +20,7 @@
         
         body { background: var(--bg); color: white; min-height: 100vh; overflow-x: hidden; }
 
-        /* --- MENU TOGGLE (3 GẠCH) --- */
+        /* --- MENU TOGGLE (NÚT 3 GẠCH) --- */
         .menu-toggle {
             position: fixed; top: 20px; left: 20px; z-index: 1500;
             background: var(--main); color: #000; width: 50px; height: 50px;
@@ -53,12 +53,12 @@
 
         /* --- NỘI DUNG CHÍNH --- */
         .main-content { 
-            width: 100%; max-width: 1000px; margin: 0 auto; 
+            width: 100%; max-width: 1100px; margin: 0 auto; 
             padding: 90px 20px 40px 20px; 
             display: flex; flex-direction: column; align-items: center; 
         }
 
-        /* Header thông tin user */
+        /* User Header */
         .shop-header { 
             width: 100%; background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
             border-radius: 24px; padding: 25px; display: flex; align-items: center; gap: 20px; margin-bottom: 40px; 
@@ -67,15 +67,16 @@
         .points-display { margin-left: auto; text-align: right; }
         .points-display span { font-size: 32px; font-weight: 900; color: #fbbf24; }
 
-        /* Grid vật phẩm */
+        /* Grid Vật Phẩm */
         .shop-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
             gap: 25px; width: 100%; 
         }
         .item-card { 
             background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
             border-radius: 24px; padding: 30px; text-align: center; transition: 0.4s; 
+            display: flex; flex-direction: column; justify-content: space-between;
         }
         .item-card:hover { transform: translateY(-10px); border-color: var(--main); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .item-icon { font-size: 45px; margin-bottom: 15px; color: var(--main); }
@@ -90,7 +91,7 @@
         @media (max-width: 768px) {
             .shop-header { flex-direction: column; text-align: center; gap: 10px; }
             .points-display { margin: 10px auto 0 auto; text-align: center; }
-            .shop-grid { grid-template-columns: 1fr; }
+            .shop-grid { grid-template-columns: 1fr; } /* Ép 1 cột để không bị ngang */
         }
     </style>
 </head>
@@ -123,8 +124,11 @@
 
         <div class="shop-grid">
             <div class="item-card">
-                <i class="fas fa-coins item-icon"></i>
-                <h3 style="margin-bottom:5px">50,000 Xu</h3>
+                <div>
+                    <i class="fas fa-coins item-icon"></i>
+                    <h3 style="margin-bottom:5px">50,000 Xu</h3>
+                    <p style="color:#888; font-size:13px; margin-bottom:15px">Gói khởi đầu cơ bản</p>
+                </div>
                 <div class="item-cost">20 Point</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(20, 'moc1', 'CHILL')">CHILL</button>
@@ -133,8 +137,11 @@
             </div>
 
             <div class="item-card">
-                <i class="fas fa-money-bill-wave item-icon" style="color:#2ecc71"></i>
-                <h3 style="margin-bottom:5px">150,000 Xu</h3>
+                <div>
+                    <i class="fas fa-money-bill-wave item-icon" style="color:#2ecc71"></i>
+                    <h3 style="margin-bottom:5px">150,000 Xu</h3>
+                    <p style="color:#888; font-size:13px; margin-bottom:15px">Gói kinh tế ổn định</p>
+                </div>
                 <div class="item-cost">50 Point</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(50, 'moc2', 'CHILL')">CHILL</button>
@@ -143,8 +150,11 @@
             </div>
 
             <div class="item-card">
-                <i class="fas fa-vault item-icon" style="color:#f1c40f"></i>
-                <h3 style="margin-bottom:5px">500,000 Xu</h3>
+                <div>
+                    <i class="fas fa-vault item-icon" style="color:#f1c40f"></i>
+                    <h3 style="margin-bottom:5px">500,000 Xu</h3>
+                    <p style="color:#888; font-size:13px; margin-bottom:15px">Gói đại gia Yeamiko</p>
+                </div>
                 <div class="item-cost">150 Point</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(150, 'moc3', 'CHILL')">CHILL</button>
@@ -153,18 +163,48 @@
             </div>
 
             <div class="item-card">
-                <i class="fas fa-pickaxe item-icon" style="color: #a855f7;"></i>
-                <h3 style="margin-bottom:5px; color: #a855f7;">Cúp Ametyst</h3>
+                <div>
+                    <i class="fas fa-pickaxe item-icon" style="color: #a855f7;"></i>
+                    <h3 style="margin-bottom:5px; color: #a855f7;">Cúp Ametyst</h3>
+                    <p style="color:#888; font-size:13px; margin-bottom:15px">Dụng cụ đào khoáng cực mạnh</p>
+                </div>
                 <div class="item-cost">100 Point</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(100, 'vip_cup_ametyst', 'CHILL')">CHILL</button>
                     <button class="btn btn-smp" onclick="buyItem(100, 'vip_cup_ametyst', 'SMP')">SMP</button>
                 </div>
             </div>
+
+            <div class="item-card">
+                <div>
+                    <i class="fas fa-shield-alt item-icon" style="color: #e74c3c;"></i>
+                    <h3 style="margin-bottom:5px; color: #e74c3c;">Giáp Yeamiko</h3>
+                    <p style="color:#888; font-size:13px; margin-bottom:15px">Bảo vệ tối đa cho chiến binh</p>
+                </div>
+                <div class="item-cost">200 Point</div>
+                <div class="btn-group">
+                    <button class="btn btn-chill" onclick="buyItem(200, 'armor_set', 'CHILL')">CHILL</button>
+                    <button class="btn btn-smp" onclick="buyItem(200, 'armor_set', 'SMP')">SMP</button>
+                </div>
+            </div>
+
+            <div class="item-card">
+                <div>
+                    <i class="fas fa-crown item-icon" style="color: #ff9f43;"></i>
+                    <h3 style="margin-bottom:5px; color: #ff9f43;">Hạng VIP (30 Ngày)</h3>
+                    <p style="color:#888; font-size:13px; margin-bottom:15px">Đặc quyền ưu tiên toàn mạng</p>
+                </div>
+                <div class="item-cost">300 Point</div>
+                <div class="btn-group">
+                    <button class="btn btn-chill" onclick="buyItem(300, 'rank_vip', 'CHILL')">CHILL</button>
+                    <button class="btn btn-smp" onclick="buyItem(300, 'rank_vip', 'SMP')">SMP</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        // Cấu hình Firebase của bạn
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -207,7 +247,9 @@
             if(confirm(`Xác nhận mua gói này cho cụm ${sv}?`)) {
                 try {
                     await db.ref('web_users/'+firebase.auth().currentUser.uid).update({points: currentPoints - cost});
-                    let update = {}; update[`pending_${sv}`] = moc; update[`claimed_${sv}`] = false;
+                    let update = {}; 
+                    update[`pending_${sv}`] = moc; 
+                    update[`claimed_${sv}`] = false;
                     await db.ref('users_data/'+currentMC).update(update);
                     alert("Mua thành công! Hãy vào Server gõ /nhanqua để nhận.");
                     loadData(firebase.auth().currentUser.uid);
