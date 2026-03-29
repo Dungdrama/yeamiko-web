@@ -3,37 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeamiko - Điểm Danh</title>
+    <title>Điểm Danh | Yeamiko Network</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
-        body { background: #0a0a0a; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: #111; padding: 20px; border-radius: 15px; border: 1px solid #333; }
-        .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin: 20px 0; }
-        .day { padding: 10px; background: #222; border-radius: 5px; font-size: 10px; border: 1px solid #444; }
-        .day.active { background: #00d4ff; color: black; font-weight: bold; border-color: #fff; }
-        button { width: 100%; padding: 15px; background: #00d4ff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #00b8e6; }
-        .info { margin-bottom: 15px; font-size: 18px; color: #00d4ff; }
+        :root { --main: #00d4ff; --bg: #f4f7f6; --sidebar-dark: #111; --card-dark: #1a1a1a; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* Sidebar - Đồng bộ với forum.html */
+        .menu-toggle {
+            position: fixed; top: 20px; left: 20px; z-index: 1500;
+            background: var(--main); color: #000; width: 45px; height: 45px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 10px; cursor: pointer; font-size: 20px;
+        }
+        .sidebar { 
+            width: 250px; background: var(--sidebar-dark); height: 100vh; 
+            position: fixed; padding: 25px; color: white; z-index: 2000;
+            left: -250px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar.open { left: 0; }
+        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; }
+        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
+        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1800; display: none; backdrop-filter: blur(3px); }
+        .sidebar-overlay.show { display: block; }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 80px 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
+        
+        .checkin-card {
+            background: white; width: 100%; max-width: 600px;
+            padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .points-badge {
+            background: rgba(0, 212, 255, 0.1); color: var(--main);
+            display: inline-block; padding: 10px 25px; border-radius: 30px;
+            font-size: 20px; font-weight: bold; margin: 15px 0;
+            border: 1px dashed var(--main);
+        }
+
+        /* Grid Điểm Danh */
+        .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 25px 0; }
+        .day {
+            aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
+            background: #f8f9fa; border-radius: 12px; font-weight: bold; color: #ccc;
+            border: 2px solid #eee; transition: 0.3s; font-size: 14px;
+        }
+        .day.active {
+            background: var(--main); color: #000; border-color: var(--main);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        .btn-checkin {
+            width: 100%; padding: 15px; border: none; border-radius: 15px;
+            background: var(--main); color: black; font-size: 18px; font-weight: 900;
+            cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+        .btn-checkin:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 212, 255, 0.5); }
+        .btn-checkin:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>ĐIỂM DANH YEAMIKO</h2>
-    <div class="info">Điểm của bạn: <span id="user-pts">0</span></div>
-    
-    <div class="grid" id="grid30">
-        </div>
+    <div class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
 
-    <button onclick="doCheckin()">ĐIỂM DANH (+2 ĐIỂM)</button>
-</div>
+    <div class="sidebar" id="sidebar">
+        <div class="logo">YEAMIKO</div>
+        <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
+        <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
+        <a href="checkin.html" class="active"><i class="fas fa-calendar-check"></i><span>Điểm danh</span></a>
+        <a href="shop.html"><i class="fas fa-shopping-cart"></i><span>Cửa hàng</span></a>
+        <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
+    </div>
+
+    <div class="main-content">
+        <div class="checkin-card">
+            <h2 style="font-weight: 900; letter-spacing: -1px;">HÀNH TRÌNH 30 NGÀY</h2>
+            <p style="color: #777;">Điểm danh mỗi ngày để nhận quà khủng!</p>
+            
+            <div class="points-badge">
+                <i class="fas fa-coins"></i> <span id="user-pts">0</span> Điểm
+            </div>
+
+            <div class="grid" id="grid30"></div>
+
+            <button id="btn-main" onclick="doCheckin()" class="btn-checkin">
+                ĐIỂM DANH NGAY (+2)
+            </button>
+        </div>
+    </div>
 
 <script>
-    // 2. Cấu hình Firebase (Giữ nguyên của bạn)
     const firebaseConfig = {
         apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
         authDomain: "yeamiko-web.firebaseapp.com",
@@ -46,35 +117,46 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // 3. Hàm hiển thị thông tin khi trang vừa load
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.querySelector('.sidebar-overlay').classList.toggle('show');
+    }
+
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
             updateUI(user.uid);
         } else {
-            alert("Vui lòng đăng nhập trước!");
-            // Nếu có trang login, bạn có thể chuyển hướng: window.location.href = "/login";
+            window.location.href = 'login.html';
         }
     });
 
     async function updateUI(uid) {
         const snap = await database.ref('web_users/' + uid).once('value');
-        const data = snap.val() || { points: 0, count: 0 };
+        const data = snap.val() || { points: 0, count: 0, last: "" };
         
         document.getElementById('user-pts').innerText = data.points;
         
+        // Cập nhật trạng thái nút
+        const today = new Date().toISOString().split('T')[0];
+        const btn = document.getElementById('btn-main');
+        if (data.last === today) {
+            btn.innerText = "HÔM NAY ĐÃ NHẬN";
+            btn.disabled = true;
+        }
+
         const grid = document.getElementById('grid30');
         grid.innerHTML = "";
         for(let i = 1; i <= 30; i++) {
             const div = document.createElement('div');
             div.className = i <= (data.count || 0) ? 'day active' : 'day';
-            div.innerText = i;
+            div.innerHTML = i <= (data.count || 0) ? '<i class="fas fa-check"></i>' : i;
             grid.appendChild(div);
         }
     }
 
     async function doCheckin() {
         const user = firebase.auth().currentUser;
-        if (!user) return alert("Bạn chưa đăng nhập!");
+        if (!user) return;
 
         const uid = user.uid;
         const ref = database.ref('web_users/' + uid);
@@ -84,7 +166,7 @@
             let d = snap.val() || { points: 0, count: 0, last: "" };
 
             const today = new Date().toISOString().split('T')[0];
-            if (d.last === today) return alert("Hôm nay bạn đã điểm danh rồi!");
+            if (d.last === today) return;
 
             let nextCount = (d.count >= 30) ? 1 : (d.count || 0) + 1;
             
@@ -94,14 +176,13 @@
                 last: today
             });
 
-            alert("Điểm danh thành công! +2 điểm.");
-            updateUI(uid); // Cập nhật lại giao diện ngay lập tức
+            alert("Tuyệt vời! Bạn nhận được 2 điểm tích lũy.");
+            updateUI(uid);
 
         } catch (error) {
-            alert("Lỗi: " + error.message);
+            alert("Lỗi kết nối: " + error.message);
         }
     }
 </script>
-
 </body>
 </html>
