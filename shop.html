@@ -16,46 +16,59 @@
         body { 
             background: radial-gradient(circle at top right, #1e293b, #0f172a); 
             color: white; 
-            display: flex; 
-            min-height: 100vh; 
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* SIDEBAR GIỮ NGUYÊN NHƯ CŨ */
+        /* --- MENU 3 GẠCH --- */
+        .menu-toggle {
+            position: fixed; top: 20px; left: 20px; z-index: 1500;
+            background: var(--main); color: #000; width: 45px; height: 45px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 10px; cursor: pointer; font-size: 20px;
+        }
+
         .sidebar { 
-            width: 260px; 
-            background: rgba(0, 0, 0, 0.4); 
-            backdrop-filter: blur(15px); 
-            height: 100vh; 
-            position: fixed; 
-            padding: 30px 20px; 
-            border-right: 1px solid rgba(255,255,255,0.1);
+            width: 260px; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); 
+            height: 100vh; position: fixed; padding: 30px 20px; z-index: 2000;
+            left: -260px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1);
         }
-        .sidebar .logo { font-size: 28px; font-weight: 900; color: var(--main); margin-bottom: 50px; text-align: center; }
+        .sidebar.open { left: 0; }
+        .sidebar .logo { font-size: 24px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; }
         .sidebar a { 
-            display: flex; align-items: center; color: #94a3b8; 
-            padding: 14px 18px; text-decoration: none; border-radius: 12px; 
-            margin-bottom: 8px; transition: 0.3s; 
+            display: flex; align-items: center; color: #94a3b8; padding: 14px 18px; 
+            text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; 
         }
-        .sidebar a.active, .sidebar a:hover { background: var(--main); color: #000; font-weight: bold; }
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar a:hover, .sidebar a.active { background: var(--main); color: #000; font-weight: bold; }
 
-        .main-content { flex: 1; margin-left: 260px; padding: 40px; display: flex; flex-direction: column; align-items: center; }
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 1800; display: none;
+        }
+        .sidebar-overlay.show { display: block; }
+
+        /* --- NỘI DUNG --- */
+        .main-content { 
+            width: 100%; max-width: 1200px; margin: 0 auto; 
+            padding: 80px 20px 40px 20px;
+            display: flex; flex-direction: column; align-items: center;
+        }
 
         .shop-header { 
             width: 100%; max-width: 900px; background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
             border-radius: 24px; padding: 25px; display: flex; align-items: center; gap: 20px; margin-bottom: 40px; 
         }
-        .mc-head { width: 64px; height: 64px; border-radius: 12px; box-shadow: 0 0 20px var(--main); }
+        .mc-head { width: 64px; height: 64px; border-radius: 12px; border: 2px solid var(--main); }
         .points-display { margin-left: auto; text-align: right; }
         .points-display span { font-size: 32px; font-weight: 900; color: #fbbf24; }
 
-        /* PHẦN SỬA LỖI HIỂN THỊ NGANG */
+        /* FIX HIỂN THỊ ĐIỆN THOẠI */
         .shop-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-            gap: 25px; 
-            width: 100%; 
-            max-width: 900px; 
+            gap: 25px; width: 100%; max-width: 900px;
         }
 
         .item-card { 
@@ -67,30 +80,29 @@
         .item-cost { color: #fbbf24; font-weight: 800; font-size: 20px; margin-bottom: 20px; }
         
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn { padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 13px; }
-        .btn-chill { background: #0ea5e9; color: white; }
-        .btn-smp { background: #10b981; color: white; }
+        .btn { padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; font-size: 13px; }
+        .btn-chill { background: #0ea5e9; }
+        .btn-smp { background: #10b981; }
 
-        /* RESPONSIVE CHO ĐIỆN THOẠI */
         @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: relative; padding: 20px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
-            .sidebar .logo { margin-bottom: 20px; }
-            .main-content { margin-left: 0; padding: 20px; }
             .shop-header { flex-direction: column; text-align: center; }
-            .points-display { margin: 10px auto 0 auto; text-align: center; }
+            .points-display { margin: 15px auto 0 auto; text-align: center; }
+            .shop-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
+    <div class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
+
+    <div class="sidebar" id="sidebar">
         <div class="logo">YEAMIKO</div>
-        <a href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
-        <a href="forum.html"><i class="fas fa-comments"></i> Diễn đàn</a>
-        <a href="checkin.html"><i class="fas fa-calendar-check"></i> Điểm danh</a>
-        <a href="shop.html" class="active"><i class="fas fa-shopping-cart"></i> Cửa hàng</a>
-        <a href="profile.html"><i class="fas fa-user"></i> Hồ sơ</a>
+        <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
+        <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
+        <a href="checkin.html"><i class="fas fa-calendar-check"></i><span>Điểm danh</span></a>
+        <a href="shop.html" class="active"><i class="fas fa-shopping-cart"></i><span>Cửa hàng</span></a>
+        <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
     </div>
 
     <div class="main-content">
@@ -109,7 +121,7 @@
         <div class="shop-grid">
             <div class="item-card">
                 <i class="fas fa-coins item-icon"></i>
-                <div style="font-weight: bold; margin-bottom: 5px;">50,000 Xu</div>
+                <div style="font-weight:bold; margin-bottom:5px">50,000 Xu</div>
                 <div class="item-cost">20 Điểm</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(20, 'moc1', 'CHILL')">CHILL</button>
@@ -119,7 +131,7 @@
 
             <div class="item-card">
                 <i class="fas fa-money-bill-wave item-icon" style="color:#2ecc71"></i>
-                <div style="font-weight: bold; margin-bottom: 5px;">150,000 Xu</div>
+                <div style="font-weight:bold; margin-bottom:5px">150,000 Xu</div>
                 <div class="item-cost">50 Điểm</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(50, 'moc2', 'CHILL')">CHILL</button>
@@ -129,7 +141,7 @@
 
             <div class="item-card">
                 <i class="fas fa-vault item-icon" style="color:#f1c40f"></i>
-                <div style="font-weight: bold; margin-bottom: 5px;">500,000 Xu</div>
+                <div style="font-weight:bold; margin-bottom:5px">500,000 Xu</div>
                 <div class="item-cost">150 Điểm</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(150, 'moc3', 'CHILL')">CHILL</button>
@@ -139,7 +151,7 @@
 
             <div class="item-card">
                 <i class="fas fa-pickaxe item-icon" style="color: #a855f7;"></i>
-                <div style="font-weight: bold; margin-bottom: 5px; color: #a855f7;">Cúp Ametyst</div>
+                <div style="font-weight:bold; margin-bottom:5px">Cúp Ametyst</div>
                 <div class="item-cost">100 Điểm</div>
                 <div class="btn-group">
                     <button class="btn btn-chill" onclick="buyItem(100, 'vip_cup_ametyst', 'CHILL')">CHILL</button>
@@ -148,22 +160,22 @@
             </div>
 
             <div class="item-card">
-                <i class="fas fa-shield-alt item-icon" style="color: #e74c3c;"></i>
-                <div style="font-weight: bold; margin-bottom: 5px; color: #e74c3c;">Giáp Yeamiko</div>
-                <div class="item-cost">200 Điểm</div>
+                <i class="fas fa-axe item-icon" style="color: #a855f7;"></i>
+                <div style="font-weight:bold; margin-bottom:5px">Rìu Ametyst</div>
+                <div class="item-cost">100 Điểm</div>
                 <div class="btn-group">
-                    <button class="btn btn-chill" onclick="buyItem(200, 'armor_set', 'CHILL')">CHILL</button>
-                    <button class="btn btn-smp" onclick="buyItem(200, 'armor_set', 'SMP')">SMP</button>
+                    <button class="btn btn-chill" onclick="buyItem(100, 'vip_riu_ametyst', 'CHILL')">CHILL</button>
+                    <button class="btn btn-smp" onclick="buyItem(100, 'vip_riu_ametyst', 'SMP')">SMP</button>
                 </div>
             </div>
 
             <div class="item-card">
-                <i class="fas fa-crown item-icon" style="color: #ff9f43;"></i>
-                <div style="font-weight: bold; margin-bottom: 5px; color: #ff9f43;">Rank VIP</div>
-                <div class="item-cost">300 Điểm</div>
+                <i class="fas fa-shovels item-icon" style="color: #a855f7;"></i>
+                <div style="font-weight:bold; margin-bottom:5px">Xẻng Ametyst</div>
+                <div class="item-cost">100 Điểm</div>
                 <div class="btn-group">
-                    <button class="btn btn-chill" onclick="buyItem(300, 'rank_vip', 'CHILL')">CHILL</button>
-                    <button class="btn btn-smp" onclick="buyItem(300, 'rank_vip', 'SMP')">SMP</button>
+                    <button class="btn btn-chill" onclick="buyItem(100, 'vip_xeng_ametyst', 'CHILL')">CHILL</button>
+                    <button class="btn btn-smp" onclick="buyItem(100, 'vip_xeng_ametyst', 'SMP')">SMP</button>
                 </div>
             </div>
         </div>
@@ -181,6 +193,11 @@
         const db = firebase.database();
         let currentMC = null, currentPoints = 0;
 
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.querySelector('.sidebar-overlay').classList.toggle('show');
+        }
+
         firebase.auth().onAuthStateChanged(u => { 
             if(u) {
                 document.getElementById('display-email').innerText = u.email;
@@ -196,13 +213,11 @@
             if(currentMC) {
                 document.getElementById('display-mc').innerText = currentMC;
                 document.getElementById('player-head').src = `https://mc-heads.net/avatar/${currentMC}`;
-            } else {
-                document.getElementById('display-mc').innerText = "Chưa liên kết";
             }
         }
 
         async function buyItem(cost, moc, sv) {
-            if(!currentMC) return alert("Chưa liên kết game!");
+            if(!currentMC) return alert("Bạn chưa liên kết Game!");
             if(currentPoints < cost) return alert("Không đủ điểm!");
             if(confirm(`Mua gói này cho cụm ${sv}?`)) {
                 await db.ref('web_users/'+firebase.auth().currentUser.uid).update({points: currentPoints - cost});
