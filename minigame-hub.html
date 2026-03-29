@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yeamiko | Game Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root { 
+            --main: #00d4ff; 
+            --bg: #0b0f19; 
+            --sidebar: #0f172a;
+            --card: rgba(255, 255, 255, 0.05); 
+            --gold: #ffd700; 
+            --text: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: white; min-height: 100vh; overflow-x: hidden; }
+
+        /* --- SIDEBAR ĐỒNG BỘ --- */
+        .sidebar {
+            position: fixed; left: -260px; top: 0; width: 260px; height: 100%;
+            background: var(--sidebar); border-right: 1px solid rgba(255,255,255,0.1);
+            transition: 0.4s; z-index: 1000; padding: 20px;
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+        .nav-item { 
+            display: flex; align-items: center; gap: 15px; padding: 15px;
+            color: var(--text); text-decoration: none; border-radius: 12px; transition: 0.3s; margin-bottom: 5px;
+        }
+        .nav-item:hover, .nav-item.active { background: rgba(0, 212, 255, 0.1); color: var(--main); }
+
+        /* --- NAVBAR & MENU BUTTON --- */
+        .navbar { 
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); 
+            height: 70px; display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 25px; border-bottom: 1px solid rgba(255,255,255,0.1); sticky: top; z-index: 900;
+        }
+        .menu-btn { font-size: 24px; cursor: pointer; color: var(--main); }
+        .nav-brand { font-weight: 900; font-size: 20px; letter-spacing: 2px; }
+
+        /* --- NỘI DUNG CHÍNH --- */
+        .main-content { padding: 40px 20px; max-width: 1200px; margin: 0 auto; transition: 0.4s; }
+        .header-box { text-align: center; margin-bottom: 50px; }
+        .header-box h1 { font-size: 35px; margin-bottom: 10px; background: linear-gradient(to right, #fff, var(--main)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .game-grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;
+        }
+
+        /* --- GAME CARD --- */
+        .game-card { 
+            background: var(--card); border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden; transition: 0.4s; cursor: pointer; position: relative;
+        }
+        .game-card:hover { transform: translateY(-10px); border-color: var(--main); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        
+        .game-banner { 
+            height: 160px; background: linear-gradient(45deg, #1e293b, #0f172a);
+            display: flex; align-items: center; justify-content: center; font-size: 50px; color: var(--main);
+        }
+        .game-info { padding: 25px; }
+        .game-tag { position: absolute; top: 15px; right: 15px; background: var(--gold); color: #000; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 900; }
+        
+        .game-title { font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+        .game-desc { color: var(--text); font-size: 14px; line-height: 1.5; margin-bottom: 20px; height: 42px; overflow: hidden; }
+
+        .btn-play { 
+            display: block; width: 100%; padding: 12px; background: var(--main); color: #000; 
+            text-align: center; font-weight: 800; border-radius: 12px; text-decoration: none; transition: 0.3s;
+        }
+        .btn-play:hover { opacity: 0.9; transform: scale(1.02); }
+
+        /* Overlay khi mở menu */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 999; }
+        .overlay.active { display: block; }
+
+        @media (max-width: 768px) { .game-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="nav-brand">YEAMIKO</div>
+            <i class="fas fa-times menu-btn" onclick="toggleMenu()"></i>
+        </div>
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i> Trang chủ</a>
+        <a href="minigame-hub.html" class="nav-item active"><i class="fas fa-gamepad"></i> Trò chơi</a>
+        <a href="shop.html" class="nav-item"><i class="fas fa-shopping-cart"></i> Cửa hàng</a>
+        <a href="top.html" class="nav-item"><i class="fas fa-trophy"></i> Xếp hạng</a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user"></i> Cá nhân</a>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <nav class="navbar">
+        <i class="fas fa-bars menu-btn" onclick="toggleMenu()"></i>
+        <div class="nav-brand">GAME <span style="color:var(--main)">HUB</span></div>
+        <div id="user-points" style="color: var(--gold); font-weight: bold; background: rgba(255,215,0,0.1); padding: 5px 15px; border-radius: 20px; border: 1px solid var(--gold);">0 Xu</div>
+    </nav>
+
+    <div class="main-content">
+        <div class="header-box">
+            <h1>GIẢI TRÍ & TÍCH XU</h1>
+            <p>Chọn một trò chơi để bắt đầu cuộc hành trình của bạn</p>
+        </div>
+
+        <div class="game-grid">
+            <div class="game-card" onclick="location.href='minigame.html'">
+                <div class="game-tag">HOT</div>
+                <div class="game-banner"><i class="fas fa-lightbulb"></i></div>
+                <div class="game-info">
+                    <div class="game-title">Ultra Quiz</div>
+                    <div class="game-desc">Vượt qua 5 câu hỏi Minecraft hóc búa để nhận 2 Xu thưởng.</div>
+                    <a href="minigame.html" class="btn-play">CHƠI NGAY</a>
+                </div>
+            </div>
+
+            <div class="game-card" onclick="location.href='blockblast.html'">
+                <div class="game-tag" style="background: #00d4ff;">MỚI</div>
+                <div class="game-banner" style="color: #ff4757;"><i class="fas fa-cubes"></i></div>
+                <div class="game-info">
+                    <div class="game-title">Block Blast</div>
+                    <div class="game-desc">Xếp các khối gỗ Minecraft và phá hủy chúng để ghi điểm cực cao.</div>
+                    <a href="blockblast.html" class="btn-play">CHƠI NGAY</a>
+                </div>
+            </div>
+
+            <div class="game-card" style="opacity: 0.6; cursor: not-allowed;">
+                <div class="game-banner" style="color: #64748b;"><i class="fas fa-lock"></i></div>
+                <div class="game-info">
+                    <div class="game-title">Coming Soon</div>
+                    <div class="game-desc">Trò chơi mới đang được Yeamiko phát triển. Hãy chờ nhé!</div>
+                    <a href="#" class="btn-play" style="background: #334155; pointer-events: none;">ĐANG KHÓA</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
+        authDomain: "yeamiko-web.firebaseapp.com",
+        databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "yeamiko-web",
+        appId: "1:380442978172:web:52eeb187628ed3518266f9"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    firebase.auth().onAuthStateChanged(user => {
+        if(user) {
+            firebase.database().ref('web_users/' + user.uid + '/points').on('value', s => {
+                document.getElementById('user-points').innerHTML = `<i class="fas fa-coins"></i> ${s.val() || 0} Xu`;
+            });
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+</script>
+</body>
+</html>
