@@ -12,21 +12,45 @@
 
     <style>
         :root { --main: #ff4757; --bg: #0a0e17; --blue: #00d4ff; --gold: #ffd700; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); color: white; text-align: center; min-height: 100vh; overflow-x: hidden; }
 
-        .navbar { background: #161b28; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--main); }
-        .wallet { display: flex; gap: 10px; }
-        .badge { padding: 8px 15px; border-radius: 20px; font-weight: bold; background: rgba(255,255,255,0.05); font-size: 14px; }
+        /* Navbar cập nhật thêm nút quay lại */
+        .navbar { 
+            background: #161b28; height: 70px; display: flex; 
+            align-items: center; justify-content: space-between; 
+            padding: 0 20px; border-bottom: 2px solid var(--main);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1); color: #fff; border: none;
+            padding: 8px 15px; border-radius: 8px; cursor: pointer;
+            font-size: 14px; transition: 0.3s; text-decoration: none;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .btn-back:hover { background: var(--main); }
 
-        .exchange-box { background: #1c2331; margin: 20px auto; padding: 20px; border-radius: 15px; max-width: 450px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--blue); }
+        .wallet { display: flex; gap: 10px; }
+        .badge { padding: 8px 15px; border-radius: 20px; font-weight: bold; background: rgba(255,255,255,0.05); font-size: 13px; border: 1px solid rgba(255,255,255,0.1); }
+
+        .exchange-box { 
+            background: #1c2331; margin: 20px auto; padding: 20px; 
+            border-radius: 15px; max-width: 450px; display: flex; 
+            align-items: center; justify-content: space-between; border: 1px solid var(--blue);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
         .btn-exchange { background: var(--blue); color: #000; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
 
         /* Vòng quay Canvas */
         .wheel-container { position: relative; width: 360px; height: 360px; margin: 40px auto; }
-        #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 0 50px rgba(0,0,0,0.5), 0 0 20px rgba(255, 71, 87, 0.2); }
+        #wheelCanvas { 
+            width: 100%; height: 100%; border-radius: 50%; 
+            box-shadow: 0 0 50px rgba(0,0,0,0.5), 0 0 20px rgba(255, 71, 87, 0.2); 
+            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
+        }
         
-        /* Kim chỉ */
         .pointer { 
             position: absolute; top: -20px; left: 50%; transform: translateX(-50%); z-index: 10;
             width: 40px; height: 50px; background: #fff; clip-path: polygon(50% 100%, 0 0, 100% 0);
@@ -37,14 +61,20 @@
             background: var(--main); color: white; border: none; padding: 18px 80px;
             font-size: 22px; font-weight: 900; border-radius: 50px; cursor: pointer;
             box-shadow: 0 10px 20px rgba(255, 71, 87, 0.4); transition: 0.3s;
+            text-transform: uppercase;
         }
-        .btn-spin:disabled { background: #444; cursor: not-allowed; transform: scale(0.95); opacity: 0.6; }
+        .btn-spin:disabled { background: #444; cursor: not-allowed; opacity: 0.6; }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <div style="font-weight:900; font-size: 20px;">YEAMIKO <span style="color:var(--main)">CASINO</span></div>
+        <div class="nav-left">
+            <a href="minigame-hub.html" class="btn-back">
+                <i class="fas fa-chevron-left"></i> Quay lại
+            </a>
+            <div style="font-weight:900; font-size: 18px; display: none;" id="brand-name">YEAMIKO</div>
+        </div>
         <div class="wallet">
             <div class="badge" style="color:var(--blue)"><i class="fas fa-coins"></i> <span id="xu-val">0</span> Xu</div>
             <div class="badge" style="color:var(--gold)"><i class="fas fa-ticket-alt"></i> <span id="diem-val">0</span> Điểm</div>
@@ -53,7 +83,7 @@
 
     <div class="exchange-box">
         <div style="text-align:left">
-            <b style="color:var(--blue)">Đổi Điểm Quay</b><br>
+            <b style="color:var(--blue)">Đổi Vé Quay</b><br>
             <small style="color:#aaa">10 Xu = 5 Điểm (Vé quay)</small>
         </div>
         <button class="btn-exchange" onclick="exchange()">ĐỔI NGAY</button>
@@ -67,6 +97,7 @@
     <button class="btn-spin" id="spin-btn" onclick="startSpin()">QUAY (5 Điểm)</button>
 
 <script>
+    // Giữ nguyên cấu hình Firebase của bạn
     const firebaseConfig = {
         apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
         authDomain: "yeamiko-web.firebaseapp.com",
@@ -93,17 +124,12 @@
     let isSpinning = false;
     let currentRotation = 0;
 
-    // Vẽ vòng quay ngay khi tải trang
     function drawWheel() {
         const numSegments = rewards.length;
         const anglePerSegment = (Math.PI * 2) / numSegments;
-
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
         rewards.forEach((reward, i) => {
             const angle = i * anglePerSegment;
-            
-            // Vẽ ô màu
             ctx.beginPath();
             ctx.fillStyle = reward.color;
             ctx.moveTo(250, 250);
@@ -111,33 +137,25 @@
             ctx.fill();
             ctx.strokeStyle = "rgba(255,255,255,0.2)";
             ctx.stroke();
-
-            // Vẽ chữ
             ctx.save();
             ctx.translate(250, 250);
             ctx.rotate(angle + anglePerSegment / 2);
             ctx.textAlign = "right";
             ctx.fillStyle = "#fff";
             ctx.font = "bold 28px Arial";
-            ctx.shadowBlur = 4;
-            ctx.shadowColor = "black";
             ctx.fillText(reward.label, 210, 10);
             ctx.restore();
         });
-
-        // Vẽ viền và tâm
         ctx.beginPath();
         ctx.arc(250, 250, 240, 0, Math.PI * 2);
         ctx.lineWidth = 10;
         ctx.strokeStyle = "#fff";
         ctx.stroke();
-
         ctx.beginPath();
         ctx.arc(250, 250, 30, 0, Math.PI * 2);
         ctx.fillStyle = "#fff";
         ctx.fill();
     }
-
     drawWheel();
 
     firebase.auth().onAuthStateChanged(user => {
@@ -167,7 +185,6 @@
         if (isSpinning || diemHienTai < 5) return alert("Không đủ Điểm quay!");
         isSpinning = true;
         document.getElementById('spin-btn').disabled = true;
-
         await db.ref('web_users/' + userUID + '/spin_points').set(diemHienTai - 5);
 
         const rand = Math.random() * 100;
@@ -178,13 +195,10 @@
         }
 
         const segmentAngle = 360 / rewards.length;
-        // Tính toán góc xoay để ô trúng nằm ở ĐỈNH (nơi có kim chỉ)
-        // Lưu ý: Canvas vẽ bắt đầu từ hướng 3h (90 độ so với đỉnh), nên cần trừ thêm 90.
         const targetRotation = (360 - (resultIdx * segmentAngle)) - (segmentAngle / 2) - 90;
-        const extraSpins = 360 * 10; // Quay 10 vòng
+        const extraSpins = 360 * 10; 
         currentRotation += extraSpins + (targetRotation - (currentRotation % 360) + 360) % 360;
 
-        canvas.style.transition = "transform 5s cubic-bezier(0.15, 0, 0.15, 1)";
         canvas.style.transform = `rotate(${currentRotation}deg)`;
 
         setTimeout(async () => {
