@@ -1,0 +1,40 @@
+<div class="main-content">
+    <h2 class="section-title">CỬA HÀNG ĐỔI THƯỞNG</h2>
+    <div class="shop-container">
+        <div class="shop-card">
+            <h3>Mốc 1: 50K Money</h3>
+            <p>Giá: 20 Điểm</p>
+            <button onclick="buy(20, 'moc1')">ĐỔI QUÀ</button>
+        </div>
+        <div class="shop-card">
+            <h3>Mốc 2: 100K Money</h3>
+            <p>Giá: 40 Điểm</p>
+            <button onclick="buy(40, 'moc2')">ĐỔI QUÀ</button>
+        </div>
+        <div class="shop-card">
+            <h3>Mốc 3: 200K Money</h3>
+            <p>Giá: 80 Điểm</p>
+            <button onclick="buy(80, 'moc3')">ĐỔI QUÀ</button>
+        </div>
+        </div>
+</div>
+
+<script>
+async function buy(cost, id) {
+    const user = localStorage.getItem('verifiedUser');
+    if(!user) return alert('Hãy xác thực trước!');
+    
+    const ref = database.ref('users/' + user);
+    const snap = await ref.once('value');
+    let d = snap.val();
+    
+    if(d.points < cost) return alert('Không đủ điểm!');
+    
+    await ref.update({
+        points: d.points - cost,
+        pending: id,
+        claimed: false
+    });
+    alert('Đã đổi! Vào game gõ /nhanqua');
+}
+</script>
