@@ -117,7 +117,12 @@
         <a href="shop.html" class="active"><i class="fas fa-shopping-cart"></i><span>Cửa hàng</span></a>
         <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
     </div>
-
+    <div id="link-section" class="link-section">
+        <h3 style="margin-bottom: 10px;"><i class="fas fa-link"></i> Liên kết tài khoản Game</h3>
+        <input type="text" id="mc-name" placeholder="Tên Minecraft">
+        <input type="text" id="link-code" placeholder="Mã /link">
+        <button class="btn-link" onclick="linkGame()">XÁC NHẬN</button>
+    </div>
     <div class="main-content">
         <div class="shop-header">
             <img id="player-head" src="https://mc-heads.net/avatar/steve" class="mc-head">
@@ -223,9 +228,29 @@
             const d = s.val() || {points:0};
             currentPoints = d.points; currentMC = d.linked_mc;
             document.getElementById('display-pts').innerText = currentPoints;
+            
             if(currentMC) {
                 document.getElementById('display-mc').innerText = currentMC;
                 document.getElementById('player-head').src = `https://mc-heads.net/avatar/${currentMC}`;
+                document.getElementById('link-section').style.display = 'none'; // Ẩn nếu đã liên kết
+            } else {
+                document.getElementById('display-mc').innerText = "Chưa liên kết";
+                document.getElementById('link-section').style.display = 'block'; // Hiện nếu chưa liên kết
+            }
+        }
+
+        async function linkGame() {
+            const name = document.getElementById('mc-name').value.trim();
+            const code = document.getElementById('link-code').value.trim();
+            if(!name || !code) return alert("Vui lòng nhập đủ thông tin!");
+            
+            const s = await db.ref('linking/'+name).once('value');
+            if(s.exists() && s.val().code == code) {
+                await db.ref('web_users/'+firebase.auth().currentUser.uid).update({linked_mc: name});
+                alert("Liên kết thành công!");
+                location.reload();
+            } else {
+                alert("Sai mã hoặc tên nhân vật!");
             }
         }
 
