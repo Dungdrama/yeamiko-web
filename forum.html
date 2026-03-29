@@ -38,16 +38,16 @@
         .main-content { flex: 1; padding: 80px 20px 250px 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
         .container { width: 100%; max-width: 600px; }
         .post-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; }
-        .post-header { display: flex; align-items: center; margin-bottom: 12px; cursor: pointer; } /* ĐÃ THÊM: Con trỏ chuột khi vào profile */
+        .post-header { display: flex; align-items: center; margin-bottom: 12px; cursor: pointer; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 2px solid var(--main); }
         .post-img { width: 100%; border-radius: 10px; margin-top: 12px; display: block; max-height: 500px; object-fit: cover; }
         
         .post-actions { margin-top: 15px; display: flex; gap: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
-        .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; padding: 5px 10px; border-radius: 8px; transition: 0.2s; }
+        .action-btn { cursor: pointer; font-size: 14px; color: #555; font-weight: bold; padding: 5px 10px; border-radius: 8px; }
         .action-btn.liked { color: #ff4d4d; }
 
         .comment-section { margin-top: 15px; }
-        .comment-item { display: flex; margin-bottom: 10px; cursor: pointer; } /* ĐÃ THÊM: Con trỏ xem profile cmt */
+        .comment-item { display: flex; margin-bottom: 10px; cursor: pointer; }
         .cmt-avatar { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; }
         .cmt-content { background: #f0f2f5; padding: 8px 12px; border-radius: 18px; font-size: 14px; max-width: 85%; }
         .cmt-input-box { display: flex; margin-top: 10px; gap: 10px; }
@@ -67,11 +67,9 @@
         <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
         <a href="forum.html" class="active"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
         <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
-        
         <a href="admin-verify.html" id="admin-menu-item" style="display: none; color: #00d4ff; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
             <i class="fas fa-user-shield"></i><span>Phê duyệt bài</span>
         </a>
-        <a href="index.html" style="margin-top: auto; border: 1px solid rgba(0, 212, 255, 0.2);"><i class="fas fa-arrow-left"></i><span>Về Home</span></a>
     </div>
 
     <div class="main-content">
@@ -92,7 +90,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, push, get, set, query, orderByChild, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, push, get, set, query, orderByChild, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
@@ -106,94 +104,89 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        window.toggleMenu = function() {
+        window.toggleMenu = () => {
             document.getElementById('sidebar').classList.toggle('open');
             document.querySelector('.sidebar-overlay').classList.toggle('show');
         };
 
-        // --- ĐÃ THÊM: CHỨC NĂNG XEM TRANG CÁ NHÂN ---
-        window.viewUser = (uid) => {
-            window.location.href = `user.html?id=${uid}`;
-        };
+        // Hàm xem profile
+        window.viewUser = (uid) => window.location.href = `user.html?id=${uid}`;
 
+        // Hàm Like
         window.handleLike = async (pid) => {
             const u = auth.currentUser;
-            if(!u) return alert("Vui lòng đăng nhập!");
-            const likeRef = ref(db, `likes/${pid}/${u.uid}`);
+            if(!u) return;
+            const likeRef = ref(db, `posts/${pid}/likes/${u.uid}`);
             const snap = await get(likeRef);
-            
-            // Logic: Nếu đã like thì bỏ like, chưa like thì like
             if(snap.exists()) {
-                await set(likeRef, null);
-                await runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 1) - 1);
+                await set(likeRef, null); // Bỏ like
             } else {
-                await set(likeRef, true);
-                await runTransaction(ref(db, `posts/${pid}/likes`), (c) => (c || 0) + 1);
+                await set(likeRef, true); // Like
             }
         };
 
+        // Hàm gửi bình luận
         window.sendComment = async (pid) => {
-            const u = auth.currentUser;
             const input = document.getElementById(`in-${pid}`);
-            const val = input.value.trim();
-            if(!u || !val) return;
+            const text = input.value.trim();
+            if(!text) return;
+            const u = auth.currentUser;
             const uSnap = await get(ref(db, `users/${u.uid}`));
-            const userData = uSnap.val() || {};
-            const name = userData.name || u.displayName || u.email.split('@')[0];
-            await push(ref(db, `posts/${pid}/comments`), { uid: u.uid, userName: name, text: val, time: Date.now() });
+            const name = uSnap.exists() ? uSnap.val().name : u.email.split('@')[0];
+            await push(ref(db, `posts/${pid}/comments`), { uid: u.uid, userName: name, text: text, time: Date.now() });
             input.value = "";
         };
 
         function startListeningPosts() {
             const list = document.getElementById('forum-list');
-            const postsRef = query(ref(db, 'posts'), orderByChild('time'));
-
-            onValue(postsRef, async (snapshot) => {
+            onValue(query(ref(db, 'posts'), orderByChild('time')), async (snapshot) => {
                 const allPosts = snapshot.val() || {};
                 const userSnap = await get(ref(db, 'users'));
                 const allUsers = userSnap.val() || {};
-                
                 const keys = Object.keys(allPosts).sort((a,b) => allPosts[b].time - allPosts[a].time);
+                
                 list.innerHTML = keys.length ? "" : "<p style='text-align:center;'>Chưa có bài viết nào.</p>";
                 
                 for (let k of keys) {
                     const p = allPosts[k];
                     const name = allUsers[p.uid]?.name || p.userName;
                     const avt = allUsers[p.uid]?.avatar || `https://ui-avatars.com/api/?name=${name}`;
-                    
-                    let isLiked = false;
-                    if(auth.currentUser) {
-                        const lSnap = await get(ref(db, `likes/${k}/${auth.currentUser.uid}`));
-                        if(lSnap.exists()) isLiked = true;
-                    }
+                    const likeCount = p.likes ? Object.keys(p.likes).length : 0;
 
                     let cmts = "";
                     if(p.comments) Object.values(p.comments).forEach(c => {
                         const cName = allUsers[c.uid]?.name || c.userName;
                         const cavt = allUsers[c.uid]?.avatar || `https://ui-avatars.com/api/?name=${cName}`;
-                        // ĐÃ THÊM: onclick="viewUser" cho comment
                         cmts += `<div class="comment-item" onclick="viewUser('${c.uid}')"><img src="${cavt}" class="cmt-avatar"><div class="cmt-content"><b>${cName}</b> ${c.text}</div></div>`;
                     });
 
-                    // ĐÃ THÊM: onclick="viewUser" cho post header
                     list.insertAdjacentHTML('beforeend', `
                         <div class="post-card">
                             <div class="post-header" onclick="viewUser('${p.uid}')"><img src="${avt}" class="user-avatar"><b>${name}</b></div>
                             <div style="margin:10px 0;">${p.text}</div>
                             ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
-                            <div class="post-actions"><span class="action-btn ${isLiked?'liked':''}" onclick="handleLike('${k}')">❤️ ${p.likes||0} Thích</span></div>
-                            <div class="comment-section"><div id="clist-${k}">${cmts}</div><div class="cmt-input-box"><input id="in-${k}" class="cmt-input" placeholder="Bình luận..."><button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button></div></div>
+                            <div class="post-actions">
+                                <span class="action-btn" onclick="handleLike('${k}')">❤️ ${likeCount} Thích</span>
+                            </div>
+                            <div class="comment-section">
+                                <div id="clist-${k}">${cmts}</div>
+                                <div class="cmt-input-box">
+                                    <input id="in-${k}" class="cmt-input" placeholder="Viết bình luận...">
+                                    <button onclick="sendComment('${k}')" class="btn-cmt">Gửi</button>
+                                </div>
+                            </div>
                         </div>`);
                 }
             });
         }
 
+        // Giữ nguyên tính năng Gửi bài chờ duyệt của Dũng
         document.getElementById('btn-post').onclick = async () => {
-            const u = auth.currentUser;
-            const txt = document.getElementById('post-text').value.trim();
+            const txt = document.getElementById('post-text').value;
             const file = document.getElementById('post-file').files[0];
-            if(!u || (!txt && !file)) return alert("Nội dung trống!");
-            
+            const u = auth.currentUser;
+            if(!u || (!txt && !file)) return;
+
             document.getElementById('btn-post').disabled = true;
             document.getElementById('stt').innerText = "⏳ Đang gửi duyệt...";
 
@@ -207,12 +200,10 @@
             }
 
             const uSnap = await get(ref(db, `users/${u.uid}`));
-            const name = uSnap.exists() ? uSnap.val().name : (u.displayName || u.email.split('@')[0]);
+            const name = uSnap.exists() ? uSnap.val().name : u.email.split('@')[0];
 
-            await push(ref(db, 'pending_posts'), { 
-                uid: u.uid, userName: name, text: txt, img: imgB64, time: Date.now() 
-            });
-
+            await push(ref(db, 'pending_posts'), { uid: u.uid, userName: name, text: txt, img: imgB64, time: Date.now() });
+            
             document.getElementById('post-text').value = "";
             document.getElementById('post-file').value = "";
             document.getElementById('stt').innerText = "✅ Đã gửi! Vui lòng chờ Admin phê duyệt.";
@@ -221,13 +212,9 @@
 
         onAuthStateChanged(auth, (user) => {
             if(user) {
-                if(user.uid === "kRvctZ12xsfyugkQVCaInAVzt3d2") { 
-                    document.getElementById('admin-menu-item').style.display = 'flex';
-                }
+                if(user.uid === "kRvctZ12xsfyugkQVCaInAVzt3d2") document.getElementById('admin-menu-item').style.display = 'flex';
                 startListeningPosts();
-            } else {
-                window.location.href = 'login.html';
-            }
+            } else { window.location.href = 'login.html'; }
         });
     </script>
 </body>
