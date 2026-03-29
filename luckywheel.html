@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeamiko | Siêu Vòng Quay May Mắn</title>
+    <title>Yeamiko | Casino Vòng Quay May Mắn</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -12,104 +12,96 @@
 
     <style>
         :root { 
-            --main: #ff4757; --bg: #0b1121; --card: #161f32;
-            --gold: #ffd700; --blue: #00d4ff; --text: #94a3b8;
+            --main: #ff4757; --bg: #050810; --card: #0c1222;
+            --gold: #ffd700; --blue: #00d4ff; --text: #8b9bb4;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: white; text-align: center; min-height: 100vh; padding-bottom: 50px; overflow-x: hidden; }
 
         /* Navbar */
         .navbar { 
-            background: rgba(22, 31, 50, 0.95); height: 80px; display: flex; 
+            background: rgba(12, 18, 34, 0.95); height: 80px; display: flex; 
             align-items: center; justify-content: space-between; padding: 0 25px; 
-            border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.03); position: sticky; top: 0; z-index: 1000;
         }
-        .nav-brand { font-weight: 900; font-size: 20px; cursor: pointer; letter-spacing: 1px; }
+        .nav-brand { font-weight: 900; font-size: 22px; cursor: pointer; letter-spacing: 1px; color: #fff; }
         .wallet { display: flex; gap: 10px; }
-        .badge { padding: 9px 16px; border-radius: 12px; font-weight: bold; font-size: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
+        .badge { padding: 10px 18px; border-radius: 12px; font-weight: bold; font-size: 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); }
 
-        /* Box đổi điểm */
+        /* Khu vực đổi điểm */
         .exchange-box {
-            background: var(--card); margin: 30px auto; padding: 20px;
-            border-radius: 20px; max-width: 450px; border: 1px solid rgba(0, 212, 255, 0.2);
+            background: var(--card); margin: 30px auto; padding: 25px;
+            border-radius: 20px; max-width: 480px; border: 1px solid rgba(0, 212, 255, 0.15);
             display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
         }
-        .exchange-title { font-weight: 800; color: #fff; font-size: 18px; text-align: left; }
+        .exchange-title { font-weight: 800; color: #fff; font-size: 19px; text-align: left; }
         .btn-exchange {
-            background: var(--blue); color: #000; border: none; padding: 12px 24px;
+            background: var(--blue); color: #000; border: none; padding: 12px 26px;
             border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s;
         }
-        .btn-exchange:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3); }
+        .btn-exchange:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3); }
 
-        /* --- VÒNG QUAY SVG MỚI --- */
-        .wheel-stage { position: relative; width: 360px; height: 360px; margin: 40px auto; }
+        /* --- VÒNG QUAY DÙNG HÌNH ẢNH MỚI --- */
+        .wheel-stage { 
+            position: relative; width: 380px; height: 380px; margin: 50px auto; 
+            /* Thêm viền trang trí bên ngoài */
+            background: radial-gradient(circle, #fff 60%, var(--gold) 100%);
+            border-radius: 50%; padding: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 15px rgba(255, 71, 87, 0.3);
+        }
         
-        /* Kim chỉ: Thiết kế hiện đại */
+        /* Kim chỉ: Dùng ảnh hoặc CSS tam giác */
         .pointer { 
-            position: absolute; top: -25px; left: 50%; transform: translateX(-50%); 
-            z-index: 100; width: 45px; height: 55px;
+            position: absolute; top: -30px; left: 50%; transform: translateX(-50%); 
+            z-index: 100; width: 50px; height: 60px;
+            /* Nếu bạn có ảnh pointer, hãy bỏ comment dòng dưới và sửa link */
+            /* background-image: url('https://i.imgur.com/pointer.png'); background-size: contain; background-repeat: no-repeat; */
+            /* Nếu không có ảnh, dùng CSS tam giác dưới đây: */
             background: #fff;
-            clip-path: polygon(50% 100%, 0 0, 100% 0); /* Hình tam giác nhọn */
-            border-radius: 5px;
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
             filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
         }
 
-        .wheel-outer {
-            width: 100%; height: 100%; border-radius: 50%;
-            background: #fff; padding: 12px; /* Viền trắng dày */
-            box-shadow: 0 15px 50px rgba(0,0,0,0.5), 0 0 20px rgba(255, 71, 87, 0.2);
-        }
-
+        /* Vòng quay ảnh */
         .wheel-canvas {
             width: 100%; height: 100%; border-radius: 50%;
-            position: relative; overflow: hidden;
-            transition: transform 6s cubic-bezier(0.2, 0.8, 0.3, 1.05); /* Hiệu ứng elastic */
+            /* === ĐÂY LÀ ĐƯỜNG LINK ẢNH VÒNG QUAY CỰC ĐẸP === */
+            background-image: url('https://i.imgur.com/v8tT9oV.png'); 
+            background-size: cover; background-position: center;
+            /* Hiệu ứng xoay nảy nhẹ thực tế */
+            transition: transform 6s cubic-bezier(0.1, 0.7, 0.2, 1.02);
             transform: rotate(0deg);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5); /* Đổ bóng bên trong tạo độ khối */
         }
 
-        /* SVG Sectors */
-        .wheel-svg { width: 100%; height: 100%; transform: rotate(-90deg); /* Bắt đầu từ đỉnh */ }
-        .sector { stroke: rgba(255,255,255,0.1); stroke-width: 0.5; }
-
-        /* Text trên vòng quay */
-        .wheel-text {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
+        /* Tâm vòng quay trang trí */
+        .wheel-center {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 60px; height: 60px; background: #fff; border-radius: 50%;
+            border: 5px solid var(--main); z-index: 10;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; color: var(--main); font-size: 20px;
         }
-        .text-item {
-            position: absolute; width: 100px; height: 40px;
-            top: 50%; left: 50%;
-            transform-origin: 0% 50%;
-            display: flex; align-items: center; justify-content: flex-end;
-            padding-right: 25px;
-            font-weight: 900; color: white; font-size: 18px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-        /* Căn góc cho 5 ô */
-        .text-item:nth-child(1) { transform: translate(0, -50%) rotate(36deg); }
-        .text-item:nth-child(2) { transform: translate(0, -50%) rotate(108deg); }
-        .text-item:nth-child(3) { transform: translate(0, -50%) rotate(180deg); }
-        .text-item:nth-child(4) { transform: translate(0, -50%) rotate(252deg); }
-        .text-item:nth-child(5) { transform: translate(0, -50%) rotate(324deg); }
 
         /* Nút quay */
         .btn-spin {
             background: var(--main); color: white; border: none; padding: 20px 80px;
             font-size: 22px; font-weight: 900; border-radius: 50px; cursor: pointer;
-            box-shadow: 0 10px 25px rgba(255, 71, 87, 0.5); transition: 0.3s;
-            text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 12px 30px rgba(255, 71, 87, 0.5); transition: 0.3s;
+            text-transform: uppercase; letter-spacing: 1.5px;
         }
-        .btn-spin:hover:not(:disabled) { transform: scale(1.05); filter: brightness(1.1); }
-        .btn-spin:disabled { background: #475569; cursor: not-allowed; box-shadow: none; opacity: 0.5; }
+        .btn-spin:hover:not(:disabled) { transform: translateY(-3px) scale(1.03); filter: brightness(1.1); }
+        .btn-spin:disabled { background: #334155; cursor: not-allowed; box-shadow: none; opacity: 0.4; }
 
-        .info-text { margin-top: 30px; color: var(--text); font-size: 14px; line-height: 1.6; max-width: 500px; margin-left: auto; margin-right: auto; }
+        .info-text { margin-top: 35px; color: var(--text); font-size: 14px; line-height: 1.7; max-width: 520px; margin-left: auto; margin-right: auto; }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <div class="nav-brand" onclick="location.href='minigame-hub.html'">YEAMIKO <span style="color:var(--main)">LUCKY</span></div>
+        <div class="nav-brand" onclick="location.href='minigame-hub.html'">YEAMIKO <span style="color:var(--main)">CASINO</span></div>
         <div class="wallet">
             <div class="badge" style="color: var(--blue);"><i class="fas fa-coins"></i> <span id="xu-val">0</span> Xu</div>
             <div class="badge" style="color: var(--gold);"><i class="fas fa-ticket-alt"></i> <span id="diem-val">0</span> Điểm</div>
@@ -118,42 +110,24 @@
 
     <div class="exchange-box">
         <div class="exchange-title">
-            Đổi Điểm Quay
-            <div style="font-size: 13px; color: var(--text); font-weight: normal; margin-top: 3px;">10 Xu = 5 Điểm (Vé quay)</div>
+            Đổi Vé Quay
+            <div style="font-size: 13px; color: var(--text); font-weight: normal; margin-top: 4px;">10 Xu = 5 Điểm (Vé quay)</div>
         </div>
         <button class="btn-exchange" onclick="exchange()">ĐỔI NGAY</button>
     </div>
 
     <div class="wheel-stage">
         <div class="pointer"></div>
-        <div class="wheel-outer">
-            <div id="wheel" class="wheel-canvas">
-                <svg class="wheel-svg" viewBox="0 0 32 32">
-                    <circle class="sector" r="16" cx="16" cy="16" fill="#ff4757" stroke-dasharray="20.1 100" />
-                    <circle class="sector" r="16" cx="16" cy="16" fill="#2ed573" stroke-dasharray="20.1 100" stroke-dashoffset="-20.1" />
-                    <circle class="sector" r="16" cx="16" cy="16" fill="#1e90ff" stroke-dasharray="20.1 100" stroke-dashoffset="-40.2" />
-                    <circle class="sector" r="16" cx="16" cy="16" fill="#ffa502" stroke-dasharray="20.1 100" stroke-dashoffset="-60.3" />
-                    <circle class="sector" r="16" cx="16" cy="16" fill="#5352ed" stroke-dasharray="20.1 100" stroke-dashoffset="-80.4" />
-                    
-                    <circle r="3" cx="16" cy="16" fill="white" />
-                </svg>
-
-                <div class="wheel-text">
-                    <div class="text-item"><span>4 Xu</span></div>
-                    <div class="text-item"><span>5 Xu</span></div>
-                    <div class="text-item"><span>10 Xu</span></div>
-                    <div class="text-item"><span>20 Xu</span></div>
-                    <div class="text-item"><span>50 Xu</span></div>
-                </div>
-            </div>
-        </div>
+        <div class="wheel-center">YMK</div>
+        <div id="wheel" class="wheel-canvas"></div>
     </div>
 
     <button class="btn-spin" id="spin-btn" onclick="startSpin()">QUAY (Tốn 5 Điểm)</button>
 
     <div class="info-text">
-        Dùng Điểm quay để nhận lại Xu!<br>
-        Tỉ lệ: 4x(70%) | 5x(15%) | 10x(9%) | 20x(5%) | 50x(1%)
+        Dùng Điểm (Vé quay) để nhận lại Xu!<br>
+        Tỉ lệ: 4x(70%) | 5x(15%) | 10x(9%) | 20x(5%) | 50x(1%)<br>
+        Lưu ý: Kim chỉ vào ô nào, bạn nhận chính xác Xu của ô đó.
     </div>
 
 <script>
@@ -198,7 +172,7 @@
         }
     }
 
-    // CẤU HÌNH GÓC XOAY MỚI (Khớp chính xác với SVG)
+    // CẤU HÌNH GÓC XOAY MỚI (Khớp chính xác với link ảnh mẫu)
     // Mỗi ô 72 độ. Góc deg là góc tâm của ô.
     const rewards = [
         { name: "4 Xu", val: 4,  deg: 36 },   // Ô 0: Tâm ở 36 độ
@@ -228,17 +202,25 @@
         else result = rewards[4];                // 1% ra 50 Xu
 
         // --- CÔNG THỨC XOAY CHUẨN MỚI ---
-        // totalRotation += 3600: Quay 10 vòng
-        // (360 - result.deg): Xoay ngược lại đúng tâm ô thưởng
+        // 1. totalRotation += 3600: Quay ít nhất 10 vòng
+        // 2. (360 - result.deg): Xoay ngược lại đúng tâm ô thưởng
+        // 3. - 36: Không cần -36 nữa vì deg ở trên đã là góc TÂM của ô.
         totalRotation += 3600 + (360 - result.deg);
         
         document.getElementById('wheel').style.transform = `rotate(${totalRotation}deg)`;
+
+        // Thêm tiếng kêu click click khi quay
+        const clickSound = new Audio('https://www.soundjay.com/buttons/button-16.mp3');
+        const clickInterval = setInterval(() => {
+            if(isSpinning) clickSound.play();
+            else clearInterval(clickInterval);
+        }, 150); // Tiếng click nhanh dần
 
         setTimeout(async () => {
             isSpinning = false;
             document.getElementById('spin-btn').disabled = false;
             
-            if(result.val >= 20) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            if(result.val >= 20) confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
             
             alert(`🎉 Chúc mừng! Bạn quay trúng ${result.name}`);
 
