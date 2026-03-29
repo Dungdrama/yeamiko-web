@@ -4,63 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ sơ người dùng | Yeamiko</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --discord-blue: #5865f2; --bg: #f2f3f5; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); display: flex; justify-content: center; }
-        
-        .profile-container { width: 100%; max-width: 500px; background: white; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-        .banner { width: 100%; height: 150px; background: #5865f2; overflow: hidden; }
-        .banner img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .avatar-section { padding: 0 20px; margin-top: -50px; }
-        .avatar-wrapper { position: relative; display: inline-block; }
-        .main-avatar { width: 100px; height: 100px; border-radius: 50%; border: 6px solid white; background: #eee; object-fit: cover; }
-        
-        /* Kitsune Frame Fake */
-        .avatar-wrapper::after { content: ''; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; border: 3px solid #ff69b4; border-radius: 50%; opacity: 0.5; pointer-events: none; }
-
-        .user-info { padding: 20px; border-bottom: 1px solid #eee; }
-        .display-name { font-size: 26px; font-weight: 800; color: #060607; }
-        .username { color: #4e5058; font-size: 14px; margin-bottom: 10px; }
-        
-        .info-card { background: #f8f9fa; border-radius: 12px; margin: 15px; padding: 15px; }
-        .card-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: #4e5058; margin-bottom: 5px; }
-        .bio-text { font-size: 14px; color: #313338; white-space: pre-wrap; }
-        
-        .back-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.3); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 10; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 50px 20px; }
+        .user-card { background: white; width: 100%; max-width: 400px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        .u-avt { width: 120px; height: 120px; border-radius: 50%; border: 4px solid #00d4ff; object-fit: cover; }
+        h2 { margin: 15px 0 5px; color: #333; }
+        p { color: #777; font-size: 14px; }
+        .back-link { display: inline-block; margin-top: 25px; color: #00d4ff; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
-
-    <div class="profile-container">
-        <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
-        
-        <div class="banner">
-            <img id="u-cover" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=600">
-        </div>
-
-        <div class="avatar-section">
-            <div class="avatar-wrapper">
-                <img id="u-avt" class="main-avatar" src="https://ui-avatars.com/api/?name=Loading">
-            </div>
-        </div>
-
-        <div class="user-info">
-            <div class="display-name" id="u-name">Đang tải...</div>
-            <div class="username" id="u-id">@yeamiko_user</div>
-        </div>
-
-        <div class="info-card">
-            <div class="card-label">Tiểu sử</div>
-            <div class="bio-text" id="u-bio">Người dùng này khá bí ẩn, chưa để lại tiểu sử nào.</div>
-        </div>
-        
-        <div class="info-card">
-            <div class="card-label">Ngày gia nhập</div>
-            <div class="bio-text" id="u-date">Đang kiểm tra...</div>
-        </div>
+    <div class="user-card">
+        <img id="u-avatar" class="u-avt" src="https://ui-avatars.com/api/?name=Loading">
+        <h2 id="u-name">Đang tải...</h2>
+        <p id="u-id">@uid</p>
+        <a href="forum.html" class="back-link">← Quay lại Diễn đàn</a>
     </div>
 
     <script type="module">
@@ -77,28 +35,18 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('id');
-
-        if (userId) {
-            get(ref(db, `users/${userId}`)).then(snapshot => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    document.getElementById('u-name').innerText = data.name || "Vô danh";
-                    document.getElementById('u-avt').src = data.avatar || `https://ui-avatars.com/api/?name=${data.name}`;
-                    if(data.cover) document.getElementById('u-cover').src = data.cover;
-                    if(data.bio) document.getElementById('u-bio').innerText = data.bio;
-                    document.getElementById('u-id').innerText = `@${userId.substring(0, 8)}`;
-                    document.getElementById('u-date').innerText = "Thành viên Yeamiko Network";
+        const uid = new URLSearchParams(window.location.search).get('id');
+        if (uid) {
+            get(ref(db, `users/${uid}`)).then(s => {
+                if (s.exists()) {
+                    const d = s.val();
+                    document.getElementById('u-name').innerText = d.name || "Thành viên Yeamiko";
+                    document.getElementById('u-avatar').src = d.avatar || `https://ui-avatars.com/api/?name=${d.name}`;
+                    document.getElementById('u-id').innerText = "@" + uid.substring(0,8);
                 } else {
-                    document.getElementById('u-name').innerText = "Không tìm thấy!";
+                    document.getElementById('u-name').innerText = "Không tìm thấy người dùng";
                 }
-            }).catch(err => {
-                console.error(err);
-                document.getElementById('u-name').innerText = "Lỗi tải dữ liệu";
             });
-        } else {
-            window.location.href = 'forum.html';
         }
     </script>
 </body>
