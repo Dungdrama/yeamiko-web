@@ -3,159 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ sơ Discord | Yeamiko</title>
+    <title>Hồ sơ Dũng | Yeamiko Network</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --discord-blue: #5865f2; --bg-gray: #f2f3f5; --card-bg: #ffffff; --text-dark: #060607; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: var(--bg-gray); color: var(--text-dark); }
+        :root { --main: #00d4ff; --bg: #f0f2f5; --sidebar-dark: #111; --text-color: #1c1e21; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); display: flex; min-height: 100vh; overflow-x: hidden; color: var(--text-color); }
 
-        /* Banner & Avatar */
-        .profile-container { width: 100%; max-width: 500px; margin: 0 auto; background: white; min-height: 100vh; position: relative; }
-        .banner { width: 100%; height: 120px; background: #a59d60; position: relative; }
-        .banner img { width: 100%; height: 100%; object-fit: cover; }
+        /* --- SỬA MENU: NÚT 3 GẠCH --- */
+        .menu-toggle {
+            position: fixed; top: 20px; left: 20px; z-index: 1500;
+            background: var(--main); color: #000; width: 45px; height: 45px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 10px; cursor: pointer; font-size: 20px;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        /* --- SỬA MENU: SIDEBAR TRƯỢT --- */
+        .sidebar { 
+            width: 250px; background: var(--sidebar-dark); height: 100vh; 
+            position: fixed; padding: 25px; color: white; z-index: 2000;
+            display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05);
+            left: -250px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar.open { left: 0; }
+        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; text-transform: uppercase; }
+        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
+        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar a.active, .sidebar a:hover { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
+        .logout-item { color: #ff4d4d !important; border: 1px solid rgba(255, 77, 77, 0.2) !important; margin-top: auto; }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1800; display: none; backdrop-filter: blur(3px); }
+        .sidebar-overlay.show { display: block; }
+
+        /* --- NỘI DUNG HỒ SƠ CHÍNH --- */
+        .main-content { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
+
+        /* Header Hồ sơ dạng Cover (Ảnh bìa) */
+        .profile-header { width: 100%; max-width: 940px; background: white; border-radius: 0 0 15px 15px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .cover-photo { width: 100%; height: 250px; background: #c0c0c0; position: relative; overflow: hidden; cursor: pointer; }
+        .cover-photo img { width: 100%; height: 100%; object-fit: cover; }
         
-        .avatar-section { position: relative; padding: 0 16px; margin-top: -45px; display: flex; align-items: flex-end; justify-content: space-between; }
-        .avatar-wrapper { position: relative; width: 90px; height: 90px; }
+        /* Thông tin User dưới Cover */
+        .profile-info-bar { padding: 0 30px 20px 30px; display: flex; align-items: flex-end; position: relative; margin-top: -60px; /* Đẩy Avatar đè lên Cover */ }
+        .avatar-wrapper { position: relative; width: 168px; height: 168px; }
+        #user-avatar { 
+            width: 160px; height: 160px; border-radius: 50%; 
+            object-fit: cover; border: 4px solid white; background: #eee;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            /* THÊM KHUNG VIỀN HỒ LY (PINK KITSUNE) GIỐNG ẢNH */
+            box-shadow: 0 0 0 4px #fff, 0 0 15px 5px #ff69b4 !important;
+        }
+        .btn-upload-avt { position: absolute; bottom: 10px; right: 10px; background: #e4e6eb; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #1c1e21; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         
-        /* Khung Hồ Ly Kitsune */
-        .kitsune-frame {
-            position: absolute; top: -15px; left: -15px; width: 120px; height: 120px;
-            background: url('https://i.imgur.com/your-kitsune-frame-link.png'); /* Thay link ảnh khung của bạn vào đây */
-            background-size: contain; background-repeat: no-repeat; z-index: 10; pointer-events: none;
+        .user-details { margin-left: 20px; margin-bottom: 10px; }
+        .user-details h1 { font-size: 32px; font-weight: 800; color: var(--text-color); }
+        .user-details p { color: #65676b; font-weight: 600; font-size: 14px; margin-top: 2px; }
+
+        /* Bố cục 2 cột cho Desktop */
+        .profile-body { display: flex; width: 100%; max-width: 940px; gap: 15px; margin-top: 15px; }
+        
+        /* Cột trái: Chỉnh sửa thông tin */
+        .left-col { width: 360px; flex-shrink: 0; }
+        
+        /* Cột phải: Dòng thời gian bài viết */
+        .right-col { flex: 1; }
+
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        .card-title { font-size: 18px; font-weight: 800; margin-bottom: 20px; border-bottom: 2px solid #f0f2f5; padding-bottom: 10px; }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 14px; color: #555; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: 0.3s; background: #f8f9fa; }
+        input:focus { border-color: var(--main); background: #fff; }
+
+        .btn-main { 
+            width: 100%; background: var(--main); color: white; border: none; 
+            padding: 12px; border-radius: 8px; cursor: pointer; 
+            font-weight: bold; font-size: 15px; margin-top: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
-        .main-avatar { 
-            width: 80px; height: 80px; border-radius: 50%; border: 4px solid white; 
-            background: #eee; position: relative; z-index: 5; object-fit: cover;
-        }
+        #status { text-align: center; margin-top: 15px; font-weight: bold; font-size: 13px; }
 
-        /* Thông tin User */
-        .user-info { padding: 16px; }
-        .display-name { font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 5px; }
-        .username { color: #4e5058; font-size: 14px; margin-bottom: 15px; }
-        .badges { display: flex; gap: 8px; align-items: center; }
-        .badge-icon { background: #ebedef; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 4px; }
+        /* Định dạng bài viết giống Forum */
+        .post-card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .post-header { display: flex; align-items: center; margin-bottom: 10px; }
+        .cmt-avatar { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; border: 1px solid rgba(0,212,255,0.2); }
+        .post-img { width: 100%; border-radius: 8px; margin-top: 10px; max-height: 400px; object-fit: cover; }
 
-        /* Nút Sửa Hồ Sơ */
-        .btn-edit-full { 
-            background: var(--discord-blue); color: white; border: none; width: calc(100% - 32px); 
-            margin: 0 16px; padding: 10px; border-radius: 20px; font-weight: bold; 
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-
-        /* Tabs */
-        .tabs { display: flex; border-bottom: 1px solid #e3e5e8; margin-top: 20px; }
-        .tab-item { flex: 1; text-align: center; padding: 12px; color: #4e5058; font-weight: 600; cursor: pointer; }
-        .tab-item.active { color: var(--discord-blue); border-bottom: 2px solid var(--discord-blue); }
-
-        /* Card Tiểu sử */
-        .info-card { background: #f8f9fa; border-radius: 12px; margin: 16px; padding: 16px; }
-        .card-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: #4e5058; margin-bottom: 8px; }
-        .bio-text { font-size: 14px; line-height: 1.6; color: #313338; }
-
-        /* Modal Chỉnh sửa */
-        .modal { 
-            position: fixed; bottom: -100%; left: 0; width: 100%; height: 90vh; 
-            background: white; z-index: 1000; transition: 0.4s; 
-            border-radius: 20px 20px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
-            padding: 20px; overflow-y: auto;
-        }
-        .modal.open { bottom: 0; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .input-box { margin-bottom: 20px; }
-        .input-box label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 8px; color: #4e5058; }
-        .input-box input, .input-box textarea { 
-            width: 100%; padding: 12px; border: none; background: #ebedef; 
-            border-radius: 8px; outline: none; font-size: 15px;
+        @media (max-width: 768px) {
+            .profile-header { border-radius: 0; }
+            .cover-photo { height: 180px; }
+            .profile-info-bar { flex-direction: column; align-items: center; text-align: center; margin-top: -80px; padding: 0 15px 20px 15px; }
+            .avatar-wrapper { width: 158px; height: 158px; }
+            .user-details { margin-left: 0; margin-top: 10px; }
+            .user-details h1 { font-size: 24px; }
+            
+            .profile-body { flex-direction: column; padding: 0 10px; }
+            .left-col { width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <div class="profile-container">
-        <div class="banner">
-            <img id="user-banner" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=500">
-        </div>
-
-        <div class="avatar-section">
-            <div class="avatar-wrapper">
-                <div class="kitsune-frame"></div> <img id="user-avatar" class="main-avatar" src="https://ui-avatars.com/api/?name=Dung">
-            </div>
-            <div style="display:flex; gap:10px;">
-                <i class="fas fa-cog" style="color:#4e5058; cursor:pointer;"></i>
-            </div>
-        </div>
-
-        <div class="user-info">
-            <div class="display-name">Dung 💐 <i class="fas fa-chevron-down" style="font-size:14px; color:#4e5058;"></i></div>
-            <div class="username">dungdrama</div>
-            
-            <div class="badges">
-                <div class="badge-icon"><i class="fas fa-gem" style="color:#5865f2;"></i> EMOD</div>
-                <div class="badge-icon"><i class="fas fa-certificate" style="color:#a59d60;"></i></div>
-            </div>
-        </div>
-
-        <button class="btn-edit-full" onclick="openEdit()"><i class="fas fa-pen"></i> Sửa Hồ Sơ</button>
-
-        <div class="tabs">
-            <div class="tab-item active">Chính</div>
-            <div class="tab-item">Danh Sách Mong Muốn</div>
-        </div>
-
-        <div class="info-card">
-            <div class="card-label">Tiểu sử</div>
-            <div class="bio-text">
-                ❤️❤️❤️<br>
-                Profile me: https://profile.dungmc.xyz/<br>
-                Server discord me: https://sd.dungmc.xyz/
-            </div>
-        </div>
-
-        <div class="info-card">
-            <div class="card-label">Gia Nhập Từ</div>
-            <div class="bio-text"><i class="fab fa-discord"></i> 7 thg 4, 2023</div>
-        </div>
+    <div class="menu-toggle" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
     </div>
 
-    <div class="modal" id="editModal">
-        <div class="modal-header">
-            <i class="fas fa-arrow-left" onclick="closeEdit()" style="cursor:pointer;"></i>
-            <h3 style="flex:1; text-align:center;">Hồ sơ</h3>
-            <span style="color:var(--discord-blue); font-weight:bold; cursor:pointer;" id="btn-save">Lưu</span>
+    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="logo">YEAMIKO</div>
+        <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
+        <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
+        <a href="profile.html" class="active"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
+        <a href="#" id="btn-logout" class="logout-item"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></a>
+    </div>
+
+    <div class="main-content">
+        <div class="profile-header">
+            <div class="cover-photo" id="cover-photo-box">
+                <img id="user-cover" src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80">
+                <input type="file" id="f-cover" hidden accept="image/*">
+            </div>
+            <div class="profile-info-bar">
+                <div class="avatar-wrapper">
+                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=User">
+                    <label class="btn-upload-avt" for="f-avt">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" id="f-avt" hidden accept="image/*">
+                </div>
+                <div class="user-details">
+                    <h1 id="txt-display-name">Loading...</h1>
+                    <p>Thành viên của Yeamiko Network</p>
+                </div>
+            </div>
         </div>
 
-        <div class="input-box">
-            <label>Tên hiển thị</label>
-            <input type="text" id="edit-name" value="Dung 💐">
-        </div>
+        <div class="profile-body">
+            <div class="left-col card">
+                <div class="card-title">Chỉnh sửa thông tin cá nhân</div>
+                
+                <div class="form-group">
+                    <label>Tên hiển thị (Dũng 💐)</label>
+                    <input type="text" id="edit-display-name" placeholder="Dũng dramma...">
+                </div>
 
-        <div class="input-box">
-            <label>Mật khẩu mới</label>
-            <input type="password" id="edit-pass" placeholder="Bỏ trống nếu không đổi">
-        </div>
+                <div class="card-title" style="margin-top: 30px;">Cập nhật bảo mật</div>
+                
+                <div class="form-group">
+                    <label>Mật khẩu mới (bỏ trống nếu không đổi)</label>
+                    <input type="password" id="new-password" placeholder="Tối thiểu 6 ký tự">
+                </div>
 
-        <div class="input-box">
-            <label>Tiểu sử</label>
-            <textarea id="edit-bio" rows="4">❤️❤️❤️
-Profile me: https://profile.dungmc.xyz/
-Server discord me: https://sd.dungmc.xyz/</textarea>
-        </div>
+                <div class="form-group">
+                    <label>Xác nhận lại mật khẩu mới</label>
+                    <input type="password" id="confirm-password" placeholder="Nhập lại mật khẩu mới">
+                </div>
 
-        <div class="info-card" style="margin:0; background:#ebedef;">
-            <div class="card-label">Trang Trí Ảnh Đại Diện</div>
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-                <span>Hồ Ly Kitsune</span>
-                <i class="fas fa-chevron-right"></i>
+                <button id="btn-update" class="btn-main">LƯU TẤT CẢ THAY ĐỔI</button>
+                <p id="status"></p>
+            </div>
+
+            <div class="right-col">
+                <div style="font-size:16px; font-weight:bold; margin-bottom:10px; color:#555; margin-left:10px;">Dòng thời gian của bạn</div>
+                <div id="my-posts-list">Đang tải bài viết của bạn...</div>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged, updatePassword, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { getDatabase, ref, push, get, set, query, orderByChild, equalTo, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
@@ -168,11 +189,180 @@ Server discord me: https://sd.dungmc.xyz/</textarea>
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        window.openEdit = () => document.getElementById('editModal').classList.add('open');
-        window.closeEdit = () => document.getElementById('editModal').classList.remove('open');
+        // Biến tạm lưu ảnh Base64
+        let currentAvatarB64 = "";
+        let currentCoverB64 = "";
 
-        // Các logic Firebase cũ của bạn (Lưu tên, mật khẩu, avatar) vẫn giữ nguyên ở đây...
-        // Tôi chỉ cập nhật giao diện hiển thị cho giống ảnh mẫu nhất.
+        // --- ĐIỀU KHIỂN MENU (Cũ) ---
+        window.toggleMenu = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.querySelector('.sidebar-overlay').classList.toggle('show');
+        };
+
+        // --- XỬ LÝ LỌC VÀ HIỂN THỊ BÀI VIẾT CÁ NHÂN (DŨNGDRAMA) ---
+        function loadMyPosts(uid, displayName, avatarUrl) {
+            const myPostsList = document.getElementById('my-posts-list');
+            
+            // Lọc các bài viết có 'uid' trùng với uid người đang đăng nhập
+            const myPostsQuery = query(ref(db, 'posts'), orderByChild('uid'), equalTo(uid));
+
+            // Dùng onValue để cập nhật realtime khi bạn đăng bài mới
+            onValue(myPostsQuery, (snapshot) => {
+                const allPosts = snapshot.val() || {};
+                
+                // Sắp xếp bài viết mới nhất lên đầu (theo thời gian)
+                const sortedKeys = Object.keys(allPosts).sort((a, b) => allPosts[b].time - allPosts[a].time);
+                
+                myPostsList.innerHTML = ""; // Xóa dữ liệu cũ
+
+                if (sortedKeys.length === 0) {
+                    myPostsList.innerHTML = "<div class='card'>Bạn chưa có bài đăng nào trên diễn đàn.</div>";
+                    return;
+                }
+
+                sortedKeys.forEach(key => {
+                    const p = allPosts[key];
+                    // Dùng tên và avatar được cập nhật realtime từ Realtime Database
+                    const avtUrl = avatarUrl || `https://ui-avatars.com/api/?name=${displayName}`;
+                    
+                    myPostsList.insertAdjacentHTML('beforeend', `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <img src="${avtUrl}" class="cmt-avatar">
+                                <div style="display:flex; flex-direction:column;">
+                                    <b>${displayName}</b>
+                                    <span style="font-size:11px; color:#888;">${new Date(p.time).toLocaleString('vi-VN')}</span>
+                                </div>
+                            </div>
+                            <div style="margin:10px 0; font-size:14px; white-space:pre-wrap;">${p.text}</div>
+                            ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
+                        </div>`);
+                });
+            });
+        }
+
+        // --- XỬ LÝ HỒ SƠ CHÍNH ---
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                // Lấy thông tin user realtime từ Database (bao gồm cả Tên, Avatar, Ảnh bìa)
+                onValue(ref(db, 'users/' + user.uid), s => {
+                    if (s.exists()) {
+                        const userData = s.val();
+                        const dName = userData.name || user.displayName || user.email.split('@')[0];
+                        
+                        // Cập nhật giao diện Header
+                        document.getElementById('txt-display-name').innerText = dName;
+                        document.getElementById('edit-display-name').value = dName;
+                        
+                        // Cập nhật Avatar
+                        if (userData.avatar) {
+                            document.getElementById('user-avatar').src = userData.avatar;
+                            currentAvatarB64 = userData.avatar;
+                        } else {
+                            // Dùng avatar mặc định nếu chưa có
+                            document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${dName}`;
+                        }
+
+                        // Cập nhật Ảnh bìa (Cover)
+                        if (userData.cover) {
+                            document.getElementById('user-cover').src = userData.cover;
+                            currentCoverB64 = userData.cover;
+                        }
+
+                        // Tải danh sách bài viết của riêng User này
+                        loadMyPosts(user.uid, dName, userData.avatar);
+                    } else {
+                        // Nếu chưa có dữ liệu trong Database -> tạo mới đơn giản
+                        document.getElementById('txt-display-name').innerText = user.displayName || "User";
+                        document.getElementById('edit-display-name').value = user.displayName || "";
+                    }
+                });
+            } else { window.location.href = 'login.html'; }
+        });
+
+        // --- XỬ LÝ CHUYỂN ẢNH SANG BASE64 VÀ RESIZE ---
+        // Resize ảnh đại diện
+        document.getElementById('f-avt').onchange = e => handleImageUpload(e, 150, 150, (b64) => {
+            currentAvatarB64 = b64;
+            document.getElementById('user-avatar').src = b64;
+        });
+
+        // Resize ảnh bìa (Cover)
+        document.getElementById('f-cover').onchange = e => handleImageUpload(e, 800, 300, (b64) => {
+            currentCoverB64 = b64;
+            document.getElementById('user-cover').src = b64;
+        });
+
+        function handleImageUpload(e, w, h, callback) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    const img = new Image();
+                    img.src = reader.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        const b64 = canvas.toDataURL('image/jpeg', 0.6); // Resize và nén 60%
+                        callback(b64);
+                    };
+                };
+            }
+        }
+
+        // --- XỬ LÝ LƯU CẬP NHẬT TỔNG THỂ ---
+        document.getElementById('btn-update').onclick = async () => {
+            const user = auth.currentUser;
+            const newName = document.getElementById('edit-display-name').value.trim();
+            const newPass = document.getElementById('new-password').value;
+            const confirmPass = document.getElementById('confirm-password').value;
+            const stt = document.getElementById('status');
+            
+            if(!newName) return alert("Vui lòng nhập tên!");
+            
+            stt.style.color = "var(--main)";
+            stt.innerText = "⏳ Đang lưu cập nhật...";
+            
+            try {
+                // 1. Lưu vào Realtime Database (Tên, Avatar, Cover) - REALTIME CẬP NHẬT KHẮP NƠI
+                await set(ref(db, 'users/' + user.uid), { 
+                    name: newName, 
+                    avatar: currentAvatarB64,
+                    cover: currentCoverB64
+                });
+                
+                // 2. Cập nhật DisplayName trong Firebase Auth (để đồng bộ hệ thống)
+                await updateProfile(user, { displayName: newName });
+                
+                // 3. Xử lý đổi mật khẩu nếu có
+                if (newPass) {
+                    if (newPass.length < 6) throw new Error("Mật khẩu phải tối thiểu 6 ký tự.");
+                    if (newPass !== confirmPass) throw new Error("Mật khẩu xác nhận không khớp.");
+                    await updatePassword(user, newPass);
+                }
+                
+                stt.style.color = "#2ecc71";
+                stt.innerText = "✅ Đã cập nhật xong!";
+                
+                // Xóa input mật khẩu sau khi đổi thành công
+                document.getElementById('new-password').value = "";
+                document.getElementById('confirm-password').value = "";
+                
+            } catch (err) {
+                stt.style.color = "#e74c3c";
+                stt.innerText = "❌ Lỗi: " + err.message;
+            }
+        };
+
+        // --- XỬ LÝ ĐĂNG XUẤT (Cũ) ---
+        document.getElementById('btn-logout').onclick = (e) => {
+            e.preventDefault();
+            if(confirm("Bạn thực sự muốn đăng xuất à Dũng?")) {
+                signOut(auth).then(() => { window.location.href = 'login.html'; });
+            }
+        };
     </script>
 </body>
 </html>
