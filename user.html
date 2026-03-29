@@ -4,28 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ sơ người dùng | Yeamiko</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; width: 90%; max-width: 400px; padding: 40px 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
-        .u-avt { width: 120px; height: 120px; border-radius: 50%; border: 4px solid #00d4ff; object-fit: cover; margin-bottom: 15px; }
-        h2 { margin: 10px 0; color: #333; }
-        .tag { color: #888; font-size: 14px; margin-bottom: 20px; background: #eee; display: inline-block; padding: 4px 10px; border-radius: 10px; }
-        .back { display: block; margin-top: 25px; color: #00d4ff; text-decoration: none; font-weight: bold; }
+        :root { --main: #00d4ff; --bg: #f4f7f6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        .user-card { 
+            background: white; width: 90%; max-width: 400px; 
+            padding: 40px 20px; border-radius: 25px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            text-align: center; position: relative;
+        }
+        .u-avt { 
+            width: 130px; height: 130px; border-radius: 50%; 
+            border: 5px solid var(--main); object-fit: cover;
+            margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,212,255,0.3);
+        }
+        h2 { color: #333; font-size: 24px; margin-bottom: 5px; }
+        .uid-tag { 
+            display: inline-block; background: #eee; padding: 4px 12px; 
+            border-radius: 15px; font-size: 13px; color: #777; margin-bottom: 20px;
+        }
+        .bio { color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+        .back-btn { 
+            display: block; text-decoration: none; color: var(--main); 
+            font-weight: bold; margin-top: 20px; transition: 0.3s;
+        }
+        .back-btn:hover { opacity: 0.7; }
+        
+        #loader {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; border-radius: 25px; display: flex;
+            justify-content: center; align-items: center; z-index: 10;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
+
+    <div class="user-card">
+        <div id="loader"><p> đang tải hồ sơ...</p></div>
+
         <img id="u-avatar" class="u-avt" src="https://ui-avatars.com/api/?name=User">
         <h2 id="u-name">Đang tải...</h2>
-        <div class="tag" id="u-id">@yeamiko_user</div>
-        <p style="color:#666; font-size: 14px;">Thành viên chính thức của Yeamiko Network</p>
-        <a href="forum.html" class="back">← Quay lại diễn đàn</a>
+        <div class="uid-tag" id="u-id">@uid</div>
+        
+        <p class="bio">Chào mừng bạn đến với trang cá nhân của tôi trên Yeamiko Network!</p>
+
+        <a href="forum.html" class="back-btn"><i class="fas fa-arrow-left"></i> Quay lại diễn đàn</a>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // Cấu hình Firebase của Dũng
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -33,35 +66,45 @@
             projectId: "yeamiko-web",
             appId: "1:380442978172:web:52eeb187628ed3518266f9"
         };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        const params = new URLSearchParams(window.location.search);
-        const userId = params.get('id');
+        // Hàm lấy dữ liệu
+        async function fetchUser() {
+            const params = new URLSearchParams(window.location.search);
+            const userId = params.get('id');
 
-        async function loadProfile() {
             if (!userId) {
-                window.location.href = 'forum.html';
+                document.getElementById('u-name').innerText = "Không tìm thấy ID";
+                document.getElementById('loader').style.display = 'none';
                 return;
             }
 
             try {
-                const snapshot = await get(ref(db, `users/${userId}`));
+                const userRef = ref(db, 'users/' + userId);
+                const snapshot = await get(userRef);
+                
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    document.getElementById('u-name').innerText = data.name || "Thành viên";
-                    document.getElementById('u-avatar').src = data.avatar || `https://ui-avatars.com/api/?name=${data.name || 'U'}`;
+                    document.getElementById('u-name').innerText = data.name || "Thành viên Yeamiko";
+                    document.getElementById('u-avatar').src = data.avatar || `https://ui-avatars.com/api/?name=${data.name || 'User'}`;
                     document.getElementById('u-id').innerText = "@" + userId.substring(0, 8);
                 } else {
-                    document.getElementById('u-name').innerText = "Chưa cập nhật hồ sơ";
+                    // Nếu chưa có trong database nhánh users/ thì lấy tạm tên mặc định
+                    document.getElementById('u-name').innerText = "Thành viên mới";
                     document.getElementById('u-id').innerText = "@" + userId.substring(0, 8);
                 }
-            } catch (err) {
+            } catch (error) {
+                console.error("Lỗi:", error);
                 document.getElementById('u-name').innerText = "Lỗi kết nối database";
+            } finally {
+                // Tải xong thì ẩn loader
+                document.getElementById('loader').style.display = 'none';
             }
         }
 
-        loadProfile();
+        fetchUser();
     </script>
 </body>
 </html>
