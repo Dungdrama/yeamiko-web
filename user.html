@@ -3,35 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ sơ người dùng | Yeamiko</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <title>Hồ sơ | Yeamiko Network</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main: #00d4ff; --bg: #f4f7f6; }
+        :root { --pink: #ff8df0; --bg: #fdf4ff; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .user-card { background: white; width: 90%; max-width: 400px; padding: 40px 20px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; position: relative; }
-        .u-avt { width: 130px; height: 130px; border-radius: 50%; border: 5px solid var(--main); object-fit: cover; margin-bottom: 20px; }
-        h2 { color: #333; margin-bottom: 5px; }
-        .uid-tag { display: inline-block; background: #eee; padding: 4px 12px; border-radius: 15px; font-size: 12px; color: #777; margin-bottom: 20px; }
-        .back-btn { display: block; text-decoration: none; color: var(--main); font-weight: bold; margin-top: 20px; }
-        #loader { position: absolute; top:0; left:0; width:100%; height:100%; background:white; display:flex; justify-content:center; align-items:center; border-radius:25px; z-index:10; }
+        body { background: var(--bg); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+
+        /* Header Profile */
+        .profile-header { 
+            background: white; width: 100%; max-width: 600px; padding: 40px 20px; 
+            border-radius: 25px; box-shadow: 0 10px 30px rgba(255, 141, 240, 0.15); 
+            text-align: center; margin-bottom: 25px; position: relative;
+        }
+        .avatar-box { position: relative; width: 150px; height: 150px; margin: 0 auto 15px; }
+        .kitsune-frame { 
+            position: absolute; top: -10px; left: -10px; width: 170px; height: 170px; 
+            z-index: 2; pointer-events: none; filter: drop-shadow(0 0 5px var(--pink));
+        }
+        .u-avt { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; position: relative; z-index: 1; margin-top: 10px; border: 4px solid #fff; }
+        
+        h2 { color: #444; font-size: 26px; }
+        .uid-tag { display: inline-block; background: #ffe6f9; padding: 4px 12px; border-radius: 15px; font-size: 13px; color: #d63384; margin: 10px 0; font-weight: bold; }
+        
+        /* Bài đăng */
+        .section-title { width: 100%; max-width: 600px; color: #666; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .post-list { width: 100%; max-width: 600px; }
+        .post-card { background: white; padding: 20px; border-radius: 18px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .post-img { width: 100%; border-radius: 12px; margin-top: 10px; }
+        
+        .back-nav { position: fixed; top: 20px; left: 20px; text-decoration: none; color: #666; font-weight: bold; background: white; padding: 10px 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 100; }
+        #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; justify-content:center; align-items:center; z-index:1000; }
     </style>
 </head>
 <body>
 
-    <div class="user-card">
-        <div id="loader"><b>Đang kết nối Yeamiko...</b></div>
-        <img id="u-avatar" class="u-avt" src="https://ui-avatars.com/api/?name=User">
+    <div id="loader"><i class="fas fa-heart fa-beat" style="font-size: 3rem; color: var(--pink);"></i></div>
+
+    <a href="forum.html" class="back-nav"><i class="fas fa-arrow-left"></i> Forum</a>
+
+    <div class="profile-header">
+        <div class="avatar-box">
+            <img class="kitsune-frame" src="https://i.imgur.com/8Qp6uRk.png">
+            <img id="u-avatar" class="u-avt" src="">
+        </div>
         <h2 id="u-name">Đang tải...</h2>
-        <div class="uid-tag" id="u-id">@loading</div>
-        <p style="color: #666; font-size: 14px;">Thành viên chính thức của hệ thống Yeamiko Network.</p>
-        <a href="forum.html" class="back-btn"><i class="fas fa-arrow-left"></i> Quay lại diễn đàn</a>
+        <div class="uid-tag" id="u-id">@yeamiko</div>
+        <p style="color:#888; font-size:14px;">Thành viên của Yeamiko Network</p>
     </div>
 
+    <div class="section-title"><i class="fas fa-stream"></i> Bài đăng gần đây</div>
+    <div id="user-posts" class="post-list"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script>
-        // Cấu hình Firebase của Dũng
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -40,38 +67,51 @@
             appId: "1:380442978172:web:52eeb187628ed3518266f9"
         };
 
-        // Khởi tạo Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
-        // Lấy ID từ URL
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('id');
 
-        if (userId) {
-            db.ref('users/' + userId).once('value')
-                .then((snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        document.getElementById('u-name').innerText = data.name || "Thành viên";
-                        document.getElementById('u-avatar').src = data.avatar || `https://ui-avatars.com/api/?name=${data.name}`;
-                    } else {
-                        document.getElementById('u-name').innerText = "Người dùng mới";
-                    }
-                    document.getElementById('u-id').innerText = "@" + userId.substring(0, 8);
-                })
-                .catch((error) => {
-                    console.error(error);
-                    document.getElementById('u-name').innerText = "Lỗi kết nối Database";
-                })
-                .finally(() => {
-                    document.getElementById('loader').style.display = 'none';
+        async function loadProfile() {
+            if (!userId) return;
+
+            // 1. Lấy thông tin User
+            db.ref('users/' + userId).once('value', (snap) => {
+                const data = snap.val() || {};
+                document.getElementById('u-name').innerText = data.name || "Thành viên";
+                document.getElementById('u-avatar').src = data.avatar || "https://ui-avatars.com/api/?background=ff8df0&color=fff&name=" + data.name;
+                document.getElementById('u-id').innerText = "@" + userId.substring(0, 8);
+                document.getElementById('loader').style.display = 'none';
+            });
+
+            // 2. Lấy bài đăng của riêng User này
+            db.ref('posts').orderByChild('uid').equalTo(userId).once('value', (snap) => {
+                const posts = snap.val() || {};
+                const list = document.getElementById('user-posts');
+                const keys = Object.keys(posts).reverse(); // Bài mới nhất lên đầu
+
+                if (keys.length === 0) {
+                    list.innerHTML = "<p style='text-align:center; color:#999;'>Chưa có bài đăng nào.</p>";
+                    return;
+                }
+
+                keys.forEach(k => {
+                    const p = posts[k];
+                    list.insertAdjacentHTML('beforeend', `
+                        <div class="post-card">
+                            <div style="font-size:12px; color:#aaa; margin-bottom:8px;">${new Date(p.time).toLocaleString('vi-VN')}</div>
+                            <div style="color:#333; line-height:1.5;">${p.text}</div>
+                            ${p.img ? `<img src="${p.img}" class="post-img">` : ""}
+                            <div style="margin-top:12px; color:var(--pink); font-weight:bold; font-size:14px;">
+                                <i class="fas fa-heart"></i> ${p.likes || 0} lượt thích
+                            </div>
+                        </div>
+                    `);
                 });
-        } else {
-            window.location.href = 'forum.html';
+            });
         }
+
+        loadProfile();
     </script>
 </body>
 </html>
