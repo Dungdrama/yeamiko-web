@@ -4,27 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ sơ người dùng | Yeamiko</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 50px 20px; }
-        .user-card { background: white; width: 100%; max-width: 400px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
-        .u-avt { width: 120px; height: 120px; border-radius: 50%; border: 4px solid #00d4ff; object-fit: cover; }
-        h2 { margin: 15px 0 5px; color: #333; }
-        p { color: #777; font-size: 14px; }
-        .back-link { display: inline-block; margin-top: 25px; color: #00d4ff; text-decoration: none; font-weight: bold; }
+        :root { --main: #00d4ff; --bg: #f4f7f6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        .user-card { 
+            background: white; width: 100%; max-width: 400px; 
+            padding: 40px 20px; border-radius: 25px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            text-align: center; position: relative;
+        }
+        .u-avt { 
+            width: 130px; height: 130px; border-radius: 50%; 
+            border: 5px solid var(--main); object-fit: cover;
+            margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,212,255,0.3);
+        }
+        h2 { color: #333; font-size: 24px; margin-bottom: 5px; }
+        .uid-tag { 
+            display: inline-block; background: #eee; padding: 4px 12px; 
+            border-radius: 15px; font-size: 13px; color: #777; margin-bottom: 20px;
+        }
+        .back-btn { 
+            display: block; text-decoration: none; color: var(--main); 
+            font-weight: bold; margin-top: 20px; transition: 0.3s;
+        }
+        .back-btn:hover { opacity: 0.7; }
+        
+        #loading-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; border-radius: 25px; display: flex;
+            justify-content: center; align-items: center; z-index: 10;
+        }
     </style>
 </head>
 <body>
+
     <div class="user-card">
-        <img id="u-avatar" class="u-avt" src="https://ui-avatars.com/api/?name=Loading">
-        <h2 id="u-name">Đang tải...</h2>
-        <p id="u-id">@uid</p>
-        <a href="forum.html" class="back-link">← Quay lại Diễn đàn</a>
+        <div id="loading-overlay"><p> đang tải hồ sơ...</p></div>
+
+        <img id="u-avatar" class="u-avt" src="https://ui-avatars.com/api/?name=User">
+        <h2 id="u-name">Người dùng</h2>
+        <div class="uid-tag" id="u-id">@id_user</div>
+        
+        <div style="border-top: 1px solid #eee; padding-top: 20px; color: #555; font-size: 14px;">
+            Chào mừng bạn đến với trang cá nhân của tôi trên Yeamiko Network!
+        </div>
+
+        <a href="forum.html" class="back-btn"><i class="fas fa-arrow-left"></i> Quay lại diễn đàn</a>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
+        // Cấu hình Firebase của Dũng
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -32,22 +67,44 @@
             projectId: "yeamiko-web",
             appId: "1:380442978172:web:52eeb187628ed3518266f9"
         };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        const uid = new URLSearchParams(window.location.search).get('id');
-        if (uid) {
-            get(ref(db, `users/${uid}`)).then(s => {
-                if (s.exists()) {
-                    const d = s.val();
-                    document.getElementById('u-name').innerText = d.name || "Thành viên Yeamiko";
-                    document.getElementById('u-avatar').src = d.avatar || `https://ui-avatars.com/api/?name=${d.name}`;
-                    document.getElementById('u-id').innerText = "@" + uid.substring(0,8);
+        // Lấy ID từ thanh địa chỉ (ví dụ: user.html?id=abc123)
+        const params = new URLSearchParams(window.location.search);
+        const userId = params.get('id');
+
+        async function loadUserProfile() {
+            if (!userId) {
+                alert("Không tìm thấy ID người dùng!");
+                window.location.href = 'forum.html';
+                return;
+            }
+
+            try {
+                // Tìm thông tin người dùng trong nhánh 'users' của bạn
+                const snapshot = await get(ref(db, `users/${userId}`));
+                
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    document.getElementById('u-name').innerText = data.name || "Thành viên Yeamiko";
+                    document.getElementById('u-avatar').src = data.avatar || `https://ui-avatars.com/api/?name=${data.name || 'User'}`;
+                    document.getElementById('u-id').innerText = "@" + userId.substring(0, 8);
                 } else {
-                    document.getElementById('u-name').innerText = "Không tìm thấy người dùng";
+                    document.getElementById('u-name').innerText = "Người dùng ẩn danh";
+                    document.getElementById('u-id').innerText = "@" + userId.substring(0, 8);
                 }
-            });
+            } catch (error) {
+                console.error("Lỗi rồi Dũng ơi:", error);
+                document.getElementById('u-name').innerText = "Lỗi tải dữ liệu";
+            } finally {
+                // Tải xong thì ẩn màn hình chờ
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
         }
+
+        loadUserProfile();
     </script>
 </body>
 </html>
