@@ -17,6 +17,7 @@
             --card: rgba(255, 255, 255, 0.05); 
             --gold: #ffd700; 
             --text: #94a3b8;
+            --danger: #ff4757;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -40,7 +41,7 @@
         .navbar { 
             background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); 
             height: 70px; display: flex; align-items: center; justify-content: space-between; 
-            padding: 0 25px; border-bottom: 1px solid rgba(255,255,255,0.1); sticky: top; z-index: 900;
+            padding: 0 25px; border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 900;
         }
         .menu-btn { font-size: 24px; cursor: pointer; color: var(--main); }
         .nav-brand { font-weight: 900; font-size: 20px; letter-spacing: 2px; }
@@ -123,13 +124,13 @@
                 </div>
             </div>
 
-            <div class="game-card" onclick="location.href='blockblast.html'">
-                <div class="game-tag" style="background: #00d4ff;">MỚI</div>
-                <div class="game-banner" style="color: #ff4757;"><i class="fas fa-cubes"></i></div>
+            <div class="game-card" onclick="location.href='luckywheel.html'">
+                <div class="game-tag" style="background: var(--danger); color: white;">MAY MẮN</div>
+                <div class="game-banner" style="color: var(--gold);"><i class="fas fa-dharmachakra fa-spin-slow"></i></div>
                 <div class="game-info">
-                    <div class="game-title">Block Blast</div>
-                    <div class="game-desc">Xếp các khối gỗ Minecraft và phá hủy chúng để ghi điểm cực cao.</div>
-                    <a href="blockblast.html" class="btn-play">CHƠI NGAY</a>
+                    <div class="game-title">Vòng Quay May Mắn</div>
+                    <div class="game-desc">Thử vận may mỗi ngày để nhận được phần thưởng Xu ngẫu nhiên cực lớn.</div>
+                    <a href="luckywheel.html" class="btn-play" style="background: var(--danger); color: white;">QUAY NGAY</a>
                 </div>
             </div>
 
