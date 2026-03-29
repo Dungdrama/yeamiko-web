@@ -15,33 +15,36 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); display: flex; min-height: 100vh; overflow-x: hidden; }
 
-        /* Sidebar - Đồng bộ với forum.html */
+        /* --- SIDEBAR ĐÃ ĐỒNG BỘ --- */
         .menu-toggle {
             position: fixed; top: 20px; left: 20px; z-index: 1500;
             background: var(--main); color: #000; width: 45px; height: 45px;
             display: flex; align-items: center; justify-content: center;
             border-radius: 10px; cursor: pointer; font-size: 20px;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
         }
         .sidebar { 
             width: 250px; background: var(--sidebar-dark); height: 100vh; 
             position: fixed; padding: 25px; color: white; z-index: 2000;
             left: -250px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 1px solid rgba(255,255,255,0.05);
         }
         .sidebar.open { left: 0; }
-        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; }
-        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
-        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
-        .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
+        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; letter-spacing: 2px; }
+        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; font-size: 15px; }
+        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; font-size: 1.1rem; }
+        .sidebar a:hover, .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
+        
         .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1800; display: none; backdrop-filter: blur(3px); }
         .sidebar-overlay.show { display: block; }
 
         /* Main Content */
-        .main-content { flex: 1; padding: 80px 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .main-content { flex: 1; padding: 100px 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
         
         .checkin-card {
             background: white; width: 100%; max-width: 600px;
             padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            text-align: center;
+            text-align: center; border: 1px solid #eee;
         }
 
         .points-badge {
@@ -70,7 +73,7 @@
             cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
         }
         .btn-checkin:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 212, 255, 0.5); }
-        .btn-checkin:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
+        .btn-checkin:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none; color: #777; }
     </style>
 </head>
 <body>
@@ -84,13 +87,16 @@
         <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
         <a href="checkin.html" class="active"><i class="fas fa-calendar-check"></i><span>Điểm danh</span></a>
         <a href="shop.html"><i class="fas fa-shopping-cart"></i><span>Cửa hàng</span></a>
+        
+        <a href="minigame-hub.html"><i class="fas fa-gamepad"></i><span>Giải trí</span></a>
+
         <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
     </div>
 
     <div class="main-content">
         <div class="checkin-card">
-            <h2 style="font-weight: 900; letter-spacing: -1px;">HÀNH TRÌNH 30 NGÀY</h2>
-            <p style="color: #777;">Điểm danh mỗi ngày để nhận quà khủng!</p>
+            <h2 style="font-weight: 900; letter-spacing: -1px; text-transform: uppercase;">Hành trình 30 ngày</h2>
+            <p style="color: #777;">Tích lũy điểm mỗi ngày để đổi quà giá trị!</p>
             
             <div class="points-badge">
                 <i class="fas fa-coins"></i> <span id="user-pts">0</span> Điểm
@@ -131,12 +137,12 @@
     });
 
     async function updateUI(uid) {
+        // Sử dụng web_users để đồng bộ điểm với Casino/Profile
         const snap = await database.ref('web_users/' + uid).once('value');
         const data = snap.val() || { points: 0, count: 0, last: "" };
         
         document.getElementById('user-pts').innerText = data.points;
         
-        // Cập nhật trạng thái nút
         const today = new Date().toISOString().split('T')[0];
         const btn = document.getElementById('btn-main');
         if (data.last === today) {
@@ -176,11 +182,11 @@
                 last: today
             });
 
-            alert("Tuyệt vời! Bạn nhận được 2 điểm tích lũy.");
+            alert("Chúc mừng Dũng! Bạn đã nhận được 2 điểm.");
             updateUI(uid);
 
         } catch (error) {
-            alert("Lỗi kết nối: " + error.message);
+            alert("Lỗi hệ thống: " + error.message);
         }
     }
 </script>
