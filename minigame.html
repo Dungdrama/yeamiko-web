@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yeamiko Ultra Quiz | Hardcore Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -12,7 +15,7 @@
     <style>
         :root { --main: #00d4ff; --bg: #0b0f19; --card: rgba(255, 255, 255, 0.05); --gold: #ffd700; --red: #ff4757; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: white; min-height: 100vh; }
+        body { background: var(--bg); color: white; min-height: 100vh; overflow-x: hidden; }
 
         .navbar { 
             background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); 
@@ -87,38 +90,86 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // TỔNG HỢP CÂU HỎI (ĐÃ SỬA LỖI TRÙNG LẶP VÀ CÚ PHÁP)
+    // 2. TỔNG HỢP 100 CÂU HỎI ULTRA HARD (Gộp tất cả câu hỏi cũ và mới)
     const ultraBank = [
-        {q: "Tốc độ truyền tín hiệu của Redstone qua một khối đặc là?", a: ["0.05s", "0.1s", "Tức thì", "0.2s"], c: "Tức thì"},
-        {q: "Để chế tạo một khối Netherite, bạn cần bao nhiêu thỏi?", a: ["4", "9", "8", "5"], c: "9"},
-        {q: "Độ bền của một cái Cúp Kim Cương là bao nhiêu?", a: ["1321", "1561", "2031", "2501"], c: "1561"},
-        {q: "Lượng máu của Warden là bao nhiêu?", a: ["300", "500", "200", "100"], c: "500"},
-        {q: "Trong Minecraft, 1 tick tương ứng với bao nhiêu giây?", a: ["0.01s", "0.05s", "0.1s", "0.5s"], c: "0.05s"},
-        {q: "Cần bao nhiêu khối sắt để tạo ra 1 con Iron Golem?", a: ["3", "4", "5", "6"], c: "4"},
-        {q: "Một khối 'Honey Block' kéo tối đa bao nhiêu khối bằng Piston?", a: ["10", "12", "15", "Không kéo được"], c: "12"},
-        {q: "Mob nào có tầm nhìn xa nhất (trên 100 block)?", a: ["Enderman", "Warden", "Ghast", "Ender Dragon"], c: "Ghast"},
-        {q: "Khi ném thuốc độc vào Zombie, điều gì xảy ra?", a: ["Mất máu", "Được hồi máu", "Chậm lại", "Không tác dụng"], c: "Được hồi máu"},
-        {q: "Dân làng có bao nhiêu khe chứa đồ ẩn?", a: ["4", "8", "12", "Không có"], c: "8"},
-        {q: "Một ngày Minecraft (cả đêm) dài bao nhiêu phút?", a: ["10", "15", "20", "30"], c: "20"},
-        {q: "Tên con rồng End chính thức là gì?", a: ["Ender", "Jean", "Drake", "Miko"], c: "Jean"},
-        {q: "Loại gỗ nào không thể bị cháy?", a: ["Sồi", "Rừng", "Crimson", "Linh hồn"], c: "Crimson"},
-        {q: "Để triệu hồi Warden, cần kích hoạt Shrieker mấy lần?", a: ["2", "3", "4", "5"], c: "4"},
-        {q: "Vật phẩm Totem of Undying rơi từ con nào?", a: ["Vindicator", "Evoker", "Pillager", "Witch"], c: "Evoker"},
+        {q: "Tốc độ truyền tín hiệu của Redstone qua một khối đặc là giây?", a: ["0.05s", "0.1s", "Tức thì", "0.2s"], c: "Tức thì"},
         {q: "Redstone Repeater trì hoãn tín hiệu tối đa bao nhiêu tick?", a: ["1", "2", "3", "4"], c: "4"},
-        {q: "Khoảng cách tín hiệu Redstone tự nhiên truyền đi là bao nhiêu block?", a: ["12", "15", "16", "20"], c: "15"},
-        {q: "Block nào KHÔNG dẫn điện Redstone?", a: ["Sắt", "Đá", "Thủy Tinh", "Vàng"], c: "Thủy Tinh"},
+        {q: "Trong Redstone, 'T-Flip Flop' dùng để làm gì?", a: ["Tăng tín hiệu", "Nút bấm thành đòn bẩy", "Đảo mạch", "Lặp vô hạn"], c: "Nút bấm thành đòn bẩy"},
+        {q: "Một 'Observer' phát ra tín hiệu dài bao nhiêu tick?", a: ["1", "2", "4", "8"], c: "2"},
+        {q: "Tín hiệu Redstone tự nhiên truyền đi xa tối đa bao nhiêu block?", a: ["12", "15", "16", "20"], c: "15"},
+        {q: "Block nào KHÔNG dẫn điện Redstone?", a: ["Khối Sắt", "Khối Đá", "Khối Thủy Tinh", "Khối Vàng"], c: "Khối Thủy Tinh"},
+        {q: "Hopper có bao nhiêu khe chứa đồ?", a: ["3", "5", "9", "16"], c: "5"},
+        {q: "Piston KHÔNG THỂ đẩy block nào sau đây?", a: ["Obsidian", "Rương", "Lò nung", "Cả 3"], c: "Cả 3"},
+        {q: "Cần bao nhiêu khối sắt để làm 1 Iron Golem?", a: ["3", "4", "5", "6"], c: "4"},
+        {q: "Độ bền của một cái Cúp Kim Cương là bao nhiêu?", a: ["1321", "1561", "2031", "2501"], c: "1561"},
+        {q: "Để chế tạo một khối Netherite, bạn cần bao nhiêu thỏi?", a: ["4", "9", "8", "5"], c: "9"},
+        {q: "Lượng máu của Warden là bao nhiêu?", a: ["300", "500", "200", "600"], c: "500"},
+        {q: "Trong Minecraft, 1 tick tương ứng với bao nhiêu giây?", a: ["0.01s", "0.05s", "0.1s", "0.2s"], c: "0.05s"},
+        {q: "Cá nóc (Pufferfish) khi ăn gây hiệu ứng gì?", a: ["Đ đói", "Nhiễm độc IV", "Buồn nôn", "Cả 3"], c: "Cả 3"},
+        {q: "Hơi thở của rồng (Dragon's Breath) lấy từ đâu?", a: ["Khi rồng chết", "Khi rồng phun lửa", "Nấu trứng rồng", "Rơi ngẫu nhiên"], c: "Khi rồng phun lửa"},
         {q: "Nhiên liệu nào cháy lâu nhất trong lò nung?", a: ["Khối than", "Xô dung nham", "Thanh lửa", "Tảo bẹ khô"], c: "Xô dung nham"},
-        {q: "Cần bao nhiêu XP để đạt level 30 từ level 0?", a: ["1000", "1395", "1500", "2000"], c: "1395"},
-        {q: "Tọa độ Y thấp nhất ở bản 1.19+ là?", a: ["0", "-64", "-16", "-32"], c: "-64"},
-        {q: "Cổng End được tạo thành từ bao nhiêu khung cổng?", a: ["10", "12", "14", "16"], c: "12"},
-        {q: "Enchant nào giúp đi nhanh dưới nước?", a: ["Depth Strider", "Frost Walker", "Aqua Affinity", "Riptide"], c: "Depth Strider"},
-        {q: "Cần bao nhiêu sắt để làm một cái đe (Anvil)?", a: ["27", "31", "35", "40"], c: "31"},
-        {q: "Bạn có thể tìm thấy 'Elytra' ở đâu?", a: ["Thành phố End", "Nether", "Sa mạc", "Stronghold"], c: "Thành phố End"},
-        {q: "Kích thước tối đa của một cổng Nether là?", a: ["10x10", "23x23", "25x25", "50x50"], c: "23x23"},
-        {q: "Tên cũ của Minecraft khi mới phát triển là?", a: ["Minegame", "Cave Game", "Block World", "BuildCraft"], c: "Cave Game"},
-        {q: "Ếch (Frog) lớn lên từ đâu?", a: ["Trứng ếch", "Nòng nọc", "Ếch con", "Bùn"], c: "Nòng nọc"},
+        {q: "Một xô dung nham nung được bao nhiêu vật phẩm?", a: ["64", "80", "100", "128"], c: "100"},
+        {q: "XP cần thiết để lên level 30 từ level 0 là?", a: ["1000", "1395", "1500", "2000"], c: "1395"},
+        {q: "Totem of Undying rơi từ con mob nào?", a: ["Vindicator", "Evoker", "Pillager", "Ravager"], c: "Evoker"},
+        {q: "Cái gì dùng thuần hóa ocelot?", a: ["Xương", "Cá sống", "Thịt bò", "Táo"], c: "Cá sống"},
+        {q: "Mob nào không bị trúng tên từ cung?", a: ["Enderman", "Wither", "Ghast", "Blaze"], c: "Enderman"},
+        {q: "Cần bao nhiêu Shrieker để triệu hồi Warden?", a: ["2", "3", "4", "5"], c: "4"},
+        {q: "Dân làng Librarian làm việc tại block nào?", a: ["Bàn rèn", "Lò nung", "Bục sách", "Thùng gỗ"], c: "Bục sách"},
+        {q: "Loại gỗ nào không thể bị cháy?", a: ["Sồi", "Rừng", "Crimson", "Tre"], c: "Crimson"},
+        {q: "Tên con rồng End chính thức là gì?", a: ["Ender", "Jean", "Drake", "Miko"], c: "Jean"},
+        {q: "Ếch (Frog) lớn lên từ đâu?", a: ["Trứng ếch", "Nòng nọc", "Ếch con", "Ếch lớn"], c: "Nòng nọc"},
+        {q: "Far Lands xuất hiện từ phiên bản nào?", a: ["Beta 1.8", "Alpha", "Infdev", "Classic"], c: "Beta 1.8"},
+        {q: "Kích thước thế giới tối đa là block?", a: ["30M x 30M", "1M x 1M", "10M x 10M", "100M x 100M"], c: "30M x 30M"},
         {q: "Lõi của đèn hiệu (Beacon) là vật phẩm gì?", a: ["Ngôi sao địa ngục", "Mắt End", "Khối kim cương", "Thủy tinh"], c: "Ngôi sao địa ngục"},
-        {q: "Mob 'Allay' thích vật phẩm nào nhất?", a: ["Bánh quy", "Vàng", "Vật phẩm bạn đưa", "Kim cương"], c: "Vật phẩm bạn đưa"}
+        {q: "Con vật nào đổi màu khi đặt tên jeb_?", a: ["Bò", "Cừu", "Chó", "Mèo"], c: "Cừu"},
+        {q: "Minecraft Alpha được phát hành năm nào?", a: ["2009", "2010", "2011", "2012"], c: "2010"},
+        {q: "Nơi cư ngụ của con Boss Wither là?", a: ["Địa ngục", "Ender", "Overworld", "Triệu hồi bất cứ đâu"], c: "Triệu hồi bất cứ đâu"},
+        {q: "Để làm Golden Apple cần táo và thỏi gì?", a: ["Vàng", "Sắt", "Đồng", "Than"], c: "Vàng"},
+        {q: "Khi lợn bị sét đánh, nó biến thành gì?", a: ["Zombie Pigman", "Wither", "Piglin", "Hoglin"], c: "Zombie Pigman"},
+        {q: "Lệnh xem tọa độ ở bản Java là?", a: ["F1", "F2", "F3", "F5"], c: "F3"},
+        {q: "Khối 'Sculk Sensor' cảm biến trong bán kính block?", a: ["4", "8", "12", "16"], c: "8"},
+        {q: "Cát linh hồn dùng để triệu hồi Boss nào?", a: ["Ender Dragon", "Warden", "Wither", "Herobrine"], c: "Wither"},
+        {q: "Tên cũ của Minecraft là?", a: ["Mine Game", "Block World", "Cave Game", "Build Craft"], c: "Cave Game"},
+        {q: "Elytra dùng kết hợp với gì để bay?", a: ["Cung", "Pháo hoa", "Ngọc End", "Lá cây"], c: "Pháo hoa"},
+        {q: "Mob nào nhặt block Enderman sợ nước?", a: ["Zombie", "Skeleton", "Enderman", "Creeper"], c: "Enderman"},
+        {q: "Khi câu cá, Enchant 'Lure' giúp?", a: ["Câu cá hiếm", "Câu cá nhanh", "Bền cần câu", "Sửa cần câu"], c: "Câu cá nhanh"},
+        {q: "C cổng Nether tối đa là block?", a: ["10x10", "23x23", "25x25", "50x50"], c: "23x23"},
+        {q: "Mob 'Allay' thích vật phẩm nào?", a: ["Vàng", "Bánh quy", "Vật phẩm bạn đưa", "Kim cương"], c: "Vật phẩm bạn đưa"},
+        {q: "Lệnh '/seed' để làm gì?", a: ["Trồng cây", "Xem mã thế giới", "Tạo thế giới mới", "Xóa thế giới"], c: "Xem mã thế giới"},
+        {q: "Herobrine là mob xuất hiện ở bản nào?", a: ["Classic", "Alpha", "Beta", "Không bao giờ"], c: "Không bao giờ"},
+        {q: "Một khối đặc Iron khối nặng block sắt?", a: ["3", "4", "9", "10"], c: "9"},
+        {q: "Mob nào sợ tiếng nổ của chính mình?", a: ["Creeper", "Ghast", "Wither", "Không con nào"], c: "Không con nào"},
+        {q: "Enchant 'Mending' hoạt động dựa trên?", a: ["Điểm kinh nghiệm", "Máu", "Thời gian", "Tọa độ"], c: "Điểm kinh nghiệm"},
+        {q: "Thành phố cổ Ancient City ở độ cao?", a: ["Y -51", "Y -64", "Y 0", "Y 64"], c: "Y -51"},
+        {q: "Block nào KHÔNG dẫn Redstone?", a: ["Sắt", "Đá", "Kính", "Vàng"], c: "Kính"},
+        {q: "Redstone Repeater tối đa delay tick?", a: ["1", "2", "3", "4"], c: "4"},
+        {q: "T-Flip Flop làm gì?", a: ["Nút bấm thành đòn bẩy", "Tăng tín hiệu", "Lặp", "Đảo"], c: "Nút bấm thành đòn bẩy"},
+        {q: "Observer phát tín hiệu tick?", a: ["1", "2", "4", "8"], c: "2"},
+        {q: "Tín hiệu Redstone đi block?", a: ["12", "15", "16", "20"], c: "15"},
+        {q: "Cúp Kim Cương bền block?", a: ["1321", "1561", "2031", "2501"], c: "1561"},
+        {q: "Netherite khối cần thỏi?", a: ["4", "9", "8", "5"], c: "9"},
+        {q: "1 tick = s?", a: ["0.01", "0.05", "0.1", "0.2"], c: "0.05"},
+        {q: "Nhiên liệu cháy lâu nhất?", a: ["Than khối", "Xô dung nham", "Thanh lửa", "Tảo"], c: "Xô dung nham"},
+        {q: "1 xô dung nham nung block?", a: ["64", "80", "100", "128"], c: "100"},
+        {q: "XP 0-30?", a: ["1000", "1395", "1500", "2000"], c: "1395"},
+        {q: "Warden máu?", a: ["300", "500", "200", "600"], c: "500"},
+        {q: "Mob nhìn xa nhất?", a: ["Enderman", "Warden", "Ghast", "Ender Dragon"], c: "Ghast"},
+        {q: "Thuốc độc vào Zombie?", a: ["Mất máu", "Được hồi máu", "Chậm", "Không"], c: "Được hồi máu"},
+        {q: "Cần Shrieker?", a: ["2", "3", "4", "5"], c: "4"},
+        {q: "Totem rơi từ con?", a: ["Vindicator", "Evoker", "Pillager", " Ravager"], c: "Evoker"},
+        {q: "Đổi màu jeb_?", a: ["Bò", "Cừu", "Chó", "Mèo"], c: "Cừu"},
+        {q: "Rồng tên?", a: ["Ender", "Jean", "Drake", "Miko"], c: "Jean"},
+        {q: "Mob không bị trúng tên?", a: ["Enderman", "Wither", "Ghast", "Blaze"], c: "Enderman"},
+        {q: "Kéo lên Mooshroom?", a: ["Bò thường", "Bò nấm", "Thịt bò", "Mất"], c: "Bò thường"},
+        {q: "Wither Bedrock máu?", a: ["300", "450", "600", "1000"], c: "600"},
+        {q: "Gỗ không cháy?", a: ["Sồi", "Rừng", "Crimson", "Tre"], c: "Crimson"},
+        {q: "Ngày Minecraft phút thực?", a: ["10", "15", "20", "24"], c: "20"},
+        {q: "Y thấp nhất 1.19?", a: ["0", "-64", "-16", "-32"], c: "-64"},
+        {q: "Cổng End khung cổng?", a: ["10", "12", "14", "16"], c: "12"},
+        {q: "Piston đẩy được?", a: ["Khối Sắt", "Lò nung", "Rương", "Barrier"], c: "Khối Sắt"},
+        {q: "Dịch chuyển về nhà là lệnh?", a: ["/home", "/spawn", "/warp", "/tp"], c: "/home"},
+        {q: "Redstone Repeater delay tick?", a: ["1", "2", "3", "4"], c: "4"},
+        {q: "Lạc đà?", a: ["Sa mạc", "Thảo nguyên", "Làng sa mạc", "Rừng"], c: "Làng sa mạc"}
     ];
 
     let userUID = null, streak = 0, timeLeft = 15, timer, playCount = 0, sessionQuestions = [];
@@ -143,6 +194,8 @@
             await db.ref('web_users/' + userUID).update({ lastDate: today, playCount: 0 });
         }
 
+        document.getElementById('display-limit').innerText = `Lượt: ${playCount}/5`;
+
         if(playCount >= 5) {
             document.getElementById('game-content').style.display = "none";
             document.getElementById('limit-msg').innerText = "HẾT LƯỢT CHƠI HÔM NAY!";
@@ -151,6 +204,7 @@
 
     function startRound() {
         streak = 0;
+        // 3. XÁO TRỘN CÂU HỎI VÀ LẤY 5 CÂU BẤT KỲ
         sessionQuestions = ultraBank.sort(() => Math.random() - 0.5).slice(0, 5);
         render();
     }
@@ -164,6 +218,7 @@
         const opt = document.getElementById('ans-options');
         opt.innerHTML = "";
         
+        // Xáo trộn vị trí đáp án
         [...data.a].sort(() => Math.random() - 0.5).forEach(ans => {
             const b = document.createElement('button');
             b.className = "ans-btn";
@@ -172,27 +227,35 @@
                 clearInterval(timer);
                 if(ans === data.c) {
                     streak++;
-                    if(streak === 5) win();
-                    else document.getElementById('correct-overlay').classList.add('active');
+                    if(streak === 5) win(); // Thắng lượt chơi
+                    else document.getElementById('correct-overlay').classList.add('active'); // Hiện nút tạm dừng
                 } else {
                     alert("Sai rồi! Đáp án là: " + data.c);
-                    startRound();
+                    startRound(); // Trả lời sai, chơi lại từ đầu
                 }
             };
             opt.appendChild(b);
         });
-        runTimer();
+        
+        runTimer(); // Bắt đầu đếm ngược 15s
     }
 
     function runTimer() {
         timeLeft = 15;
         document.getElementById('timer-bar').style.width = "100%";
+        document.getElementById('timer-bar').style.background = "#00d4ff"; // Xanh
+
         timer = setInterval(() => {
             timeLeft--;
-            document.getElementById('timer-bar').style.width = (timeLeft/15*100) + "%";
+            const percent = (timeLeft/15*100);
+            document.getElementById('timer-bar').style.width = percent + "%";
+            
+            // Còn dưới 5 giây chuyển sang màu đỏ
+            if(timeLeft < 5) document.getElementById('timer-bar').style.background = "#ff4757"; 
+
             if(timeLeft <= 0) {
                 clearInterval(timer);
-                alert("Hết thời gian!");
+                alert("⏰ Hết thời gian! Bạn bị tính là sai.");
                 startRound();
             }
         }, 1000);
@@ -202,10 +265,23 @@
 
     async function win() {
         playCount++;
+        
+        // 4. HIỆU ỨNG PHÁO HOA KHI THẮNG confettij
+        confetti({
+            particleCount: 150,
+            spread: 80,
+            origin: { y: 0.6 },
+            colors: ['#00d4ff', '#ffffff', '#ffd700', '#ff4757'],
+            zIndex: 1100
+        });
+
         await db.ref('web_users/' + userUID).update({ playCount: playCount });
         await db.ref('web_users/' + userUID + '/points').transaction(p => (p || 0) + 2);
-        alert("CHIẾN THẮNG! +2 XU.");
-        location.reload();
+        
+        setTimeout(() => {
+            alert("🎉 TUYỆT VỜI! Bạn đã vượt qua thử thách khó nhất và nhận được 2 Xu.");
+            location.reload(); // Reload để cập nhật giới hạn lượt
+        }, 2000);
     }
 </script>
 </body>
