@@ -1,49 +1,207 @@
-<div id="link-section">
-    <input type="text" id="mc-name" placeholder="Tên nhân vật In-game">
-    <input type="text" id="link-code" placeholder="Mã /link">
-    <button onclick="linkGame()">XÁC NHẬN LIÊN KẾT</button>
-</div>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cửa Hàng | Yeamiko Network</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-<div class="shop">
-    <button onclick="exchange(20, 'moc1', 'SMP')">Đổi 50K vào SMP</button>
-    <button onclick="exchange(20, 'moc1', 'CHILL')">Đổi 50K vào CHILL</button>
-</div>
+    <style>
+        :root { --main: #00d4ff; --bg: #f4f7f6; --sidebar-dark: #111; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* Sidebar - Đồng bộ 100% với forum/checkin */
+        .menu-toggle { position: fixed; top: 20px; left: 20px; z-index: 1500; background: var(--main); color: #000; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 10px; cursor: pointer; }
+        .sidebar { width: 250px; background: var(--sidebar-dark); height: 100vh; position: fixed; padding: 25px; color: white; z-index: 2000; left: -250px; transition: 0.4s; }
+        .sidebar.open { left: 0; }
+        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; }
+        .sidebar a { display: flex; align-items: center; color: #bbb; padding: 15px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
+        .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: var(--main); font-weight: bold; }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1800; display: none; backdrop-filter: blur(3px); }
+        .sidebar-overlay.show { display: block; }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 80px 20px; display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .shop-container { width: 100%; max-width: 800px; }
+
+        /* User Info Card */
+        .user-status { background: white; padding: 20px; border-radius: 20px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .points-box { font-size: 22px; font-weight: 900; color: var(--main); }
+        .linked-box { font-size: 14px; color: #666; background: #eee; padding: 5px 15px; border-radius: 20px; }
+
+        /* Shop Grid */
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .item-card { background: white; padding: 25px; border-radius: 20px; border: 1px solid #eee; text-align: center; transition: 0.3s; }
+        .item-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        .item-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+        .item-price { font-size: 24px; font-weight: 900; color: #ffaa00; margin-bottom: 20px; }
+        
+        .btn-group { display: flex; gap: 10px; }
+        .btn-buy { flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; color: #000; }
+        .btn-chill { background: #ffaa00; }
+        .btn-smp { background: #00ff88; }
+        .btn-buy:hover { opacity: 0.8; }
+
+        /* Link Box */
+        .link-modal { background: #fff; padding: 25px; border-radius: 20px; margin-bottom: 25px; border: 2px dashed var(--main); }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; outline: none; }
+    </style>
+</head>
+<body>
+
+    <div class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="logo">YEAMIKO</div>
+        <a href="index.html"><i class="fas fa-home"></i><span>Trang chủ</span></a>
+        <a href="forum.html"><i class="fas fa-comments"></i><span>Diễn đàn</span></a>
+        <a href="checkin.html"><i class="fas fa-calendar-check"></i><span>Điểm danh</span></a>
+        <a href="shop.html" class="active"><i class="fas fa-shopping-cart"></i><span>Cửa hàng</span></a>
+        <a href="profile.html"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
+    </div>
+
+    <div class="main-content">
+        <div class="shop-container">
+            <div class="user-status">
+                <div class="points-box"><i class="fas fa-coins"></i> <span id="display-pts">0</span></div>
+                <div id="display-mc" class="linked-box">Chưa liên kết Game</div>
+            </div>
+
+            <div id="link-section" class="link-modal" style="display: none;">
+                <h3 style="margin-bottom: 10px;">🔓 Liên kết nhân vật Minecraft</h3>
+                <p style="font-size: 13px; color: #777;">Vào game gõ <b>/link</b> để lấy mã 6 số.</p>
+                <input type="text" id="mc-name" placeholder="Tên nhân vật (VD: DungMC)">
+                <input type="text" id="link-code" placeholder="Mã xác thực (6 số)">
+                <button onclick="linkGame()" class="btn-buy" style="background: var(--main); width: 100%;">LIÊN KẾT NGAY</button>
+            </div>
+
+            <div class="shop-grid">
+                <div class="item-card">
+                    <div class="item-title">Mốc 1: 50,000 Money</div>
+                    <div class="item-price">20 Điểm</div>
+                    <div class="btn-group">
+                        <button class="btn-buy btn-chill" onclick="buyItem(20, 'moc1', 'CHILL')">Mua cụm CHILL</button>
+                        <button class="btn-buy btn-smp" onclick="buyItem(20, 'moc1', 'SMP')">Mua cụm SMP</button>
+                    </div>
+                </div>
+
+                <div class="item-card">
+                    <div class="item-title">Mốc 2: 100,000 Money</div>
+                    <div class="item-price">40 Điểm</div>
+                    <div class="btn-group">
+                        <button class="btn-buy btn-chill" onclick="buyItem(40, 'moc2', 'CHILL')">Mua cụm CHILL</button>
+                        <button class="btn-buy btn-smp" onclick="buyItem(40, 'moc2', 'SMP')">Mua cụm SMP</button>
+                    </div>
+                </div>
+
+                <div class="item-card">
+                    <div class="item-title">Mốc 3: 200,000 Money</div>
+                    <div class="item-price">80 Điểm</div>
+                    <div class="btn-group">
+                        <button class="btn-buy btn-chill" onclick="buyItem(80, 'moc3', 'CHILL')">Mua cụm CHILL</button>
+                        <button class="btn-buy btn-smp" onclick="buyItem(80, 'moc3', 'SMP')">Mua cụm SMP</button>
+                    </div>
+                </div>
+
+                <div class="item-card">
+                    <div class="item-title">Mốc 4: 1,000,000 Money</div>
+                    <div class="item-price">300 Điểm</div>
+                    <div class="btn-group">
+                        <button class="btn-buy btn-chill" onclick="buyItem(300, 'moc4', 'CHILL')">Mua cụm CHILL</button>
+                        <button class="btn-buy btn-smp" onclick="buyItem(300, 'moc4', 'SMP')">Mua cụm SMP</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <script>
-async function linkGame() {
-    const webUserId = firebase.auth().currentUser.uid;
-    const mcName = document.getElementById('mc-name').value;
-    const code = document.getElementById('link-code').value;
+    const firebaseConfig = {
+        apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
+        authDomain: "yeamiko-web.firebaseapp.com",
+        databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "yeamiko-web",
+        databaseURL: "https://yeamiko-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+        storageBucket: "yeamiko-web.firebasestorage.app",
+        messagingSenderId: "380442978172",
+        appId: "1:380442978172:web:52eeb187628ed3518266f9"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-    // Kiểm tra mã /link từ Firebase (do Skript gửi lên)
-    const snap = await database.ref('linking/' + mcName).once('value');
-    if (snap.exists() && snap.val().code == code) {
-        // Lưu liên kết vào tài khoản web
-        await database.ref('web_users/' + webUserId).update({ linked_mc: mcName });
-        alert("Đã liên kết với nhân vật: " + mcName);
-    } else {
-        alert("Sai mã hoặc tên nhân vật!");
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.querySelector('.sidebar-overlay').classList.toggle('show');
     }
-}
 
-async function exchange(cost, moc, server) {
-    const webUserId = firebase.auth().currentUser.uid;
-    const userSnap = await database.ref('web_users/' + webUserId).once('value');
-    const userData = userSnap.val();
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) { loadUserData(user.uid); } 
+        else { window.location.href = 'login.html'; }
+    });
 
-    if (!userData.linked_mc) return alert("Bạn phải liên kết tài khoản game trước!");
-    if (userData.points < cost) return alert("Không đủ điểm!");
+    let currentMC = null;
+    let currentPoints = 0;
 
-    // 1. Trừ điểm tài khoản Web
-    await database.ref('web_users/' + webUserId).update({ points: userData.points - cost });
+    async function loadUserData(uid) {
+        const snap = await database.ref('web_users/' + uid).once('value');
+        const data = snap.val() || { points: 0 };
+        currentPoints = data.points;
+        currentMC = data.linked_mc || null;
 
-    // 2. Đẩy quà vào nhánh của Server đó cho Skript đọc
-    let giftPath = 'users_data/' + userData.linked_mc;
-    let giftData = {};
-    giftData[`pending_${server}`] = moc;
-    giftData[`claimed_${server}`] = false;
-    
-    await database.ref(giftPath).update(giftData);
-    alert(`Đã gửi quà vào cụm ${server}. Hãy vào game gõ /nhanqua`);
-}
+        document.getElementById('display-pts').innerText = currentPoints;
+        
+        if (currentMC) {
+            document.getElementById('display-mc').innerHTML = `<i class="fas fa-link"></i> Đã liên kết: <b>${currentMC}</b>`;
+            document.getElementById('link-section').style.display = 'none';
+        } else {
+            document.getElementById('link-section').style.display = 'block';
+        }
+    }
+
+    async function linkGame() {
+        const mcName = document.getElementById('mc-name').value.trim();
+        const code = document.getElementById('link-code').value.trim();
+        const uid = firebase.auth().currentUser.uid;
+
+        if(!mcName || !code) return alert("Nhập đủ thông tin!");
+
+        // Kiểm tra mã từ nhánh linking (do Skript tạo)
+        const snap = await database.ref('linking/' + mcName).once('value');
+        if(snap.exists() && snap.val().code == code) {
+            await database.ref('web_users/' + uid).update({ linked_mc: mcName });
+            alert("Liên kết thành công nhân vật: " + mcName);
+            loadUserData(uid);
+        } else {
+            alert("Mã xác thực không đúng hoặc tên nhân vật sai!");
+        }
+    }
+
+    async function buyItem(cost, mocId, server) {
+        if(!currentMC) return alert("Bạn phải liên kết Game trước!");
+        if(currentPoints < cost) return alert("Bạn không đủ điểm!");
+
+        const uid = firebase.auth().currentUser.uid;
+        
+        // 1. Trừ điểm Web
+        await database.ref('web_users/' + uid).update({ points: currentPoints - cost });
+
+        // 2. Gửi quà vào cụm tương ứng
+        let updateData = {};
+        updateData[`pending_${server}`] = mocId;
+        updateData[`claimed_${server}`] = false;
+        
+        await database.ref('users_data/' + currentMC).update(updateData);
+
+        alert(`Đã đổi thành công! Hãy vào cụm ${server} gõ /nhanqua để nhận tiền.`);
+        loadUserData(uid);
+    }
 </script>
+</body>
+</html>
