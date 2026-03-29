@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeamiko | Block Blast</title>
+    <title>Yeamiko | Block Blast Fixed</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -11,67 +11,66 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
-        :root { --main: #00d4ff; --bg: #0b0f19; --card: #1e293b; --wood: #795548; }
+        :root { --main: #00d4ff; --bg: #0b0f19; --wood: #795548; --active: #00ff88; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; }
-        body { background: var(--bg); color: white; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        body { background: var(--bg); color: white; min-height: 100vh; overflow-x: hidden; }
 
-        /* Navbar đồng bộ */
-        .navbar { width: 100%; height: 60px; background: rgba(15, 23, 42, 0.9); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--main); }
+        .navbar { height: 60px; background: #0f172a; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid var(--main); }
         
-        .game-container { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .game-area { display: flex; flex-direction: column; align-items: center; padding: 20px; gap: 15px; }
         
-        /* Lưới 8x8 */
+        /* Lưới 8x8 tối ưu cho Mobile */
         .grid {
-            display: grid;
-            grid-template-columns: repeat(8, 40px);
-            grid-template-rows: repeat(8, 40px);
-            gap: 4px;
-            background: #0f172a;
-            padding: 10px;
-            border-radius: 12px;
-            border: 4px solid #334155;
+            display: grid; grid-template-columns: repeat(8, 1fr);
+            gap: 3px; background: #1e293b; padding: 8px; border-radius: 8px;
+            width: 100%; max-width: 360px; aspect-ratio: 1/1;
         }
-        .cell { width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 4px; transition: 0.2s; }
-        .cell.filled { background: var(--wood); border: 2px solid #5d4037; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        .cell { background: rgba(255,255,255,0.05); border-radius: 3px; cursor: pointer; transition: 0.2s; }
+        .cell.filled { background: var(--wood); border: 1px solid #5d4037; box-shadow: inset 0 0 5px #000; }
+        .cell.preview { background: rgba(0, 255, 136, 0.3); } /* Màu khi chuẩn bị đặt */
 
-        /* Khu vực chứa các khối kéo đi */
-        .pieces-container { display: flex; gap: 20px; margin-top: 30px; min-height: 120px; }
-        .piece { display: grid; gap: 2px; cursor: grab; transition: transform 0.2s; }
-        .piece:active { cursor: grabbing; transform: scale(1.1); }
-        .p-cell { width: 25px; height: 25px; background: var(--main); border-radius: 3px; border: 1px solid rgba(0,0,0,0.2); }
+        /* Khu vực chọn khối */
+        .pieces-holder { display: flex; justify-content: space-around; width: 100%; max-width: 360px; margin-top: 20px; min-height: 100px; }
+        .piece-box { 
+            background: rgba(255,255,255,0.03); border: 2px solid transparent;
+            padding: 10px; border-radius: 12px; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .piece-box.selected { border-color: var(--active); background: rgba(0, 255, 136, 0.1); transform: scale(1.1); }
+        
+        .piece-grid { display: grid; gap: 2px; }
+        .p-cell { width: 18px; height: 18px; background: var(--main); border-radius: 2px; }
 
-        .score-board { font-size: 24px; font-weight: 800; color: var(--main); }
-        .stats { color: #94a3b8; font-size: 14px; }
+        .score-box { font-size: 20px; font-weight: bold; color: var(--main); }
+        .msg { font-size: 13px; color: #94a3b8; text-align: center; }
 
-        .game-over-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); display: none; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 100;
+        #game-over {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
         }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <div onclick="location.href='minigame-hub.html'" style="cursor:pointer"><i class="fas fa-arrow-left"></i> THOÁT</div>
-        <div id="score" class="score-board">Điểm: 0</div>
-        <div id="user-xu" style="color: #ffd700; font-weight: bold;">0 Xu</div>
+        <div onclick="location.href='minigame-hub.html'"><i class="fas fa-chevron-left"></i></div>
+        <div class="score-box" id="score-val">0</div>
+        <div id="user-xu" style="color: #ffd700;">... Xu</div>
     </nav>
 
-    <div class="game-container">
-        <div class="stats">Mục tiêu: 500 điểm = +3 Xu</div>
-        <div class="grid" id="grid"></div>
-        <div class="pieces-container" id="pieces-container"></div>
+    <div class="game-area">
+        <p class="msg">Bước 1: Chạm chọn khối dưới <br> Bước 2: Chạm ô trên lưới để đặt</p>
+        <div class="grid" id="main-grid"></div>
+        <div class="pieces-holder" id="pieces-list"></div>
     </div>
 
-    <div id="game-over" class="game-over-overlay">
-        <h1 style="color: #ff4757; font-size: 40px; margin-bottom: 20px;">GAME OVER!</h1>
-        <p id="final-result" style="margin-bottom: 30px; font-size: 18px;"></p>
-        <button onclick="location.reload()" style="padding: 15px 40px; background: var(--main); border: none; border-radius: 10px; font-weight: 800; cursor: pointer;">CHƠI LẠI</button>
+    <div id="game-over">
+        <h2 style="color:#ff4757">HẾT CHỖ ĐẶT!</h2>
+        <p id="final-score" style="margin: 15px 0"></p>
+        <button onclick="location.reload()" style="padding: 12px 30px; background:var(--main); border:none; border-radius:8px; font-weight:bold">THỬ LẠI</button>
     </div>
 
 <script>
-    // Cấu hình Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
         authDomain: "yeamiko-web.firebaseapp.com",
@@ -81,158 +80,143 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    let userUID = null, currentPoints = 0, totalScore = 0;
-
-    const gridElement = document.getElementById('grid');
-    const piecesContainer = document.getElementById('pieces-container');
+    let userUID = null, score = 0, selectedPieceIndex = null;
     let board = Array(8).fill().map(() => Array(8).fill(0));
+    let currentPieces = [];
 
-    // Khởi tạo Firebase Auth
+    const shapes = [
+        {data: [[1,1], [1,1]], name: 'square'},
+        {data: [[1,1,1,1]], name: 'h-line'},
+        {data: [[1],[1],[1],[1]], name: 'v-line'},
+        {data: [[1,1,1]], name: 'h-3'},
+        {data: [[1],[1],[1]], name: 'v-3'},
+        {data: [[1,1],[1,0]], name: 'L-small'},
+        {data: [[1]]}
+    ];
+
     firebase.auth().onAuthStateChanged(user => {
         if(user) { 
             userUID = user.uid;
-            db.ref('web_users/'+userUID+'/points').on('value', s => {
-                document.getElementById('user-xu').innerText = (s.val() || 0) + " Xu";
-            });
+            db.ref('web_users/'+userUID+'/points').on('value', s => document.getElementById('user-xu').innerText = (s.val() || 0) + " Xu");
         } else { location.href = 'login.html'; }
     });
 
-    // Tạo lưới hiển thị
-    function createGrid() {
-        gridElement.innerHTML = '';
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
+    function initBoard() {
+        const grid = document.getElementById('main-grid');
+        grid.innerHTML = '';
+        for(let r=0; r<8; r++) {
+            for(let c=0; c<8; c++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell' + (board[r][c] ? ' filled' : '');
-                cell.dataset.r = r; cell.dataset.c = c;
-                gridElement.appendChild(cell);
+                cell.onclick = () => tryPlace(r, c);
+                grid.appendChild(cell);
             }
         }
     }
 
-    // Các hình khối (Shapes)
-    const shapes = [
-        [[1,1], [1,1]], // Khối vuông 2x2
-        [[1,1,1,1]],    // Thanh ngang 4
-        [[1],[1],[1],[1]], // Thanh dọc 4
-        [[1,1,1]],      // Thanh ngang 3
-        [[1,0], [1,0], [1,1]], // Chữ L
-        [[1]]           // Khối đơn
-    ];
-
-    function spawnPieces() {
-        piecesContainer.innerHTML = '';
-        for (let i = 0; i < 3; i++) {
-            const shape = shapes[Math.floor(Math.random() * shapes.length)];
-            const piece = document.createElement('div');
-            piece.className = 'piece';
-            piece.style.gridTemplateColumns = `repeat(${shape[0].length}, 25px)`;
-            piece.draggable = true;
+    function generatePieces() {
+        currentPieces = [];
+        const holder = document.getElementById('pieces-list');
+        holder.innerHTML = '';
+        for(let i=0; i<3; i++) {
+            const shape = shapes[Math.floor(Math.random()*shapes.length)];
+            currentPieces.push(shape);
             
-            shape.forEach((row, r) => {
-                row.forEach((v, c) => {
-                    const pc = document.createElement('div');
-                    pc.className = v ? 'p-cell' : '';
-                    piece.appendChild(pc);
+            const box = document.createElement('div');
+            box.className = 'piece-box';
+            box.id = 'pbox-' + i;
+            box.onclick = () => selectPiece(i);
+            
+            const pgrid = document.createElement('div');
+            pgrid.className = 'piece-grid';
+            pgrid.style.gridTemplateColumns = `repeat(${shape.data[0].length}, 18px)`;
+            
+            shape.data.forEach(row => {
+                row.forEach(v => {
+                    const c = document.createElement('div');
+                    if(v) c.className = 'p-cell';
+                    pgrid.appendChild(c);
                 });
             });
-
-            piece.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('shape', JSON.stringify(shape));
-                piece.classList.add('dragging');
-            });
-            piecesContainer.appendChild(piece);
+            box.appendChild(pgrid);
+            holder.appendChild(box);
         }
     }
 
-    // Xử lý kéo thả
-    gridElement.addEventListener('dragover', e => e.preventDefault());
-    gridElement.addEventListener('drop', e => {
-        const shape = JSON.parse(e.dataTransfer.getData('shape'));
-        const rect = gridElement.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const col = Math.floor(x / 44);
-        const row = Math.floor(y / 44);
+    function selectPiece(index) {
+        selectedPieceIndex = index;
+        document.querySelectorAll('.piece-box').forEach(b => b.classList.remove('selected'));
+        document.getElementById('pbox-' + index).classList.add('selected');
+    }
 
-        if (canPlace(shape, row, col)) {
-            placeShape(shape, row, col);
-            checkLines();
-            document.querySelector('.dragging').remove();
-            if (piecesContainer.children.length === 0) spawnPieces();
-            createGrid();
-            checkGameOver();
-        }
-    });
-
-    function canPlace(shape, row, col) {
-        for (let r = 0; r < shape.length; r++) {
-            for (let c = 0; c < shape[r].length; c++) {
-                if (shape[r][c]) {
-                    if (row + r >= 8 || col + c >= 8 || board[row + r][col + c]) return false;
+    function tryPlace(r, c) {
+        if(selectedPieceIndex === null) return;
+        const shape = currentPieces[selectedPieceIndex].data;
+        
+        // Kiểm tra xem có đặt được không
+        let can = true;
+        for(let i=0; i<shape.length; i++) {
+            for(let j=0; j<shape[i].length; j++) {
+                if(shape[i][j]) {
+                    if(r+i >= 8 || c+j >= 8 || board[r+i][c+j]) { can = false; break; }
                 }
             }
         }
-        return true;
-    }
 
-    function placeShape(shape, row, col) {
-        for (let r = 0; r < shape.length; r++) {
-            for (let c = 0; c < shape[r].length; c++) {
-                if (shape[r][c]) board[row + r][col + c] = 1;
+        if(can) {
+            // Đặt khối
+            for(let i=0; i<shape.length; i++) {
+                for(let j=0; j<shape[i].length; j++) {
+                    if(shape[i][j]) board[r+i][c+j] = 1;
+                }
             }
+            score += 20;
+            
+            // Xóa khối đã dùng
+            document.getElementById('pbox-'+selectedPieceIndex).style.visibility = 'hidden';
+            currentPieces[selectedPieceIndex] = null;
+            selectedPieceIndex = null;
+
+            // Kiểm tra hàng/cột
+            checkLines();
+            initBoard();
+
+            // Nếu dùng hết 3 khối thì ra đợt mới
+            if(currentPieces.every(p => p === null)) generatePieces();
+            
+            updateScoreDisplay();
         }
-        totalScore += 20;
-        updateScore();
     }
 
     function checkLines() {
-        let linesCleared = 0;
-        // Check hàng
-        for (let r = 0; r < 8; r++) {
-            if (board[r].every(v => v === 1)) {
-                board[r] = Array(8).fill(0);
-                linesCleared++;
-            }
+        let toClearR = [], toClearC = [];
+        for(let i=0; i<8; i++) {
+            if(board[i].every(v => v === 1)) toClearR.push(i);
+            let colFull = true;
+            for(let j=0; j<8; j++) if(!board[j][i]) colFull = false;
+            if(colFull) toClearC.push(i);
         }
-        // Check cột
-        for (let c = 0; c < 8; c++) {
-            if (board.every(r => r[c] === 1)) {
-                for (let r = 0; r < 8; r++) board[r][c] = 0;
-                linesCleared++;
-            }
-        }
-        if (linesCleared > 0) {
-            totalScore += linesCleared * 100;
-            updateScore();
+        
+        toClearR.forEach(r => board[r] = Array(8).fill(0));
+        toClearC.forEach(c => { for(let i=0; i<8; i++) board[i][c] = 0; });
+        
+        if(toClearR.length > 0 || toClearC.length > 0) {
+            score += (toClearR.length + toClearC.length) * 100;
         }
     }
 
-    function updateScore() {
-        document.getElementById('score').innerText = `Điểm: ${totalScore}`;
-        if (totalScore >= 500 && !window.rewarded) {
+    function updateScoreDisplay() {
+        document.getElementById('score-val').innerText = score;
+        if(score >= 500 && !window.rewarded) {
             window.rewarded = true;
-            giveReward();
+            confetti({ particleCount: 100, spread: 70 });
+            db.ref('web_users/'+userUID+'/points').transaction(p => (p || 0) + 3);
+            alert("Đạt mốc 500 điểm! +3 Xu");
         }
     }
 
-    async function giveReward() {
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        await db.ref('web_users/' + userUID + '/points').transaction(p => (p || 0) + 3);
-        alert("CHÚC MỪNG! Bạn đạt 500 điểm và nhận được 3 Xu.");
-    }
-
-    function checkGameOver() {
-        // Logíc đơn giản: nếu không còn chỗ trống nào thì game over (Dũng có thể nâng cấp thêm check từng khối)
-        const isFull = board.every(row => row.every(cell => cell === 1));
-        if (isFull) {
-            document.getElementById('game-over').style.display = 'flex';
-            document.getElementById('final-result').innerText = `Bạn ghi được ${totalScore} điểm!`;
-        }
-    }
-
-    createGrid();
-    spawnPieces();
+    initBoard();
+    generatePieces();
 </script>
 </body>
 </html>
