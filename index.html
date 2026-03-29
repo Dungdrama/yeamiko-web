@@ -17,7 +17,7 @@
         
         body { background: var(--bg); color: white; min-height: 100vh; overflow-x: hidden; display: flex; }
 
-        /* --- NÚT MENU 3 GẠCH --- */
+        /* --- MENU TOGGLE --- */
         .menu-toggle {
             position: fixed; top: 20px; left: 20px; z-index: 1500;
             background: var(--main); color: #000; width: 50px; height: 50px;
@@ -57,7 +57,7 @@
         }
         .sidebar-overlay.show { display: block; }
 
-        /* --- NỘI DUNG CHÍNH --- */
+        /* --- MAIN CONTENT & HERO SECTION --- */
         .main-content { flex: 1; position: relative; width: 100%; }
         .hero {
             height: 100vh; width: 100%;
@@ -65,23 +65,71 @@
             background-size: cover; background-position: center;
             display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
         }
-        .hero h1 { font-size: clamp(50px, 12vw, 100px); text-transform: uppercase; letter-spacing: 10px; margin-bottom: 40px; }
 
-        /* SERVER BOX & GALLERY (Giữ nguyên từ index (3).html) */
+        /* Hiệu ứng tiêu đề YEAMIKO phát sáng */
+        .hero h1 { 
+            font-size: clamp(60px, 15vw, 120px); 
+            text-transform: uppercase; 
+            letter-spacing: 15px; 
+            margin-bottom: 10px; 
+            color: #fff;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+        @keyframes titleGlow {
+            from { text-shadow: 0 0 20px rgba(0, 212, 255, 0.6); }
+            to { text-shadow: 0 0 40px rgba(0, 212, 255, 0.9), 0 0 10px #fff; }
+        }
+
+        /* Nâng cấp Server Box (Glassmorphism) */
         .mc-server-box {
-            background: rgba(0, 0, 0, 0.8); border: 2px solid rgba(255, 255, 255, 0.1);
-            width: 100%; max-width: 500px; display: flex; align-items: center;
-            padding: 15px; cursor: pointer; transition: 0.2s; border-radius: 8px; position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%; max-width: 550px;
+            display: flex; align-items: center;
+            padding: 20px; cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 20px; position: relative; overflow: hidden;
+            margin-top: 30px;
         }
-        .mc-server-box:hover { border-color: var(--main); transform: translateY(-5px); }
-        .mc-server-icon { width: 64px; height: 64px; margin-right: 20px; border-radius: 4px; overflow: hidden; }
-        .mc-server-info { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-        .mc-ip { font-size: 1rem; color: #888; }
+        .mc-server-box:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--main);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .mc-server-icon {
+            width: 70px; height: 70px; margin-right: 20px;
+            border-radius: 15px; border: 2px solid rgba(255,255,255,0.1);
+            background: #111; overflow: hidden;
+        }
+
+        .mc-server-info { flex: 1; text-align: left; }
+        .mc-row-top { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px; }
+        .mc-row-top b { font-size: 1.4rem; color: #fff; letter-spacing: 1px; }
+        
+        #player-count {
+            color: #2ecc71; font-family: monospace; font-size: 1.1rem;
+            background: rgba(46, 204, 113, 0.1); padding: 2px 8px; border-radius: 5px;
+        }
+
+        .mc-ip {
+            display: inline-block; background: rgba(0, 212, 255, 0.1);
+            color: var(--main); padding: 4px 12px; border-radius: 8px;
+            font-size: 0.9rem; font-weight: bold; border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
         .copy-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--main); display: flex; align-items: center; justify-content: center;
-            color: #000; font-weight: bold; border-radius: 8px; opacity: 0; transition: 0.3s;
+            position: absolute; inset: 0; background: var(--main);
+            display: flex; align-items: center; justify-content: center;
+            color: #000; font-weight: 900; font-size: 1.2rem;
+            opacity: 0; transform: translateY(100%); transition: 0.3s ease;
         }
+        .mc-server-box:active .copy-overlay { transform: translateY(0); opacity: 1; }
+
+        /* GALLERY SECTION */
         .section { padding: 100px 20px; max-width: 1200px; margin: 0 auto; }
         .section-title { font-size: 2.5rem; margin-bottom: 60px; text-align: center; }
         .image-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
@@ -115,19 +163,25 @@
     <div class="main-content">
         <section class="hero">
             <h1>YEAMIKO</h1>
+            <p style="color: #94a3b8; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem;">Hành trình sinh tồn đỉnh cao</p>
+            
             <div class="mc-server-box" onclick="copyIP()">
                 <div class="mc-server-icon">
-                    <img id="server-icon-img" src="" alt="Y" style="display: none;">
-                    <div id="default-icon" style="width:100%; height:100%; background:#222; display:flex; align-items:center; justify-content:center; font-weight:900; color:var(--main);">Y</div>
+                    <img id="server-icon-img" src="" alt="Y" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                    <div id="default-icon" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:1.8rem; color:var(--main);">Y</div>
                 </div>
+                
                 <div class="mc-server-info">
                     <div class="mc-row-top">
                         <b>YEAMIKO NETWORK</b>
-                        <span id="player-count" style="color: #aaa; font-weight: bold;">...</span>
+                        <span id="player-count">0/0</span>
                     </div>
-                    <span id="server-ip" class="mc-ip">Yeamiko.fun</span>
+                    <div class="mc-ip">Yeamiko.fun</div>
                 </div>
-                <div id="copy-overlay" class="copy-overlay">COPIED IP!</div>
+                
+                <div id="copy-overlay" class="copy-overlay">
+                    <i class="fas fa-copy" style="margin-right: 10px;"></i> ĐÃ SAO CHÉP IP!
+                </div>
             </div>
         </section>
 
@@ -170,6 +224,9 @@
                         document.getElementById('server-icon-img').style.display = 'block';
                         document.getElementById('default-icon').style.display = 'none';
                     }
+                } else {
+                    document.getElementById('player-count').innerText = "OFFLINE";
+                    document.getElementById('player-count').style.color = "#ff4d4d";
                 }
             } catch (e) { console.error(e); }
         }
