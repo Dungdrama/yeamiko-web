@@ -51,7 +51,7 @@
         }
         .sidebar-overlay.show { display: block; }
 
-        /* --- CONTENT --- */
+        /* --- NỘI DUNG --- */
         .main-content { 
             width: 100%; max-width: 1000px; margin: 0 auto; 
             padding: 100px 20px 40px 20px;
@@ -74,6 +74,7 @@
             padding: 12px 25px; background: #fbbf24; border: none; border-radius: 10px;
             font-weight: bold; cursor: pointer; color: #000; transition: 0.2s;
         }
+        .btn-link:hover { transform: scale(1.05); }
 
         .shop-header { 
             width: 100%; background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
@@ -103,6 +104,7 @@
         .btn { padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; font-size: 13px; text-transform: uppercase; }
         .btn-chill { background: #0ea5e9; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.2); }
         .btn-smp { background: #10b981; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
+        .btn:hover { filter: brightness(1.2); transform: scale(1.02); }
 
         @media (max-width: 768px) {
             .shop-header { flex-direction: column; text-align: center; }
@@ -130,10 +132,10 @@
     <div class="main-content">
         <div id="link-section" class="link-section">
             <h3 style="margin-bottom: 15px; color: #fbbf24;"><i class="fas fa-link"></i> LIÊN KẾT TÀI KHOẢT GAME</h3>
-            <input type="text" id="mc-name" placeholder="Tên Minecraft của bạn">
-            <input type="text" id="link-code" placeholder="Mã xác nhận /link">
+            <input type="text" id="mc-name" placeholder="Tên Minecraft">
+            <input type="text" id="link-code" placeholder="Mã /link">
             <button class="btn-link" onclick="linkGame()">XÁC NHẬN</button>
-            <p style="font-size: 12px; color: #94a3b8; margin-top: 10px;">Vào máy chủ Yeamiko gõ lệnh <b>/link</b> để nhận mã xác thực.</p>
+            <p style="font-size: 12px; color: #94a3b8; margin-top: 10px;">Vào máy chủ gõ lệnh <b>/link</b> để lấy mã.</p>
         </div>
 
         <div class="shop-header">
@@ -188,7 +190,7 @@
                     <button class="btn btn-smp" onclick="buyItem(100, 'vip_cup', 'SMP')">Mua SMP</button>
                 </div>
             </div>
-
+            
             <div class="item-card">
                 <i class="fas fa-axe item-icon" style="color: #a855f7;"></i>
                 <div style="font-weight:bold; margin-bottom:5px; font-size: 18px; color: #a855f7;">RÌU AMETHYST</div>
@@ -237,7 +239,7 @@
 
         async function loadData(uid) {
             const s = await db.ref('web_users/' + uid).once('value');
-            const d = s.val() || {points:0};
+            const d = s.val() || {points: 0};
             currentPoints = d.points; currentMC = d.linked_mc;
             document.getElementById('display-pts').innerText = currentPoints;
             
@@ -252,45 +254,44 @@
         }
 
         async function linkGame() {
-            const mcName = document.getElementById('mc-name').value.trim();
+            const name = document.getElementById('mc-name').value.trim();
             const code = document.getElementById('link-code').value.trim();
             const user = firebase.auth().currentUser;
 
-            if (!mcName || !code) return alert("Vui lòng nhập đủ thông tin!");
+            if(!name || !code) return alert("Vui lòng nhập đủ thông tin!");
 
             try {
-                // Kiểm tra mã xác thực lưu trong node của chính nhân vật Minecraft đó
-                const snapshot = await db.ref('web_users/' + mcName).once('value');
-                
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    // So khớp mã code
-                    if (String(data.link_code || data) === String(code)) {
-                        await db.ref('web_users/' + user.uid).update({ linked_mc: mcName });
-                        alert("🎉 Liên kết thành công!");
-                        location.reload();
-                    } else { alert("❌ Mã xác nhận không đúng!"); }
-                } else { alert("❌ Không tìm thấy thông tin nhân vật này!"); }
-            } catch (e) { alert("Lỗi hệ thống!"); }
+                // Kiểm tra mã trong node 'linking' (hoặc web_users tùy cấu trúc của bạn)
+                const s = await db.ref('linking/' + name).once('value');
+                if(s.exists() && s.val().code == code) {
+                    await db.ref('web_users/' + user.uid).update({linked_mc: name});
+                    alert("Liên kết thành công!");
+                    location.reload();
+                } else {
+                    alert("Sai mã hoặc tên nhân vật!");
+                }
+            } catch(e) { alert("Lỗi kết nối database!"); }
         }
 
         async function buyItem(cost, moc, sv) {
-            if (!currentMC) return alert("Bạn chưa liên kết tài khoản Minecraft!");
-            if (currentPoints < cost) return alert("Số dư Xu không đủ!");
+            if(!currentMC) return alert("Bạn chưa liên kết tài khoản game!");
+            if(currentPoints < cost) return alert("Số dư không đủ!");
             
-            if (confirm(`Xác nhận mua gói này cho máy chủ ${sv}?`)) {
+            if(confirm(`Xác nhận mua gói này cho máy chủ ${sv}?`)) {
                 try {
                     const user = firebase.auth().currentUser;
-                    await db.ref('web_users/' + user.uid).update({ points: currentPoints - cost });
-
+                    // Trừ xu trên web
+                    await db.ref('web_users/' + user.uid).update({points: currentPoints - cost});
+                    
+                    // Đưa vào hàng đợi phát quà trong game
                     const queuePath = 'users_data/' + currentMC + '/queue';
                     await db.ref(queuePath).push({
                         item: moc, server: sv, status: "pending", time: Date.now()
                     });
 
-                    alert("Thành công! Hãy vào Game nhận quà.");
+                    alert("Mua thành công! Vào game để nhận quà.");
                     loadData(user.uid);
-                } catch (e) { alert("Lỗi thanh toán!"); }
+                } catch(e) { alert("Lỗi thanh toán!"); }
             }
         }
     </script>
