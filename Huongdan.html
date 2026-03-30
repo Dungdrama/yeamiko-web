@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng Dẫn Nạp Tiền - Yeamiko</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-pink: #f8c0c8;
+            --dark-purple: #4a2a5a;
+            --accent-gold: #f3e5ab;
+            --overlay: rgba(0, 0, 0, 0.6);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('https://i.imgur.com/your-anime-background.jpg') no-repeat center center fixed; /* Bạn có thể thay link ảnh nền Sakura ở đây */
+            background-size: cover;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Lớp phủ làm mờ nền để nổi bật nội dung */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--overlay);
+            z-index: -1;
+        }
+
+        .main-container {
+            width: 90%;
+            max-width: 800px;
+            background: rgba(74, 42, 90, 0.85);
+            border: 2px solid var(--primary-pink);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1.header-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            text-shadow: 2px 2px #ff69b4;
+            margin-bottom: 30px;
+        }
+
+        .step-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 5px solid var(--primary-pink);
+            transition: 0.3s;
+        }
+
+        .step-box:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .step-title {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: var(--primary-pink);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .step-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        ul li {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        ul li::before {
+            content: "◆";
+            color: var(--accent-gold);
+            margin-right: 8px;
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #fff;
+        }
+
+        .info-preview {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .warning-box {
+            background: rgba(139, 0, 0, 0.4);
+            border: 1px dashed var(--accent-gold);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .warning-title {
+            color: var(--accent-gold);
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .warning-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            .warning-grid { grid-template-columns: 1fr; }
+            .header-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <h1 class="header-title">Hướng Dẫn Nạp Tiền</h1>
+
+    <div class="step-box">
+        <span class="step-title">Bước 1: Vào Discord và tạo ticket</span>
+        <div class="step-content">
+            <ul>
+                <li>Vào server Discord Yeamiko</li>
+                <li>Tìm kênh 📩 tạo-ticket / support</li>
+                <li>Nhấn nút "Tạo Ticket"</li>
+            </ul>
+            <a href="https://discord.gg/nBaCtQMtHU" target="_blank" class="btn-action">
+                <i class="fab fa-discord"></i> Vào Server Ngay
+            </a>
+        </div>
+    </div>
+
+    <div class="step-box">
+        <span class="step-title">Bước 2: Gửi thông tin cần thiết</span>
+        <div class="step-content">
+            <ul>
+                <li>Email: (email tài khoản của bạn)</li>
+                <li>Số tiền: (số tiền muốn nạp)</li>
+                <li>Phương thức: (Momo / Bank / Thẻ cào / ...)</li>
+            </ul>
+            <div class="info-preview">
+                Email: abc@gmail.com<br>
+                Số tiền: 100.000đ<br>
+                Phương thức: Momo
+            </div>
+        </div>
+    </div>
+
+    <div class="step-box">
+        <span class="step-title">Bước 3: Chờ Admin xử lý</span>
+        <div class="step-content">
+            <ul>
+                <li>Chờ Admin phản hồi trong Ticket</li>
+                <li>Nhận hướng dẫn thanh toán từ Admin</li>
+                <li>Hoàn tất giao dịch và nhận Xu/Point</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="warning-box">
+        <span class="warning-title"><i class="fas fa-exclamation-triangle"></i> Lưu ý Quan Trọng</span>
+        <div class="warning-grid">
+            <div>🚫 Không gửi sai email</div>
+            <div>✅ Chỉ làm việc trong ticket</div>
+            <div>🚫 Không chuyển tiền khi chưa có Admin</div>
+            <div>✅ Chụp lại bill sau khi chuyển</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
