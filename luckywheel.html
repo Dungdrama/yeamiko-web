@@ -182,7 +182,7 @@
     }
 
     async function startSpin() {
-        if (isSpinning || diemHienTai < 1) return alert("Không đủ Điểm quay!");
+        if (isSpinning || diemHienTai < 1) return alert("Không đủ Vé quay!");
         isSpinning = true;
         document.getElementById('spin-btn').disabled = true;
         await db.ref('web_users/' + userUID + '/spin_points').set(diemHienTai - 1);
