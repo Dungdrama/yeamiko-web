@@ -21,72 +21,80 @@
             overflow-x: hidden;
         }
 
-        /* --- SIDEBAR --- */
-        /* --- SUB-NAVBAR STYLE --- */
-        .shop-tabs {
-            display: flex;
-            gap: 15px;
+        /* --- 1. CẬP NHẬT PHẦN CSS --- */
+        
+        /* Thanh Header cố định trên cùng */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 1000px;
-            margin: 0 auto 30px auto;
-            padding: 0 10px;
-        }
-
-        .shop-tab {
-            flex: 1;
-            padding: 16px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: #94a3b8;
-            font-weight: 700;
+            height: 70px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            padding: 0 20px 0 80px; /* Chừa chỗ cho nút menu-toggle bên trái */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-/* Hiệu ứng khi tab đang được chọn (Active) */
-        .shop-tab.active-xu {
-            background: rgba(0, 212, 255, 0.1);
-            border-color: #00d4ff;
-            color: #00d4ff;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
-         }
-
-         .shop-tab.active-vnd {
-            background: rgba(46, 204, 113, 0.1);
-            border-color: #2ecc71;
-            color: #2ecc71;
-            box-shadow: 0 0 15px rgba(46, 204, 113, 0.1);
-         }
-
-         .shop-tab:hover:not(.active-xu):not(.active-vnd) {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            transform: translateY(-2px);
-         }
-
-          @media (max-width: 600px) {
-            .shop-tabs { flex-direction: column; gap: 10px; }
-            .shop-tab { padding: 12px; font-size: 13px; }
-         }
-        
         .menu-toggle {
-            position: fixed; top: 20px; left: 20px; z-index: 1500;
+            position: fixed; top: 12px; left: 20px; z-index: 1500;
             background: var(--main); color: #000; width: 45px; height: 45px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 10px; cursor: pointer; font-size: 20px;
+            border-radius: 12px; cursor: pointer; font-size: 20px;
             box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
         }
 
+        /* Thanh điều hướng tab nằm ngang */
+        .shop-tabs {
+            display: flex;
+            gap: 12px;
+            height: 46px;
+        }
+
+        .shop-tab {
+            padding: 0 20px;
+            height: 100%;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .shop-tab.active-xu {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: var(--main);
+            color: var(--main);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
+        }
+
+        .shop-tab.active-vnd {
+            background: rgba(46, 204, 113, 0.15);
+            border-color: #2ecc71;
+            color: #2ecc71;
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.1);
+        }
+
+        .shop-tab:hover:not(.active-xu):not(.active-vnd) {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        /* SIDEBAR (Giữ nguyên logic) */
         .sidebar { 
             width: 260px; background: var(--sidebar-dark);
             height: 100vh; position: fixed; padding: 30px 20px; z-index: 2000;
@@ -108,10 +116,10 @@
         }
         .sidebar-overlay.show { display: block; }
 
-        /* --- NỘI DUNG --- */
+        /* NỘI DUNG (Đẩy xuống để không bị Header che) */
         .main-content { 
             width: 100%; max-width: 1000px; margin: 0 auto; 
-            padding: 100px 20px 40px 20px;
+            padding: 110px 20px 40px 20px;
             display: flex; flex-direction: column; align-items: center;
         }
 
@@ -167,7 +175,9 @@
             .shop-header { flex-direction: column; text-align: center; }
             .points-display { margin: 15px auto 0 auto; text-align: center; }
             .shop-grid { grid-template-columns: 1fr; }
-            .link-section input { width: 100%; margin: 8px 0; }
+            .top-nav { padding-left: 75px; padding-right: 15px; }
+            .shop-tab span { display: none; } /* Ẩn chữ trên mobile cho gọn */
+            .shop-tab { padding: 0 15px; }
         }
     </style>
 </head>
@@ -175,6 +185,17 @@
 
     <div class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
     <div class="sidebar-overlay" onclick="toggleMenu()"></div>
+
+    <div class="top-nav">
+        <div class="shop-tabs">
+            <a href="shop.html" class="shop-tab active-xu">
+                <i class="fas fa-coins"></i> <span>Cửa hàng Xu</span>
+            </a>
+            <a href="shopvnd.html" class="shop-tab">
+                <i class="fas fa-wallet"></i> <span>Cửa hàng VNĐ</span>
+            </a>
+        </div>
+    </div>
 
     <div class="sidebar" id="sidebar">
         <div class="logo">YEAMIKO</div>
@@ -206,19 +227,8 @@
                 <span id="display-pts">0</span>
             </div>
         </div>
-
-        <div class="shop-tabs">
-            <a href="shop.html" class="shop-tab active-xu">
-                <i class="fas fa-coins"></i> Cửa hàng Xu
-            </a>
-            <a href="shopvnd.html" class="shop-tab">
-                <i class="fas fa-wallet"></i> Cửa hàng VNĐ
-            </a>
-        </div>
         
         <div class="shop-grid">
-            
-            
             <div class="item-card">
                 <i class="fas fa-coins item-icon"></i>
                 <div style="font-weight:bold; margin-bottom:5px; font-size: 18px;">50,000 MONEY</div>
@@ -325,38 +335,28 @@
             const name = document.getElementById('mc-name').value.trim();
             const code = document.getElementById('link-code').value.trim();
             const user = firebase.auth().currentUser;
-
             if(!name || !code) return alert("Vui lòng nhập đủ thông tin!");
-
             try {
-                // Kiểm tra mã trong node 'linking' (hoặc web_users tùy cấu trúc của bạn)
                 const s = await db.ref('linking/' + name).once('value');
                 if(s.exists() && s.val().code == code) {
                     await db.ref('web_users/' + user.uid).update({linked_mc: name});
                     alert("Liên kết thành công!");
                     location.reload();
-                } else {
-                    alert("Sai mã hoặc tên nhân vật!");
-                }
+                } else { alert("Sai mã hoặc tên nhân vật!"); }
             } catch(e) { alert("Lỗi kết nối database!"); }
         }
 
         async function buyItem(cost, moc, sv) {
             if(!currentMC) return alert("Bạn chưa liên kết tài khoản game!");
             if(currentPoints < cost) return alert("Số dư không đủ!");
-            
             if(confirm(`Xác nhận mua gói này cho máy chủ ${sv}?`)) {
                 try {
                     const user = firebase.auth().currentUser;
-                    // Trừ xu trên web
                     await db.ref('web_users/' + user.uid).update({points: currentPoints - cost});
-                    
-                    // Đưa vào hàng đợi phát quà trong game
                     const queuePath = 'users_data/' + currentMC + '/queue';
                     await db.ref(queuePath).push({
                         item: moc, server: sv, status: "pending", time: Date.now()
                     });
-
                     alert("Mua thành công! Vào game để nhận quà.");
                     loadData(user.uid);
                 } catch(e) { alert("Lỗi thanh toán!"); }
