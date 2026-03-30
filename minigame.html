@@ -100,17 +100,138 @@
 
     // Dữ liệu câu hỏi (Giữ nguyên kho 100 câu của bạn)
     const ultraBank = [
-        {q: "Redstone Repeater tối đa bao nhiêu tick delay?", a: ["1", "2", "3", "4"], c: "4"},
+         {q: "Redstone Repeater tối đa bao nhiêu tick delay?", a: ["1", "2", "3", "4"], c: "4"},
+
         {q: "Observer phát tín hiệu Redstone dài mấy tick?", a: ["1", "2", "4", "8"], c: "2"},
+
         {q: "Piston có thể đẩy tối đa bao nhiêu block?", a: ["10", "12", "14", "15"], c: "12"},
+
         {q: "Block nào KHÔNG THỂ bị kéo bởi Sticky Piston?", a: ["Khối bùn", "Khối mật ong", "Lò nung", "Thùng gỗ"], c: "Lò nung"},
-        {q: "Warden có bao nhiêu máu?", a: ["300", "500", "200", "600"], c: "500"},
+
+        {q: "Khoảng cách truyền tín hiệu Redstone tối đa trên dây là?", a: ["12", "15", "16", "20"], c: "15"},
+
+        {q: "Cái gì dùng để đảo ngược tín hiệu Redstone?", a: ["Repeater", "Redstone Torch", "Lever", "Button"], c: "Redstone Torch"},
+
+        {q: "Daylight Sensor phát tín hiệu mạnh nhất vào lúc nào?", a: ["Bình minh", "Giữa trưa", "Hoàng hôn", "Nửa đêm"], c: "Giữa trưa"},
+
+        {q: "Hopper có bao nhiêu ngăn chứa đồ?", a: ["3", "5", "9", "27"], c: "5"},
+
+        {q: "Khối nào dùng để lưu trữ tọa độ cho Compass?", a: ["Lodestone", "Magnet", "Beacon", "Crying Obsidian"], c: "Lodestone"},
+
+        {q: "Để làm mạch T-Flip Flop đơn giản nhất, ta cần?", a: ["Dropper", "Hopper", "Cả 2", "Piston"], c: "Cả 2"},
+
+        
+
+        // MOB & SINH VẬT
+
+        {q: "Lượng máu của Warden là bao nhiêu?", a: ["300", "500", "200", "600"], c: "500"},
+
+        {q: "Tên chính thức của rồng Ender là gì?", a: ["Jean", "Ender", "Drake", "Miko"], c: "Jean"},
+
         {q: "Mob nào sợ Mèo nhất?", a: ["Creeper", "Zombie", "Skeleton", "Hoglin"], c: "Creeper"},
+
+        {q: "Mob nào rơi ra Phantom Membrane?", a: ["Dơi", "Phantom", "Rồng", "Vex"], c: "Phantom"},
+
+        {q: "Axolotl thích ăn gì nhất?", a: ["Cá hồi", "Xô cá nhiệt đới", "Tảo bẹ", "Mắt nhện"], c: "Xô cá nhiệt đới"},
+
+        {q: "Ếch (Frog) lớn lên từ đâu?", a: ["Trứng ếch", "Nòng nọc", "Ếch con", "Bùn"], c: "Nòng nọc"},
+
+        {q: "Khi lợn bị sét đánh, nó biến thành gì?", a: ["Zombified Piglin", "Wither", "Piglin Brute", "Hoglin"], c: "Zombified Piglin"},
+
+        {q: "Cừu Pink Sheep tự nhiên có tỉ lệ xuất hiện là?", a: ["0.155%", "1%", "0.5%", "5%"], c: "0.155%"},
+
+        {q: "Mob nào có tầm nhìn xa nhất (100+ block)?", a: ["Ghast", "Enderman", "Warden", "Skeleton"], c: "Ghast"},
+
+        {q: "Đại thù của dân làng (Illager) thường cưỡi con gì?", a: ["Ravager", "Vindicator", "Iron Golem", "Ngựa xương"], c: "Ravager"},
+
+        {q: "Bee (Ong) sẽ chết sau khi đốt người chơi bao lâu?", a: ["10 giây", "30 giây", "1 phút", "Không chết"], c: "1 phút"},
+
+        {q: "Polar Bear (Gấu bắc cực) rơi ra gì khi chết?", a: ["Cá", "Thịt gấu", "Lông", "Không rơi gì"], c: "Cá"},
+
+        {q: "Mob 'Allay' thích vật phẩm nào nhất?", a: ["Thanh âm nhạc", "Kim cương", "Cái bạn đưa nó", "Bánh quy"], c: "Cái bạn đưa nó"},
+
+        {q: "Wither bản Bedrock có bao nhiêu máu?", a: ["300", "600", "1000", "450"], c: "600"},
+
+        
+
+        // BLOCK & VẬT PHẨM
+
+        {q: "Cần bao nhiêu thỏi Netherite để làm 1 khối Netherite?", a: ["4", "9", "8", "5"], c: "9"},
+
+        {q: "Block nào làm chậm người chơi nhất?", a: ["Mạng nhện", "Cát linh hồn", "Bùn", "Khối mật ong"], c: "Mạng nhện"},
+
+        {q: "Cổng End được tạo từ bao nhiêu khung cổng?", a: ["10", "12", "14", "16"], c: "12"},
+
         {q: "1 xô dung nham nung được bao nhiêu vật phẩm?", a: ["64", "80", "100", "128"], c: "100"},
+
         {q: "Y thấp nhất ở bản 1.19+ là?", a: ["0", "-64", "-16", "-32"], c: "-64"},
+
+        {q: "Độ bền của cúp Kim Cương là bao nhiêu?", a: ["1321", "1561", "2031", "2501"], c: "1561"},
+
+        {q: "Block nào Piston KHÔNG ĐẨY ĐƯỢC?", a: ["Obsidian", "Khối Sắt", "Khối Đất", "Gỗ Sồi"], c: "Obsidian"},
+
+        {q: "Vật phẩm 'Nautilus Shell' dùng làm gì?", a: ["Conduit", "Beacon", "Trident", "Yên cưỡi"], c: "Conduit"},
+
+        {q: "Loại gỗ nào KHÔNG THỂ bị cháy?", a: ["Sồi", "Rừng", "Crimson", "Tre"], c: "Crimson"},
+
+        {q: "Cần bao nhiêu sắt để làm một cái Đe (Anvil)?", a: ["27", "31", "35", "40"], c: "31"},
+
+        {q: "Lõi của Beacon là vật phẩm gì?", a: ["Nether Star", "Heart of Sea", "Dragon Egg", "Emerald"], c: "Nether Star"},
+
+        {q: "Vật phẩm nào rơi ra từ Evoker?", a: ["Totem of Undying", "Sách", "Ngọc lục bảo", "Vàng"], c: "Totem of Undying"},
+
+        {q: "Loại cát nào dùng để triệu hồi Wither?", a: ["Cát đỏ", "Soul Sand", "Cát vàng", "Bột bê tông"], c: "Soul Sand"},
+
+        {q: "Enchant 'Mending' sửa đồ bằng gì?", a: ["Kim cương", "Sắt", "Kinh nghiệm", "Vàng"], c: "Kinh nghiệm"},
+
+        {q: "Kích thước tối đa của cổng Nether là?", a: ["10x10", "23x23", "25x25", "50x50"], c: "23x23"},
+
+        {q: "Mẫu rèn (Smithing Template) được thêm vào bản nào?", a: ["1.18", "1.19", "1.20", "1.21"], c: "1.20"},
+
+        {q: "Block nào dùng để tăng cấp độ cho Beacon?", a: ["Khối than", "Khối đồng", "Khối vàng", "Khối kính"], c: "Khối vàng"},
+
+        {q: "Sniffer được tìm thấy từ đâu?", a: ["Đào cát", "Trứng trong rương cổ", "Spawn tự nhiên", "Câu cá"], c: "Trứng trong rương cổ"},
+
+
+
+        // SINH TỒN & TRIVIA
+
         {q: "Minecraft chính thức ra mắt (1.0) năm nào?", a: ["2009", "2010", "2011", "2012"], c: "2011"},
-        {q: "Ai là người tạo ra Minecraft?", a: ["Notch", "Jeb", "Dinnerbone", "C418"], c: "Notch"}
-        // ... (Các câu hỏi khác bạn thêm vào đây cho đủ 100)
+
+        {q: "Ai là người tạo ra Minecraft?", a: ["Notch", "Jeb", "Dinnerbone", "C418"], c: "Notch"},
+
+        {q: "Tên cũ của Minecraft là gì?", a: ["Cave Game", "Minegame", "Block World", "BuildCraft"], c: "Cave Game"},
+
+        {q: "Level tối đa để enchant đồ ở bàn phù phép là?", a: ["20", "30", "40", "50"], c: "30"},
+
+        {q: "Lệnh để xem tọa độ trong bản Java là?", a: ["F1", "F2", "F3", "F5"], c: "F3"},
+
+        {q: "Một ngày trong Minecraft dài bao lâu (ngoài đời)?", a: ["10 phút", "15 phút", "20 phút", "30 phút"], c: "20 phút"},
+
+        {q: "Khi ném thuốc độc vào Zombie, điều gì xảy ra?", a: ["Mất máu", "Được hồi máu", "Chậm lại", "Hóa dân làng"], c: "Được hồi máu"},
+
+        {q: "Thành phố cổ Ancient City ở độ cao bao nhiêu?", a: ["Y -51", "Y -64", "Y 0", "Y 64"], c: "Y -51"},
+
+        {q: "Để thuần hóa mèo rừng, dùng cá gì?", a: ["Cá hồi sống", "Cá tuyết sống", "Cá chín", "Cá nóc"], c: "Cá tuyết sống"},
+
+        {q: "Khoảng cách xa nhất mà một Ender Pearl có thể bay?", a: ["50 block", "100 block", "Phụ thuộc vào góc ném", "200 block"], c: "Phụ thuộc vào góc ném"},
+
+        {q: "Phù phép 'Sharpness' tăng gì cho kiếm?", a: ["Tốc độ đánh", "Sát thương cận chiến", "Độ bền", "Đẩy lùi"], c: "Sát thương cận chiến"},
+
+        {q: "Block nào được dùng để giao dịch chính với dân làng?", a: ["Kim cương", "Vàng", "Ngọc lục bảo", "Sắt"], c: "Ngọc lục bảo"},
+
+        {q: "Trong chế độ Hardcore, điều gì xảy ra khi bạn chết?", a: ["Hồi sinh ở Spawn", "Mất hết đồ", "Thế giới bị xóa/Khán giả", "Về level 0"], c: "Thế giới bị xóa/Khán giả"},
+
+        {q: "Kỷ lục thế giới Speedrun (Random Seed) hiện tại khoảng?", a: ["5 phút", "8 phút", "12 phút", "20 phút"], c: "8 phút"},
+
+        {q: "Minecraft thuộc sở hữu của công ty nào hiện nay?", a: ["Mojang", "Microsoft", "Google", "Sony"], c: "Microsoft"},
+
+        {q: "Loại thuốc nào giúp nhìn xuyên bóng tối?", a: ["Invisibility", "Night Vision", "Swiftness", "Fire Resistance"], c: "Night Vision"},
+
+        {q: "Vật phẩm nào giúp bạn không bị chết khi rơi từ cao xuống?", a: ["Elytra", "Totem", "Xô nước", "Tất cả đúng"], c: "Tất cả đúng"},
+
+        {q: "Bản cập nhật 1.21 có tên là gì?", a: ["Caves & Cliffs", "The Wild Update", "Tricky Trials", "Trails & Tales"], c: "Tricky Trials"}
+
     ];
 
     let userUID = null, streak = 0, timeLeft = 15, timer, playCount = 0, sessionQuestions = [];
