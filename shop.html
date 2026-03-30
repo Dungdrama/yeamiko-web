@@ -171,13 +171,32 @@
         .btn-smp { background: #10b981; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
         .btn:hover { filter: brightness(1.2); transform: scale(1.02); }
 
+        /* --- PHẦN CẬP NHẬT CHO ĐIỆN THOẠI --- */
         @media (max-width: 768px) {
             .shop-header { flex-direction: column; text-align: center; }
             .points-display { margin: 15px auto 0 auto; text-align: center; }
             .shop-grid { grid-template-columns: 1fr; }
-            .top-nav { padding-left: 75px; padding-right: 15px; }
-            .shop-tab span { display: none; } /* Ẩn chữ trên mobile cho gọn */
-            .shop-tab { padding: 0 15px; }
+            
+            /* Cấu hình lại thanh điều hướng trên điện thoại */
+            .top-nav { 
+                padding: 0 10px 0 75px; /* Chừa chỗ cho nút Menu */
+            }
+            .shop-tabs {
+                gap: 8px; /* Thu hẹp khoảng cách giữa 2 nút */
+                width: 100%;
+            }
+            .shop-tab { 
+                padding: 0 10px; 
+                font-size: 11px; /* Chữ nhỏ lại một chút để không bị tràn */
+                flex: 1; /* Chia đều 2 cột */
+                justify-content: center;
+            }
+            .shop-tab span { 
+                display: inline-block !important; /* HIỆN LẠI CHỮ */
+            } 
+            .shop-tab i {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
