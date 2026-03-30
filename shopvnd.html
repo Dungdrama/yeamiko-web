@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeamiko - Nạp Xu bằng VNĐ</title>
+    <title>Nạp Xu - Yeamiko Premium Shop</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -15,19 +15,16 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', sans-serif; }
         
         body { 
-            background: radial-gradient(circle at top right, #1e293b, #0f172a); 
-            color: white; 
-            min-height: 100vh;
-            overflow-x: hidden;
+            background: radial-gradient(circle at top right, #111827, #0f172a); 
+            color: white; min-height: 100vh; overflow-x: hidden;
         }
 
-        /* --- Header & Tabs --- */
+        /* HEADER & TABS (Giống hệt shop.html) */
         .top-nav {
             position: fixed; top: 0; left: 0; width: 100%; height: 70px;
             background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px); z-index: 1000;
-            display: flex; align-items: center; padding: 0 20px 0 80px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 1000; display: flex; align-items: center;
+            padding: 0 20px 0 80px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .menu-toggle {
@@ -35,7 +32,6 @@
             background: var(--main); color: #000; width: 45px; height: 45px;
             display: flex; align-items: center; justify-content: center;
             border-radius: 12px; cursor: pointer; font-size: 20px;
-            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
         }
 
         .shop-tabs { display: flex; gap: 12px; height: 46px; }
@@ -43,84 +39,60 @@
             padding: 0 20px; height: 100%; border-radius: 12px;
             background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
             color: #94a3b8; display: flex; align-items: center; gap: 8px;
-            text-decoration: none; font-weight: 700; transition: all 0.3s ease;
-            font-size: 14px; text-transform: uppercase;
+            text-decoration: none; font-weight: 700; transition: 0.3s; font-size: 14px; text-transform: uppercase;
         }
 
-        .shop-tab.active-vnd {
-            background: rgba(46, 204, 113, 0.15); border-color: var(--main);
-            color: var(--main); box-shadow: 0 0 15px rgba(46, 204, 113, 0.1);
-        }
+        .shop-tab.active-vnd { background: rgba(46, 204, 113, 0.15); border-color: var(--main); color: var(--main); }
 
-        /* Sidebar */
+        /* SIDEBAR */
         .sidebar { 
             width: 260px; background: var(--sidebar-dark); height: 100vh; position: fixed; 
             padding: 30px 20px; z-index: 2000; left: -260px; transition: 0.4s;
             display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05);
         }
         .sidebar.open { left: 0; }
-        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; letter-spacing: 2px; }
+        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; }
         .sidebar a { 
             display: flex; align-items: center; color: #94a3b8; padding: 14px 18px; 
             text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; 
         }
-        .sidebar a:hover, .sidebar a.active { background: rgba(46, 204, 113, 0.1); color: var(--main); font-weight: bold; }
-
-        .sidebar-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 1800; display: none; backdrop-filter: blur(3px);
-        }
+        .sidebar a:hover, .sidebar a.active { background: rgba(46, 204, 113, 0.1); color: var(--main); }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1800; display: none; backdrop-filter: blur(3px); }
         .sidebar-overlay.show { display: block; }
 
-        /* Main Content */
-        .main-content { 
-            width: 100%; max-width: 1000px; margin: 0 auto; 
-            padding: 110px 20px 40px 20px; display: flex; flex-direction: column; align-items: center;
-        }
+        /* CONTENT */
+        .main-content { width: 100%; max-width: 1000px; margin: 0 auto; padding: 110px 20px 40px 20px; }
 
         .shop-header { 
             width: 100%; background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
             border-radius: 24px; padding: 25px; display: flex; align-items: center; gap: 20px; margin-bottom: 40px; 
-            backdrop-filter: blur(10px);
         }
         .mc-head { width: 64px; height: 64px; border-radius: 12px; border: 2px solid var(--main); }
-        
-        .points-display { margin-left: auto; text-align: right; display: flex; gap: 20px; }
-        .balance-item p { font-size: 10px; color: #94a3b8; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px; }
-        .balance-item span { font-size: 24px; font-weight: 900; }
-        #display-balance { color: #2ecc71; } /* Màu VNĐ */
-        #display-pts { color: #fbbf24; } /* Màu Xu */
+        .points-display { margin-left: auto; text-align: right; }
+        .points-display span { font-size: 32px; font-weight: 900; color: var(--gold); }
 
-        /* Grid */
-        .shop-grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
-            gap: 20px; width: 100%;
-        }
-
+        /* GRID & CARDS */
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; width: 100%; }
         .item-card { 
             background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 24px; padding: 30px; text-align: center; transition: 0.4s; position: relative;
+            border-radius: 24px; padding: 25px; text-align: center; transition: 0.4s; 
         }
-        .item-card:hover { transform: translateY(-10px); border-color: var(--main); background: rgba(255,255,255,0.08); }
-        .item-icon { font-size: 36px; margin-bottom: 15px; color: var(--gold); }
-        .item-title { font-weight: 800; font-size: 18px; margin-bottom: 5px; }
-        .item-cost { color: #2ecc71; font-weight: 800; font-size: 22px; margin-bottom: 20px; }
-        .bonus-tag { 
-            background: #2ecc71; color: #000; font-size: 10px; font-weight: 900; 
-            padding: 4px 8px; border-radius: 6px; position: absolute; top: 15px; right: 15px;
-        }
+        .item-card:hover { transform: translateY(-5px); border-color: var(--main); }
+        .item-icon { font-size: 35px; margin-bottom: 15px; color: var(--gold); }
+        .item-cost { color: #fff; font-weight: 800; font-size: 18px; margin-bottom: 15px; }
+        .bonus-tag { background: #e74c3c; color: white; font-size: 11px; padding: 2px 8px; border-radius: 20px; margin-bottom: 10px; display: inline-block; }
 
         .btn-buy { 
-            width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: bold; 
-            cursor: pointer; transition: 0.2s; color: #000; background: var(--main);
-            text-transform: uppercase; letter-spacing: 1px;
+            width: 100%; padding: 12px; border: none; border-radius: 12px; 
+            font-weight: bold; cursor: pointer; background: var(--main); color: #000; 
+            text-transform: uppercase; transition: 0.2s;
         }
-        .btn-buy:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .btn-buy:hover { filter: brightness(1.2); }
 
         @media (max-width: 768px) {
             .shop-header { flex-direction: column; text-align: center; }
-            .points-display { margin: 15px auto 0 auto; text-align: center; }
-            .shop-tab { flex: 1; padding: 0 10px; font-size: 11px; }
+            .points-display { margin: 15px auto 0 auto; }
+            .top-nav { padding-left: 75px; }
         }
     </style>
 </head>
@@ -151,55 +123,56 @@
         <div class="shop-header">
             <img id="player-head" src="https://mc-heads.net/avatar/steve" class="mc-head">
             <div class="user-meta">
-                <h2 id="display-mc">ĐANG TẢI...</h2>
+                <h2 id="display-mc">Đang tải...</h2>
                 <p id="display-email" style="color: #94a3b8; font-size: 13px;"></p>
             </div>
             <div class="points-display">
-                <div class="balance-item">
-                    <p>SỐ DƯ VNĐ</p>
-                    <span id="display-balance">0</span>
-                </div>
-                <div class="balance-item">
-                    <p>SỐ DƯ XU</p>
-                    <span id="display-pts">0</span>
-                </div>
+                <p style="font-size: 12px; color: #94a3b8; font-weight: bold;">SỐ DƯ XU</p>
+                <span id="display-pts">0</span>
             </div>
         </div>
+
+        <h3 style="margin-bottom: 25px; color: var(--main);"><i class="fas fa-bolt"></i> CHỌN GÓI NẠP XU</h3>
         
         <div class="shop-grid">
             <div class="item-card">
                 <i class="fas fa-coins item-icon"></i>
-                <div class="item-title">GÓI 10 XU</div>
-                <div class="item-cost">10 VNĐ</div>
-                <button class="btn-buy" onclick="buyXu(10, 10)">ĐỔI NGAY</button>
+                <div style="font-weight:bold; margin-bottom:5px;">GÓI CƠ BẢN</div>
+                <div class="item-cost">10.000 VNĐ</div>
+                <div style="color: var(--main); font-weight: bold; margin-bottom: 15px;">+ 10 XU</div>
+                <button class="btn-buy" onclick="recharge(10000, 10)">NẠP NGAY</button>
             </div>
 
             <div class="item-card">
                 <i class="fas fa-coins item-icon"></i>
-                <div class="item-title">GÓI 20 XU</div>
-                <div class="item-cost">20 VNĐ</div>
-                <button class="btn-buy" onclick="buyXu(20, 20)">ĐỔI NGAY</button>
+                <div style="font-weight:bold; margin-bottom:5px;">GÓI PHỔ BIẾN</div>
+                <div class="item-cost">20.000 VNĐ</div>
+                <div style="color: var(--main); font-weight: bold; margin-bottom: 15px;">+ 20 XU</div>
+                <button class="btn-buy" onclick="recharge(20000, 20)">NẠP NGAY</button>
             </div>
 
             <div class="item-card">
-                <div class="bonus-tag">+10 XU TẶNG</div>
+                <div class="bonus-tag">Khuyên dùng</div><br>
                 <i class="fas fa-coins item-icon"></i>
-                <div class="item-title">GÓI 60 XU</div>
-                <div class="item-cost">50 VNĐ</div>
-                <button class="btn-buy" onclick="buyXu(50, 60)">ĐỔI NGAY</button>
+                <div style="font-weight:bold; margin-bottom:5px;">GÓI ƯU ĐÃI</div>
+                <div class="item-cost">50.000 VNĐ</div>
+                <div style="color: var(--main); font-weight: bold; margin-bottom: 15px;">+ 60 XU (Thêm 10)</div>
+                <button class="btn-buy" onclick="recharge(50000, 60)">NẠP NGAY</button>
             </div>
 
             <div class="item-card">
-                <div class="bonus-tag">+30 XU TẶNG</div>
+                <div class="bonus-tag">Siêu hời</div><br>
                 <i class="fas fa-coins item-icon"></i>
-                <div class="item-title">GÓI 130 XU</div>
-                <div class="item-cost">100 VNĐ</div>
-                <button class="btn-buy" onclick="buyXu(100, 130)">ĐỔI NGAY</button>
+                <div style="font-weight:bold; margin-bottom:5px;">GÓI ĐẠI GIA</div>
+                <div class="item-cost">100.000 VNĐ</div>
+                <div style="color: var(--main); font-weight: bold; margin-bottom: 15px;">+ 130 XU (Thêm 30)</div>
+                <button class="btn-buy" onclick="recharge(100000, 130)">NẠP NGAY</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Cấu hình Firebase (Giữ nguyên từ code cũ của bạn)
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -209,7 +182,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let currentBalance = 0, currentPoints = 0;
+        let currentPoints = 0;
 
         function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -225,15 +198,9 @@
 
         async function loadData(uid) {
             const s = await db.ref('web_users/' + uid).once('value');
-            const d = s.val() || {points: 0, balance: 0};
-            
-            // Cập nhật giá trị vào biến toàn cục
-            currentPoints = d.points || 0;
-            currentBalance = d.balance || 0; // Đang dùng balance để lưu tiền VNĐ theo yêu cầu của bạn
-            
-            document.getElementById('display-pts').innerText = currentPoints.toLocaleString();
-            document.getElementById('display-balance').innerText = currentBalance.toLocaleString();
-            
+            const d = s.val() || {points: 0};
+            currentPoints = d.points;
+            document.getElementById('display-pts').innerText = currentPoints;
             if(d.linked_mc) {
                 document.getElementById('display-mc').innerText = d.linked_mc.toUpperCase();
                 document.getElementById('player-head').src = `https://mc-heads.net/avatar/${d.linked_mc}`;
@@ -242,25 +209,32 @@
             }
         }
 
-        async function buyXu(costVnd, getXu) {
-            if (currentBalance < costVnd) {
-                return alert("Số dư VNĐ không đủ! Vui lòng nạp thêm.");
-            }
+        async function recharge(amount, xuReward) {
+            const user = firebase.auth().currentUser;
+            if(!user) return;
 
-            if (confirm(`Bạn có chắc chắn muốn dùng ${costVnd} VNĐ để đổi lấy ${getXu} Xu?`)) {
+            // Chỗ này bạn có thể tích hợp API Thanh Toán. 
+            // Hiện tại tôi làm logic cộng tiền trực tiếp khi ấn (như bạn yêu cầu).
+            if(confirm(`Xác nhận thanh toán ${amount.toLocaleString()}đ để nhận ${xuReward} Xu?`)) {
                 try {
-                    const user = firebase.auth().currentUser;
-                    
-                    // Cập nhật đồng thời trừ balance (VNĐ) và cộng points (Xu)
+                    const newPoints = currentPoints + xuReward;
                     await db.ref('web_users/' + user.uid).update({
-                        balance: currentBalance - costVnd,
-                        points: currentPoints + getXu
+                        points: newPoints 
+                        // Nếu bạn muốn lưu là 'balance', hãy đổi tên field ở đây và hàm loadData
+                    });
+                    
+                    // Lưu lịch sử nạp
+                    await db.ref('recharge_history').push({
+                        uid: user.uid,
+                        amount: amount,
+                        xu: xuReward,
+                        time: Date.now()
                     });
 
-                    alert(`Đổi thành công! Bạn nhận được ${getXu} Xu.`);
-                    loadData(user.uid); // Load lại số dư mới
+                    alert(`Nạp thành công! Bạn nhận được ${xuReward} Xu.`);
+                    location.reload();
                 } catch(e) {
-                    alert("Lỗi hệ thống khi thanh toán!");
+                    alert("Lỗi hệ thống: " + e.message);
                 }
             }
         }
