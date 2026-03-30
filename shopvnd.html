@@ -16,9 +16,7 @@
         
         body { 
             background: radial-gradient(circle at top right, #1e293b, #0f172a); 
-            color: white; 
-            min-height: 100vh;
-            overflow-x: hidden;
+            color: white; min-height: 100vh; overflow-x: hidden;
         }
 
         /* --- HEADER & TABS --- */
@@ -132,6 +130,8 @@
         }
         .btn-exchange:hover { filter: brightness(1.2); transform: scale(1.02); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3); }
 
+        .promo-tag { color: #2ecc71; font-size: 12px; font-weight: bold; margin-bottom: 10px; display: block; }
+
         @media (max-width: 768px) {
             .shop-header { flex-direction: column; text-align: center; }
             .points-display { margin: 15px auto 0 auto; text-align: center; }
@@ -173,17 +173,16 @@
             <input type="text" id="mc-name" placeholder="Tên Minecraft">
             <input type="text" id="link-code" placeholder="Mã /link">
             <button class="btn-link" onclick="linkGame()">XÁC NHẬN</button>
-            <p style="font-size: 12px; color: #94a3b8; margin-top: 10px;">Vào máy chủ gõ lệnh <b>/link</b> để lấy mã.</p>
         </div>
 
         <div class="shop-header">
             <img id="player-head" src="https://mc-heads.net/avatar/steve" class="mc-head">
             <div class="user-meta">
-                <h2 id="display-mc" style="letter-spacing: 1px;">Đang tải...</h2>
-                <p id="display-email" style="color: #94a3b8; font-size: 13px; margin-top: 4px;"></p>
+                <h2 id="display-mc">Đang tải...</h2>
+                <p id="display-email" style="color: #94a3b8; font-size: 13px;"></p>
             </div>
             <div class="points-display">
-                <p class="balance-vnd">Số dư: <span id="display-balance">0</span>đ</p>
+                <p class="balance-vnd">Ví VNĐ: <span id="display-balance">0</span>đ</p>
                 <p style="font-size: 10px; color: #94a3b8; font-weight: bold;">SỐ DƯ XU</p>
                 <span id="display-pts" class="xu-val">0</span>
             </div>
@@ -198,17 +197,26 @@
             </div>
 
             <div class="item-card">
-                <i class="fas fa-coins item-icon" style="color:#00d4ff"></i>
-                <div style="font-weight:bold; margin-bottom:5px; font-size: 18px;">GÓI 55 XU</div>
-                <div class="item-cost">50,000 VNĐ</div>
-                <button class="btn-exchange" onclick="exchange(50000, 55)">Đổi ngay</button>
+                <i class="fas fa-coins item-icon"></i>
+                <div style="font-weight:bold; margin-bottom:5px; font-size: 18px;">GÓI 20 XU</div>
+                <div class="item-cost">20,000 VNĐ</div>
+                <button class="btn-exchange" onclick="exchange(20000, 20)">Đổi ngay</button>
             </div>
 
             <div class="item-card">
-                <i class="fas fa-coins item-icon" style="color:#f1c40f"></i>
-                <div style="font-weight:bold; margin-bottom:5px; font-size: 18px;">GÓI 115 XU</div>
+                <i class="fas fa-gem item-icon" style="color:#00d4ff"></i>
+                <div style="font-weight:bold; margin-bottom:5px; font-size: 18px;">GÓI 60 XU</div>
+                <div class="item-cost">50,000 VNĐ</div>
+                <span class="promo-tag">Khuyến mãi +10 Xu</span>
+                <button class="btn-exchange" onclick="exchange(50000, 60)">Đổi ngay</button>
+            </div>
+
+            <div class="item-card">
+                <i class="fas fa-crown item-icon" style="color:#f1c40f"></i>
+                <div style="font-weight:bold; margin-bottom:5px; font-size: 18px;">GÓI 130 XU</div>
                 <div class="item-cost">100,000 VNĐ</div>
-                <button class="btn-exchange" onclick="exchange(100000, 115)">Đổi ngay</button>
+                <span class="promo-tag">Khuyến mãi +30 Xu</span>
+                <button class="btn-exchange" onclick="exchange(100000, 130)">Đổi ngay</button>
             </div>
         </div>
     </div>
@@ -223,7 +231,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let currentMC = null, currentPoints = 0, currentBalance = 0;
+        let currentPoints = 0, currentBalance = 0;
 
         function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -240,19 +248,13 @@
         async function loadData(uid) {
             const s = await db.ref('web_users/' + uid).once('value');
             const d = s.val() || {points: 0, balance: 0};
-            
-            // Lấy dữ liệu Balance và Points
             currentPoints = d.points || 0;
             currentBalance = d.balance || 0;
-            currentMC = d.linked_mc;
-
-            // Hiển thị lên màn hình
             document.getElementById('display-pts').innerText = currentPoints.toLocaleString();
             document.getElementById('display-balance').innerText = currentBalance.toLocaleString();
-            
-            if(currentMC) {
-                document.getElementById('display-mc').innerText = currentMC.toUpperCase();
-                document.getElementById('player-head').src = `https://mc-heads.net/avatar/${currentMC}`;
+            if(d.linked_mc) {
+                document.getElementById('display-mc').innerText = d.linked_mc.toUpperCase();
+                document.getElementById('player-head').src = `https://mc-heads.net/avatar/${d.linked_mc}`;
                 document.getElementById('link-section').style.display = 'none'; 
             } else {
                 document.getElementById('display-mc').innerText = "CHƯA LIÊN KẾT";
@@ -260,48 +262,32 @@
             }
         }
 
+        async function exchange(price, xuGain) {
+            const user = firebase.auth().currentUser;
+            if(!user) return;
+            if (currentBalance < price) return alert("Ví VNĐ của bạn không đủ!");
+            if (confirm(`Dùng ${price.toLocaleString()} VNĐ đổi ${xuGain} Xu?`)) {
+                try {
+                    await db.ref('web_users/' + user.uid).update({
+                        balance: currentBalance - price,
+                        points: currentPoints + xuGain
+                    });
+                    alert("Đổi Xu thành công!");
+                    loadData(user.uid);
+                } catch (e) { alert("Lỗi!"); }
+            }
+        }
+
         async function linkGame() {
             const name = document.getElementById('mc-name').value.trim();
             const code = document.getElementById('link-code').value.trim();
             const user = firebase.auth().currentUser;
-            if(!name || !code) return alert("Vui lòng nhập đủ thông tin!");
-            try {
-                const s = await db.ref('linking/' + name).once('value');
-                if(s.exists() && s.val().code == code) {
-                    await db.ref('web_users/' + user.uid).update({linked_mc: name});
-                    alert("Liên kết thành công!");
-                    location.reload();
-                } else { alert("Sai mã hoặc tên nhân vật!"); }
-            } catch(e) { alert("Lỗi kết nối database!"); }
-        }
-
-        // HÀM QUAN TRỌNG NHẤT: Đổi tiền VNĐ sang Xu
-        async function exchange(price, xuGain) {
-            const user = firebase.auth().currentUser;
-            if(!user) return alert("Vui lòng đăng nhập!");
-
-            // Kiểm tra số dư VNĐ
-            if (currentBalance < price) {
-                return alert("Số dư VNĐ của bạn không đủ!");
-            }
-
-            if (confirm(`Bạn có chắc chắn muốn dùng ${price.toLocaleString()} VNĐ để đổi lấy ${xuGain} Xu?`)) {
-                try {
-                    const newBalance = currentBalance - price;
-                    const newPoints = currentPoints + xuGain;
-
-                    // Cập nhật cả 2 giá trị vào Firebase
-                    await db.ref('web_users/' + user.uid).update({
-                        balance: newBalance,
-                        points: newPoints
-                    });
-
-                    alert("Đổi Xu thành công!");
-                    loadData(user.uid); // Cập nhật lại số liệu hiển thị
-                } catch (e) {
-                    alert("Lỗi giao dịch, vui lòng thử lại!");
-                }
-            }
+            if(!name || !code) return alert("Nhập đủ thông tin!");
+            const s = await db.ref('linking/' + name).once('value');
+            if(s.exists() && s.val().code == code) {
+                await db.ref('web_users/' + user.uid).update({linked_mc: name});
+                alert("Thành công!"); location.reload();
+            } else { alert("Sai mã!"); }
         }
     </script>
 </body>
