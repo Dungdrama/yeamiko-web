@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nạp Xu - Yeamiko Premium Shop</title>
+    <title>Nạp Xu - Yeamiko Premium</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -11,20 +11,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
-        :root { --main: #2ecc71; --bg: #0f172a; --sidebar-dark: #111; --card: rgba(255, 255, 255, 0.05); --gold: #fbbf24; }
+        :root { --main: #2ecc71; --bg: #0f172a; --sidebar-dark: #111; --card: rgba(255, 255, 255, 0.05); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', sans-serif; }
         
         body { 
-            background: radial-gradient(circle at top right, #111827, #0f172a); 
+            background: radial-gradient(circle at top right, #1e293b, #0f172a); 
             color: white; min-height: 100vh; overflow-x: hidden;
         }
 
-        /* HEADER & TABS (Giống hệt shop.html) */
+        /* Header & Tabs */
         .top-nav {
             position: fixed; top: 0; left: 0; width: 100%; height: 70px;
             background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px);
-            z-index: 1000; display: flex; align-items: center;
-            padding: 0 20px 0 80px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 1000; display: flex; align-items: center; padding: 0 20px 0 80px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .menu-toggle {
@@ -39,28 +39,28 @@
             padding: 0 20px; height: 100%; border-radius: 12px;
             background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
             color: #94a3b8; display: flex; align-items: center; gap: 8px;
-            text-decoration: none; font-weight: 700; transition: 0.3s; font-size: 14px; text-transform: uppercase;
+            text-decoration: none; font-weight: 700; transition: 0.3s; font-size: 14px;
         }
 
-        .shop-tab.active-vnd { background: rgba(46, 204, 113, 0.15); border-color: var(--main); color: var(--main); }
+        .shop-tab.active-vnd {
+            background: rgba(46, 204, 113, 0.15); border-color: #2ecc71; color: #2ecc71;
+        }
 
-        /* SIDEBAR */
+        /* Sidebar */
         .sidebar { 
             width: 260px; background: var(--sidebar-dark); height: 100vh; position: fixed; 
             padding: 30px 20px; z-index: 2000; left: -260px; transition: 0.4s;
-            display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05);
+            border-right: 1px solid rgba(255,255,255,0.05);
         }
         .sidebar.open { left: 0; }
-        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; }
-        .sidebar a { 
-            display: flex; align-items: center; color: #94a3b8; padding: 14px 18px; 
-            text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; 
-        }
-        .sidebar a:hover, .sidebar a.active { background: rgba(46, 204, 113, 0.1); color: var(--main); }
-        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1800; display: none; backdrop-filter: blur(3px); }
+        .sidebar .logo { font-size: 26px; font-weight: 900; color: #00d4ff; margin-bottom: 40px; text-align: center; }
+        .sidebar a { display: flex; align-items: center; color: #94a3b8; padding: 14px 18px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; }
+        .sidebar a:hover, .sidebar a.active { background: rgba(0, 212, 255, 0.1); color: #00d4ff; }
+
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1800; display: none; }
         .sidebar-overlay.show { display: block; }
 
-        /* CONTENT */
+        /* Main Content */
         .main-content { width: 100%; max-width: 1000px; margin: 0 auto; padding: 110px 20px 40px 20px; }
 
         .shop-header { 
@@ -69,19 +69,19 @@
         }
         .mc-head { width: 64px; height: 64px; border-radius: 12px; border: 2px solid var(--main); }
         .points-display { margin-left: auto; text-align: right; }
-        .points-display span { font-size: 32px; font-weight: 900; color: var(--gold); }
+        .points-display span { font-size: 32px; font-weight: 900; color: #2ecc71; text-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
 
-        /* GRID & CARDS */
         .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; width: 100%; }
+
         .item-card { 
             background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 24px; padding: 25px; text-align: center; transition: 0.4s; 
+            border-radius: 24px; padding: 30px; text-align: center; transition: 0.4s; 
         }
         .item-card:hover { transform: translateY(-5px); border-color: var(--main); }
-        .item-icon { font-size: 35px; margin-bottom: 15px; color: var(--gold); }
-        .item-cost { color: #fff; font-weight: 800; font-size: 18px; margin-bottom: 15px; }
-        .bonus-tag { background: #e74c3c; color: white; font-size: 11px; padding: 2px 8px; border-radius: 20px; margin-bottom: 10px; display: inline-block; }
-
+        .item-icon { font-size: 40px; margin-bottom: 15px; color: #fbbf24; }
+        .item-name { font-weight: bold; font-size: 20px; margin-bottom: 5px; }
+        .item-cost { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
+        
         .btn-buy { 
             width: 100%; padding: 12px; border: none; border-radius: 12px; 
             font-weight: bold; cursor: pointer; background: var(--main); color: #000; 
@@ -91,8 +91,9 @@
 
         @media (max-width: 768px) {
             .shop-header { flex-direction: column; text-align: center; }
-            .points-display { margin: 15px auto 0 auto; }
-            .top-nav { padding-left: 75px; }
+            .points-display { margin: 15px auto 0 auto; text-align: center; }
+            .top-nav { padding: 0 10px 0 75px; }
+            .shop-tab span { display: inline-block; font-size: 11px; }
         }
     </style>
 </head>
@@ -104,10 +105,12 @@
     <div class="top-nav">
         <div class="shop-tabs">
             <a href="shop.html" class="shop-tab">
-                <i class="fas fa-coins"></i> <span>Cửa hàng Xu</span>
+                <i class="fas fa-coins"></i>
+                <span>Cửa hàng Xu</span>
             </a>
             <a href="shopvnd.html" class="shop-tab active-vnd">
-                <i class="fas fa-wallet"></i> <span>Cửa hàng VNĐ</span>
+                <i class="fas fa-wallet"></i>
+                <span>Cửa hàng VNĐ</span>
             </a>
         </div>
     </div>
@@ -127,52 +130,49 @@
                 <p id="display-email" style="color: #94a3b8; font-size: 13px;"></p>
             </div>
             <div class="points-display">
-                <p style="font-size: 12px; color: #94a3b8; font-weight: bold;">SỐ DƯ XU</p>
-                <span id="display-pts">0</span>
+                <p style="font-size: 12px; color: #94a3b8; font-weight: bold;">SỐ DƯ VNĐ</p>
+                <span id="display-balance">0</span><small style="color:#2ecc71; font-weight: bold; margin-left: 5px;">đ</small>
             </div>
         </div>
-
-        <h3 style="margin-bottom: 25px; color: var(--main);"><i class="fas fa-bolt"></i> CHỌN GÓI NẠP XU</h3>
         
+        <h3 style="margin-bottom: 25px; color: #94a3b8;"><i class="fas fa-exchange-alt"></i> QUY ĐỔI VNĐ SANG XU</h3>
+
         <div class="shop-grid">
             <div class="item-card">
                 <i class="fas fa-coins item-icon"></i>
-                <div style="font-weight:bold; margin-bottom:5px;">GÓI CƠ BẢN</div>
-                <div class="item-cost">10.000 VNĐ</div>
-                <div style="color: var(--main); font-weight: bold; margin-bottom: 15px;">+ 10 XU</div>
-                <button class="btn-buy" onclick="recharge(10000, 10)">NẠP NGAY</button>
+                <div class="item-name">10 XU</div>
+                <div class="item-cost">Giá: 10.000 VNĐ</div>
+                <button class="btn-buy" onclick="exchange(10000, 10)">Đổi Ngay</button>
             </div>
 
             <div class="item-card">
                 <i class="fas fa-coins item-icon"></i>
-                <div style="font-weight:bold; margin-bottom:5px;">GÓI PHỔ BIẾN</div>
-                <div class="item-cost">20.000 VNĐ</div>
-                <div style="color: var(--main); font-weight: bold; margin-bottom: 15px;">+ 20 XU</div>
-                <button class="btn-buy" onclick="recharge(20000, 20)">NẠP NGAY</button>
+                <div class="item-name">20 XU</div>
+                <div class="item-cost">Giá: 20.000 VNĐ</div>
+                <button class="btn-buy" onclick="exchange(20000, 20)">Đổi Ngay</button>
             </div>
 
             <div class="item-card">
-                <div class="bonus-tag">Khuyên dùng</div><br>
-                <i class="fas fa-coins item-icon"></i>
-                <div style="font-weight:bold; margin-bottom:5px;">GÓI ƯU ĐÃI</div>
-                <div class="item-cost">50.000 VNĐ</div>
-                <div style="color: var(--main); font-weight: bold; margin-bottom: 15px;">+ 60 XU (Thêm 10)</div>
-                <button class="btn-buy" onclick="recharge(50000, 60)">NẠP NGAY</button>
+                <i class="fas fa-coins item-icon" style="color: #00d4ff;"></i>
+                <div class="item-name">60 XU</div>
+                <div class="item-cost">Giá: 50.000 VNĐ <br><small>(Thưởng +10 Xu)</small></div>
+                <button class="btn-buy" onclick="exchange(50000, 60)">Đổi Ngay</button>
             </div>
 
             <div class="item-card">
-                <div class="bonus-tag">Siêu hời</div><br>
-                <i class="fas fa-coins item-icon"></i>
-                <div style="font-weight:bold; margin-bottom:5px;">GÓI ĐẠI GIA</div>
-                <div class="item-cost">100.000 VNĐ</div>
-                <div style="color: var(--main); font-weight: bold; margin-bottom: 15px;">+ 130 XU (Thêm 30)</div>
-                <button class="btn-buy" onclick="recharge(100000, 130)">NẠP NGAY</button>
+                <i class="fas fa-coins item-icon" style="color: #e74c3c;"></i>
+                <div class="item-name">130 XU</div>
+                <div class="item-cost">Giá: 100.000 VNĐ <br><small>(Thưởng +30 Xu)</small></div>
+                <button class="btn-buy" onclick="exchange(100000, 130)">Đổi Ngay</button>
             </div>
         </div>
+        
+        <p style="margin-top: 30px; color: #94a3b8; font-size: 14px; text-align: center;">
+            <i class="fas fa-info-circle"></i> Số dư VNĐ có được từ việc nạp thẻ hoặc chuyển khoản.
+        </p>
     </div>
 
     <script>
-        // Cấu hình Firebase (Giữ nguyên từ code cũ của bạn)
         const firebaseConfig = {
             apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
             authDomain: "yeamiko-web.firebaseapp.com",
@@ -182,7 +182,8 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let currentPoints = 0;
+        let currentBalance = 0; 
+        let currentXu = 0;
 
         function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -192,15 +193,20 @@
         firebase.auth().onAuthStateChanged(u => { 
             if(u) {
                 document.getElementById('display-email').innerText = u.email;
-                loadData(u.uid); 
+                loadUserData(u.uid); 
             } else { window.location.href='login.html'; }
         });
 
-        async function loadData(uid) {
+        async function loadUserData(uid) {
             const s = await db.ref('web_users/' + uid).once('value');
-            const d = s.val() || {points: 0};
-            currentPoints = d.points;
-            document.getElementById('display-pts').innerText = currentPoints;
+            const d = s.val() || {balance: 0, points: 0};
+            
+            currentBalance = d.balance || 0; 
+            currentXu = d.points || 0;
+            
+            // Format hiển thị tiền VNĐ (ví dụ: 10,000)
+            document.getElementById('display-balance').innerText = currentBalance.toLocaleString();
+            
             if(d.linked_mc) {
                 document.getElementById('display-mc').innerText = d.linked_mc.toUpperCase();
                 document.getElementById('player-head').src = `https://mc-heads.net/avatar/${d.linked_mc}`;
@@ -209,30 +215,26 @@
             }
         }
 
-        async function recharge(amount, xuReward) {
+        async function exchange(vndCost, xuGain) {
             const user = firebase.auth().currentUser;
             if(!user) return;
 
-            // Chỗ này bạn có thể tích hợp API Thanh Toán. 
-            // Hiện tại tôi làm logic cộng tiền trực tiếp khi ấn (như bạn yêu cầu).
-            if(confirm(`Xác nhận thanh toán ${amount.toLocaleString()}đ để nhận ${xuReward} Xu?`)) {
+            if(currentBalance < vndCost) {
+                return alert("Số dư VNĐ của bạn không đủ để thực hiện giao dịch này!");
+            }
+
+            if(confirm(`Bạn có chắc chắn muốn dùng ${vndCost.toLocaleString()} VNĐ để đổi lấy ${xuGain} Xu?`)) {
                 try {
-                    const newPoints = currentPoints + xuReward;
+                    const newBalance = currentBalance - vndCost;
+                    const newXu = currentXu + xuGain;
+
                     await db.ref('web_users/' + user.uid).update({
-                        points: newPoints 
-                        // Nếu bạn muốn lưu là 'balance', hãy đổi tên field ở đây và hàm loadData
-                    });
-                    
-                    // Lưu lịch sử nạp
-                    await db.ref('recharge_history').push({
-                        uid: user.uid,
-                        amount: amount,
-                        xu: xuReward,
-                        time: Date.now()
+                        balance: newBalance,
+                        points: newXu
                     });
 
-                    alert(`Nạp thành công! Bạn nhận được ${xuReward} Xu.`);
-                    location.reload();
+                    alert(`Đổi thành công! Bạn nhận được ${xuGain} Xu.`);
+                    loadUserData(user.uid); // Tải lại dữ liệu hiển thị
                 } catch(e) {
                     alert("Lỗi hệ thống: " + e.message);
                 }
