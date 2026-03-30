@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeamiko | Nạp Xu VNĐ</title>
+    <title>Yeamiko - Nạp Xu bằng VNĐ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -16,14 +16,17 @@
         
         body { 
             background: radial-gradient(circle at top right, #1e293b, #0f172a); 
-            color: white; min-height: 100vh; overflow-x: hidden;
+            color: white; 
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* Top Nav & Tabs */
+        /* --- Header & Tabs --- */
         .top-nav {
             position: fixed; top: 0; left: 0; width: 100%; height: 70px;
             background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px);
-            z-index: 1000; display: flex; align-items: center; padding: 0 20px 0 80px;
+            -webkit-backdrop-filter: blur(12px); z-index: 1000;
+            display: flex; align-items: center; padding: 0 20px 0 80px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
@@ -32,6 +35,7 @@
             background: var(--main); color: #000; width: 45px; height: 45px;
             display: flex; align-items: center; justify-content: center;
             border-radius: 12px; cursor: pointer; font-size: 20px;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
         }
 
         .shop-tabs { display: flex; gap: 12px; height: 46px; }
@@ -39,62 +43,91 @@
             padding: 0 20px; height: 100%; border-radius: 12px;
             background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
             color: #94a3b8; display: flex; align-items: center; gap: 8px;
-            text-decoration: none; font-weight: 700; font-size: 14px; text-transform: uppercase;
+            text-decoration: none; font-weight: 700; transition: all 0.3s ease;
+            font-size: 14px; text-transform: uppercase;
         }
-        .shop-tab.active-vnd { background: rgba(46, 204, 113, 0.15); border-color: var(--main); color: var(--main); }
+
+        .shop-tab.active-vnd {
+            background: rgba(46, 204, 113, 0.15); border-color: var(--main);
+            color: var(--main); box-shadow: 0 0 15px rgba(46, 204, 113, 0.1);
+        }
 
         /* Sidebar */
         .sidebar { 
             width: 260px; background: var(--sidebar-dark); height: 100vh; position: fixed; 
             padding: 30px 20px; z-index: 2000; left: -260px; transition: 0.4s;
+            display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05);
         }
         .sidebar.open { left: 0; }
-        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; }
-        .sidebar a { display: flex; align-items: center; color: #94a3b8; padding: 14px 18px; text-decoration: none; border-radius: 12px; margin-bottom: 8px; }
-        .sidebar a:hover { background: rgba(46, 204, 113, 0.1); color: var(--main); }
+        .sidebar .logo { font-size: 26px; font-weight: 900; color: var(--main); margin-bottom: 40px; text-align: center; letter-spacing: 2px; }
+        .sidebar a { 
+            display: flex; align-items: center; color: #94a3b8; padding: 14px 18px; 
+            text-decoration: none; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; 
+        }
+        .sidebar a:hover, .sidebar a.active { background: rgba(46, 204, 113, 0.1); color: var(--main); font-weight: bold; }
+
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 1800; display: none; backdrop-filter: blur(3px);
+        }
+        .sidebar-overlay.show { display: block; }
 
         /* Main Content */
-        .main-content { width: 100%; max-width: 1000px; margin: 0 auto; padding: 110px 20px 40px 20px; }
+        .main-content { 
+            width: 100%; max-width: 1000px; margin: 0 auto; 
+            padding: 110px 20px 40px 20px; display: flex; flex-direction: column; align-items: center;
+        }
 
         .shop-header { 
             width: 100%; background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
             border-radius: 24px; padding: 25px; display: flex; align-items: center; gap: 20px; margin-bottom: 40px; 
             backdrop-filter: blur(10px);
         }
-        .balance-group { margin-left: auto; display: flex; gap: 30px; text-align: right; }
-        .balance-item p { font-size: 11px; color: #94a3b8; font-weight: bold; letter-spacing: 1px; }
-        .balance-item span { font-size: 28px; font-weight: 900; }
+        .mc-head { width: 64px; height: 64px; border-radius: 12px; border: 2px solid var(--main); }
+        
+        .points-display { margin-left: auto; text-align: right; display: flex; gap: 20px; }
+        .balance-item p { font-size: 10px; color: #94a3b8; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px; }
+        .balance-item span { font-size: 24px; font-weight: 900; }
+        #display-balance { color: #2ecc71; } /* Màu VNĐ */
+        #display-pts { color: #fbbf24; } /* Màu Xu */
 
-        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; width: 100%; }
+        /* Grid */
+        .shop-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+            gap: 20px; width: 100%;
+        }
 
         .item-card { 
             background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 24px; padding: 30px; text-align: center; transition: 0.3s;
+            border-radius: 24px; padding: 30px; text-align: center; transition: 0.4s; position: relative;
         }
-        .item-card:hover { border-color: var(--main); transform: translateY(-5px); background: rgba(255,255,255,0.08); }
-        .item-icon { font-size: 45px; color: var(--gold); margin-bottom: 15px; }
-        .bonus-tag { background: #e74c3c; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; vertical-align: middle; margin-left: 5px; }
-        
+        .item-card:hover { transform: translateY(-10px); border-color: var(--main); background: rgba(255,255,255,0.08); }
+        .item-icon { font-size: 36px; margin-bottom: 15px; color: var(--gold); }
+        .item-title { font-weight: 800; font-size: 18px; margin-bottom: 5px; }
+        .item-cost { color: #2ecc71; font-weight: 800; font-size: 22px; margin-bottom: 20px; }
+        .bonus-tag { 
+            background: #2ecc71; color: #000; font-size: 10px; font-weight: 900; 
+            padding: 4px 8px; border-radius: 6px; position: absolute; top: 15px; right: 15px;
+        }
+
         .btn-buy { 
-            width: 100%; padding: 12px; background: var(--main); border: none; border-radius: 12px; 
-            color: black; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 15px;
-            text-transform: uppercase; font-size: 13px;
+            width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: bold; 
+            cursor: pointer; transition: 0.2s; color: #000; background: var(--main);
+            text-transform: uppercase; letter-spacing: 1px;
         }
-        .btn-buy:hover { filter: brightness(1.1); transform: scale(1.02); }
+        .btn-buy:hover { transform: scale(1.05); filter: brightness(1.1); }
 
         @media (max-width: 768px) {
-            .top-nav { padding-left: 75px; }
-            .balance-group { gap: 15px; margin: 15px auto 0 auto; text-align: center; width: 100%; justify-content: center; }
-            .balance-item span { font-size: 20px; }
-            .shop-tab span { display: inline-block !important; font-size: 11px; }
-            .shop-tab { flex: 1; padding: 0 10px; justify-content: center; }
             .shop-header { flex-direction: column; text-align: center; }
+            .points-display { margin: 15px auto 0 auto; text-align: center; }
+            .shop-tab { flex: 1; padding: 0 10px; font-size: 11px; }
         }
     </style>
 </head>
 <body>
 
     <div class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+    <div class="sidebar-overlay" onclick="toggleMenu()"></div>
 
     <div class="top-nav">
         <div class="shop-tabs">
@@ -102,7 +135,7 @@
                 <i class="fas fa-coins"></i> <span>Cửa hàng Xu</span>
             </a>
             <a href="shopvnd.html" class="shop-tab active-vnd">
-                <i class="fas fa-wallet"></i> <span>Nạp Xu (VNĐ)</span>
+                <i class="fas fa-wallet"></i> <span>Cửa hàng VNĐ</span>
             </a>
         </div>
     </div>
@@ -116,50 +149,52 @@
 
     <div class="main-content">
         <div class="shop-header">
-            <img id="player-head" src="https://mc-heads.net/avatar/steve" style="width:60px; border-radius:12px; border: 2px solid var(--main);">
-            <div>
-                <h3 id="display-mc" style="letter-spacing: 1px;">Đang tải...</h3>
-                <p id="display-email" style="font-size:13px; color:#94a3b8; margin-top: 4px;"></p>
+            <img id="player-head" src="https://mc-heads.net/avatar/steve" class="mc-head">
+            <div class="user-meta">
+                <h2 id="display-mc">ĐANG TẢI...</h2>
+                <p id="display-email" style="color: #94a3b8; font-size: 13px;"></p>
             </div>
-            <div class="balance-group">
+            <div class="points-display">
                 <div class="balance-item">
                     <p>SỐ DƯ VNĐ</p>
-                    <span id="display-vnd" style="color: #2ecc71;">0</span>
+                    <span id="display-balance">0</span>
                 </div>
                 <div class="balance-item">
                     <p>SỐ DƯ XU</p>
-                    <span id="display-xu" style="color: #fbbf24;">0</span>
+                    <span id="display-pts">0</span>
                 </div>
             </div>
         </div>
-
+        
         <div class="shop-grid">
             <div class="item-card">
                 <i class="fas fa-coins item-icon"></i>
-                <h3>10 XU</h3>
-                <p style="color:#94a3b8; margin: 10px 0; font-weight: bold;">Giá: 10 VNĐ</p>
-                <button class="btn-buy" onclick="exchangeXu(10, 10)">MUA NGAY</button>
+                <div class="item-title">GÓI 10 XU</div>
+                <div class="item-cost">10 VNĐ</div>
+                <button class="btn-buy" onclick="buyXu(10, 10)">ĐỔI NGAY</button>
             </div>
 
             <div class="item-card">
                 <i class="fas fa-coins item-icon"></i>
-                <h3>20 XU</h3>
-                <p style="color:#94a3b8; margin: 10px 0; font-weight: bold;">Giá: 20 VNĐ</p>
-                <button class="btn-buy" onclick="exchangeXu(20, 20)">MUA NGAY</button>
+                <div class="item-title">GÓI 20 XU</div>
+                <div class="item-cost">20 VNĐ</div>
+                <button class="btn-buy" onclick="buyXu(20, 20)">ĐỔI NGAY</button>
             </div>
 
             <div class="item-card">
+                <div class="bonus-tag">+10 XU TẶNG</div>
                 <i class="fas fa-coins item-icon"></i>
-                <h3>60 XU <span class="bonus-tag">+10 XU</span></h3>
-                <p style="color:#94a3b8; margin: 10px 0; font-weight: bold;">Giá: 50 VNĐ</p>
-                <button class="btn-buy" onclick="exchangeXu(50, 60)">MUA NGAY</button>
+                <div class="item-title">GÓI 60 XU</div>
+                <div class="item-cost">50 VNĐ</div>
+                <button class="btn-buy" onclick="buyXu(50, 60)">ĐỔI NGAY</button>
             </div>
 
             <div class="item-card">
+                <div class="bonus-tag">+30 XU TẶNG</div>
                 <i class="fas fa-coins item-icon"></i>
-                <h3>130 XU <span class="bonus-tag">+30 XU</span></h3>
-                <p style="color:#94a3b8; margin: 10px 0; font-weight: bold;">Giá: 100 VNĐ</p>
-                <button class="btn-buy" onclick="exchangeXu(100, 130)">MUA NGAY</button>
+                <div class="item-title">GÓI 130 XU</div>
+                <div class="item-cost">100 VNĐ</div>
+                <button class="btn-buy" onclick="buyXu(100, 130)">ĐỔI NGAY</button>
             </div>
         </div>
     </div>
@@ -174,44 +209,57 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let currentVnd = 0, currentXu = 0;
+        let currentBalance = 0, currentPoints = 0;
 
         function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('open');
+            document.querySelector('.sidebar-overlay').classList.toggle('show');
         }
 
-        firebase.auth().onAuthStateChanged(u => {
+        firebase.auth().onAuthStateChanged(u => { 
             if(u) {
                 document.getElementById('display-email').innerText = u.email;
-                loadUserBalance(u.uid);
+                loadData(u.uid); 
             } else { window.location.href='login.html'; }
         });
 
-        async function loadUserBalance(uid) {
+        async function loadData(uid) {
             const s = await db.ref('web_users/' + uid).once('value');
-            const d = s.val() || { points: 0, vnd: 0 };
-            currentXu = d.points || 0;
-            currentVnd = d.vnd || 0; // Field 'vnd' lưu trữ số tiền VNĐ của người dùng
+            const d = s.val() || {points: 0, balance: 0};
             
-            document.getElementById('display-xu').innerText = currentXu.toLocaleString();
-            document.getElementById('display-vnd').innerText = currentVnd.toLocaleString();
-            document.getElementById('display-mc').innerText = (d.linked_mc || "CHƯA LIÊN KẾT").toUpperCase();
-            if(d.linked_mc) document.getElementById('player-head').src = `https://mc-heads.net/avatar/${d.linked_mc}`;
+            // Cập nhật giá trị vào biến toàn cục
+            currentPoints = d.points || 0;
+            currentBalance = d.balance || 0; // Đang dùng balance để lưu tiền VNĐ theo yêu cầu của bạn
+            
+            document.getElementById('display-pts').innerText = currentPoints.toLocaleString();
+            document.getElementById('display-balance').innerText = currentBalance.toLocaleString();
+            
+            if(d.linked_mc) {
+                document.getElementById('display-mc').innerText = d.linked_mc.toUpperCase();
+                document.getElementById('player-head').src = `https://mc-heads.net/avatar/${d.linked_mc}`;
+            } else {
+                document.getElementById('display-mc').innerText = "CHƯA LIÊN KẾT";
+            }
         }
 
-        async function exchangeXu(costVnd, receiveXu) {
-            const user = firebase.auth().currentUser;
-            if (currentVnd < costVnd) return alert("Số dư VNĐ không đủ! Vui lòng nạp thêm tiền.");
+        async function buyXu(costVnd, getXu) {
+            if (currentBalance < costVnd) {
+                return alert("Số dư VNĐ không đủ! Vui lòng nạp thêm.");
+            }
 
-            if (confirm(`Xác nhận dùng ${costVnd} VNĐ để đổi lấy ${receiveXu} Xu?`)) {
+            if (confirm(`Bạn có chắc chắn muốn dùng ${costVnd} VNĐ để đổi lấy ${getXu} Xu?`)) {
                 try {
+                    const user = firebase.auth().currentUser;
+                    
+                    // Cập nhật đồng thời trừ balance (VNĐ) và cộng points (Xu)
                     await db.ref('web_users/' + user.uid).update({
-                        vnd: currentVnd - costVnd,
-                        points: currentXu + receiveXu
+                        balance: currentBalance - costVnd,
+                        points: currentPoints + getXu
                     });
-                    alert("Đổi Xu thành công!");
-                    loadUserBalance(user.uid);
-                } catch (e) {
+
+                    alert(`Đổi thành công! Bạn nhận được ${getXu} Xu.`);
+                    loadData(user.uid); // Load lại số dư mới
+                } catch(e) {
                     alert("Lỗi hệ thống khi thanh toán!");
                 }
             }
