@@ -84,7 +84,7 @@
     <div class="exchange-box">
         <div style="text-align:left">
             <b style="color:var(--blue)">Đổi Vé Quay</b><br>
-            <small style="color:#aaa">5 Xu = 5 Điểm (Vé quay)</small>
+            <small style="color:#aaa">5 Xu = 1 (Vé quay)</small>
         </div>
         <button class="btn-exchange" onclick="exchange()">ĐỔI NGAY</button>
     </div>
@@ -94,7 +94,7 @@
         <canvas id="wheelCanvas" width="500" height="500"></canvas>
     </div>
 
-    <button class="btn-spin" id="spin-btn" onclick="startSpin()">QUAY (5 Điểm)</button>
+    <button class="btn-spin" id="spin-btn" onclick="startSpin()">QUAY (1 vé)</button>
 
 <script>
     // Giữ nguyên cấu hình Firebase của bạn
@@ -173,16 +173,16 @@
 
     async function exchange() {
         if (xuHienTai < 10) return alert("Không đủ Xu!");
-        if (confirm("Đổi 5 Xu lấy 5 Điểm Quay?")) {
+        if (confirm("Đổi 5 Xu lấy 1 Vé Quay?")) {
             await db.ref('web_users/' + userUID).update({
                 points: xuHienTai - 5,
-                spin_points: diemHienTai + 5
+                spin_points: diemHienTai + 1
             });
         }
     }
 
     async function startSpin() {
-        if (isSpinning || diemHienTai < 5) return alert("Không đủ Điểm quay!");
+        if (isSpinning || diemHienTai < 1) return alert("Không đủ Điểm quay!");
         isSpinning = true;
         document.getElementById('spin-btn').disabled = true;
         await db.ref('web_users/' + userUID + '/spin_points').set(diemHienTai - 5);
