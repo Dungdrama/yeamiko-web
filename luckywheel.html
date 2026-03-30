@@ -11,11 +11,10 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
-        :root { --main: #ff4757; --bg: #0a0e17; --blue: #00d4ff; --gold: #ffd700; }
+        :root { --main: #ff4757; --bg: #0a0e17; --blue: #00d4ff; --gold: #ffd700; --green: #2ecc71; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--bg); color: white; text-align: center; min-height: 100vh; overflow-x: hidden; }
 
-        /* Navbar cập nhật thêm nút quay lại */
         .navbar { 
             background: #161b28; height: 70px; display: flex; 
             align-items: center; justify-content: space-between; 
@@ -23,7 +22,6 @@
             position: sticky; top: 0; z-index: 1000;
         }
         .nav-left { display: flex; align-items: center; gap: 15px; }
-        
         .btn-back {
             background: rgba(255, 255, 255, 0.1); color: #fff; border: none;
             padding: 8px 15px; border-radius: 8px; cursor: pointer;
@@ -32,18 +30,18 @@
         }
         .btn-back:hover { background: var(--main); }
 
-        .wallet { display: flex; gap: 10px; }
-        .badge { padding: 8px 15px; border-radius: 20px; font-weight: bold; background: rgba(255,255,255,0.05); font-size: 13px; border: 1px solid rgba(255,255,255,0.1); }
+        .wallet { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+        .badge { padding: 8px 12px; border-radius: 20px; font-weight: bold; background: rgba(255,255,255,0.05); font-size: 12px; border: 1px solid rgba(255,255,255,0.1); }
 
         .exchange-box { 
             background: #1c2331; margin: 20px auto; padding: 20px; 
             border-radius: 15px; max-width: 450px; display: flex; 
-            align-items: center; justify-content: space-between; border: 1px solid var(--blue);
+            align-items: center; justify-content: space-between; border: 1px solid var(--green);
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-        .btn-exchange { background: var(--blue); color: #000; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .btn-exchange { background: var(--green); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-exchange:hover { opacity: 0.8; transform: scale(1.05); }
 
-        /* Vòng quay Canvas */
         .wheel-container { position: relative; width: 360px; height: 360px; margin: 40px auto; }
         #wheelCanvas { 
             width: 100%; height: 100%; border-radius: 50%; 
@@ -73,20 +71,20 @@
             <a href="minigame-hub.html" class="btn-back">
                 <i class="fas fa-chevron-left"></i> Quay lại
             </a>
-            <div style="font-weight:900; font-size: 18px; display: none;" id="brand-name">YEAMIKO</div>
         </div>
         <div class="wallet">
+            <div class="badge" style="color:var(--green)"><i class="fas fa-wallet"></i> <span id="vnd-val">0</span> VNĐ</div>
             <div class="badge" style="color:var(--blue)"><i class="fas fa-coins"></i> <span id="xu-val">0</span> Xu</div>
-            <div class="badge" style="color:var(--gold)"><i class="fas fa-ticket-alt"></i> <span id="diem-val">0</span> Vé Quay</div>
+            <div class="badge" style="color:var(--gold)"><i class="fas fa-ticket-alt"></i> <span id="diem-val">0</span> Vé</div>
         </div>
     </nav>
 
     <div class="exchange-box">
         <div style="text-align:left">
-            <b style="color:var(--blue)">Đổi Vé Quay</b><br>
-            <small style="color:#aaa">5 Xu = 1 (Vé quay)</small>
+            <b style="color:var(--green)">Mua Vé Quay</b><br>
+            <small style="color:#aaa">10.000 VNĐ = 1 Vé Quay</small>
         </div>
-        <button class="btn-exchange" onclick="exchange()">ĐỔI NGAY</button>
+        <button class="btn-exchange" onclick="exchange()">MUA NGAY</button>
     </div>
 
     <div class="wheel-container">
@@ -97,7 +95,6 @@
     <button class="btn-spin" id="spin-btn" onclick="startSpin()">QUAY (1 vé)</button>
 
 <script>
-    // Giữ nguyên cấu hình Firebase của bạn
     const firebaseConfig = {
         apiKey: "AIzaSyDiWYhNzVVAJ5ZLCFsv8ZgjQlbJBM4b9c0",
         authDomain: "yeamiko-web.firebaseapp.com",
@@ -118,6 +115,7 @@
         { label: "50 XU", val: 50, color: "#3742fa", chance: 1 }
     ];
 
+    let vndHienTai = 0;
     let xuHienTai = 0;
     let diemHienTai = 0;
     let userUID = null;
@@ -135,8 +133,6 @@
             ctx.moveTo(250, 250);
             ctx.arc(250, 250, 240, angle, angle + anglePerSegment);
             ctx.fill();
-            ctx.strokeStyle = "rgba(255,255,255,0.2)";
-            ctx.stroke();
             ctx.save();
             ctx.translate(250, 250);
             ctx.rotate(angle + anglePerSegment / 2);
@@ -148,13 +144,10 @@
         });
         ctx.beginPath();
         ctx.arc(250, 250, 240, 0, Math.PI * 2);
-        ctx.lineWidth = 10;
-        ctx.strokeStyle = "#fff";
-        ctx.stroke();
+        ctx.lineWidth = 10; ctx.strokeStyle = "#fff"; ctx.stroke();
         ctx.beginPath();
         ctx.arc(250, 250, 30, 0, Math.PI * 2);
-        ctx.fillStyle = "#fff";
-        ctx.fill();
+        ctx.fillStyle = "#fff"; ctx.fill();
     }
     drawWheel();
 
@@ -163,28 +156,36 @@
             userUID = user.uid;
             db.ref('web_users/' + userUID).on('value', s => {
                 const d = s.val() || {};
-                xuHienTai = d.points || 0;
-                diemHienTai = d.spin_points || 0;
-                document.getElementById('xu-val').innerText = xuHienTai;
+                vndHienTai = d.balance || 0;     // Đơn vị VNĐ nạp vào
+                xuHienTai = d.points || 0;       // Đơn vị Xu thưởng trong game
+                diemHienTai = d.spin_points || 0; // Số lượt quay
+                
+                document.getElementById('vnd-val').innerText = vndHienTai.toLocaleString('vi-VN');
+                document.getElementById('xu-val').innerText = xuHienTai.toLocaleString('vi-VN');
                 document.getElementById('diem-val').innerText = diemHienTai;
             });
         } else { window.location.href = 'login.html'; }
     });
 
     async function exchange() {
-        if (xuHienTai < 5) return alert("Không đủ Xu!");
-        if (confirm("Đổi 5 Xu lấy 1 Vé Quay?")) {
+        const giaVe = 10000; // 10.000 VNĐ một vé
+        if (vndHienTai < giaVe) return alert("Số dư VNĐ không đủ! Vui lòng nạp thêm.");
+        
+        if (confirm(`Bạn muốn đổi ${giaVe.toLocaleString('vi-VN')} VNĐ để lấy 1 Vé quay?`)) {
             await db.ref('web_users/' + userUID).update({
-                points: xuHienTai - 5,
+                balance: vndHienTai - giaVe,
                 spin_points: diemHienTai + 1
             });
+            alert("Đổi vé thành công!");
         }
     }
 
     async function startSpin() {
-        if (isSpinning || diemHienTai < 1) return alert("Không đủ Vé quay!");
+        if (isSpinning || diemHienTai < 1) return alert("Bạn không có vé quay!");
         isSpinning = true;
         document.getElementById('spin-btn').disabled = true;
+        
+        // Trừ 1 vé quay trước khi quay
         await db.ref('web_users/' + userUID + '/spin_points').set(diemHienTai - 1);
 
         const rand = Math.random() * 100;
@@ -198,15 +199,17 @@
         const targetRotation = (360 - (resultIdx * segmentAngle)) - (segmentAngle / 2) - 90;
         const extraSpins = 360 * 10; 
         currentRotation += extraSpins + (targetRotation - (currentRotation % 360) + 360) % 360;
-
         canvas.style.transform = `rotate(${currentRotation}deg)`;
 
         setTimeout(async () => {
             isSpinning = false;
             document.getElementById('spin-btn').disabled = false;
             const res = rewards[resultIdx];
+            
             if(res.val >= 20) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             alert(`🎉 Chúc mừng! Bạn quay trúng ${res.label}`);
+            
+            // CỘNG THƯỞNG VÀO XU (biến points)
             await db.ref('web_users/' + userUID + '/points').transaction(p => (p || 0) + res.val);
         }, 5100);
     }
