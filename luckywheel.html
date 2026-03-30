@@ -173,9 +173,9 @@
 
     async function exchange() {
         if (xuHienTai < 10) return alert("Không đủ Xu!");
-        if (confirm("Đổi 10 Xu lấy 5 Điểm Quay?")) {
+        if (confirm("Đổi 5 Xu lấy 5 Điểm Quay?")) {
             await db.ref('web_users/' + userUID).update({
-                points: xuHienTai - 10,
+                points: xuHienTai - 5,
                 spin_points: diemHienTai + 5
             });
         }
