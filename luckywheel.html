@@ -77,7 +77,7 @@
         </div>
         <div class="wallet">
             <div class="badge" style="color:var(--blue)"><i class="fas fa-coins"></i> <span id="xu-val">0</span> Xu</div>
-            <div class="badge" style="color:var(--gold)"><i class="fas fa-ticket-alt"></i> <span id="diem-val">0</span> Điểm</div>
+            <div class="badge" style="color:var(--gold)"><i class="fas fa-ticket-alt"></i> <span id="diem-val">0</span> Vé Quay</div>
         </div>
     </nav>
 
@@ -172,7 +172,7 @@
     });
 
     async function exchange() {
-        if (xuHienTai < 10) return alert("Không đủ Xu!");
+        if (xuHienTai < 5) return alert("Không đủ Xu!");
         if (confirm("Đổi 5 Xu lấy 1 Vé Quay?")) {
             await db.ref('web_users/' + userUID).update({
                 points: xuHienTai - 5,
