@@ -185,7 +185,7 @@
         if (isSpinning || diemHienTai < 1) return alert("Không đủ Điểm quay!");
         isSpinning = true;
         document.getElementById('spin-btn').disabled = true;
-        await db.ref('web_users/' + userUID + '/spin_points').set(diemHienTai - 5);
+        await db.ref('web_users/' + userUID + '/spin_points').set(diemHienTai - 1);
 
         const rand = Math.random() * 100;
         let acc = 0, resultIdx = 0;
